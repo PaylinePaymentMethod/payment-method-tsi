@@ -2,7 +2,7 @@ package com.payline.payment.tsi.security;
 
 /**
  * Lists the valid Mac algorithms as defined in the documentation.
- * @see https://docs.oracle.com/javase/8/docs/technotes/guides/security/StandardNames.html#Mac
+ * @see <a href="https://docs.oracle.com/javase/8/docs/technotes/guides/security/StandardNames.html#Mac">https://docs.oracle.com/.../StandardNames.html</a>
  */
 public enum HmacAlgorithm {
 
