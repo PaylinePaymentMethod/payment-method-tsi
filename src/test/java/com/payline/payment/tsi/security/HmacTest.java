@@ -33,19 +33,4 @@ public class HmacTest {
         Assert.assertEquals( result, hmac.seal() );
     }
 
-    /**
-     * Uses the example given on TSI's Merchant API integration documentation to validate the implementation.
-     */
-    @Test
-    public void testSeal_tsiApiDoc(){
-        String message = "430|43b3a1b952dc5c1f2fd2a46162b3aaaa|20|EUR|430|Produit de" +
-                "testun|http://boutique.com/returnOK.php|http://boutique.com/returnNOK.php|http://" +
-                "boutique.com/returnS2S.php|N|Y";
-        String key = "88765cf86c5a9c8d8b6382c1d89afa34";
-        String result = "28610617d6b40d85f1ea734226f8b2f5";
-
-        Hmac hmac = new Hmac( message, key, HmacAlgorithm.MD5 );
-        Assert.assertEquals( result, hmac.seal() );
-    }
-
 }
