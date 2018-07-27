@@ -2,6 +2,7 @@ package com.payline.payment.tsi.request;
 
 import com.payline.pmapi.bean.payment.request.PaymentRequest;
 
+import java.math.BigInteger;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -37,43 +38,9 @@ public class TsiGoRequest {
     private Map<String, Object> s2sRequestParameters;
 
     /**
-     * Instantiates a {@link TsiGoRequest} from a {@link PaymentRequest}. Performs the mapping between the 2 objects.
-     *
-     * @param paymentRequest The request instance transmitted by PM-API.
-     * @return The equivalent TSI Go request
+     * Protected standard constructor (mainly for test purpose)
      */
-    public static TsiGoRequest getInstanceFromPaymentRequest( PaymentRequest paymentRequest ){
-
-        // TODO: make it 32 characters long
-        String transactionId = paymentRequest.getTransactionId();
-        // TODO: convert into plain currency (not cents) and format it
-        // Convert BigInteger amount (cents) in plain currency unit amount
-        String amount = paymentRequest.getAmount().getAmountInSmallestUnit().toString();
-        // TODO: map it
-        String productionDescription = "";
-        // TODO: map it
-        boolean debitAll = false;
-
-        return new TsiGoRequest(
-                Integer.parseInt( paymentRequest.getContractConfiguration().getContractProperties().get("mid").getValue() ),
-                transactionId,
-                amount,
-                paymentRequest.getAmount().getCurrency().getCurrencyCode(),
-                Integer.parseInt( paymentRequest.getContractConfiguration().getContractProperties().get("keyId").getValue() ),
-                productionDescription,
-                paymentRequest.getPaylineEnvironment().getRedirectionReturnURL(),
-                paymentRequest.getPaylineEnvironment().getRedirectionCancelURL(),
-                paymentRequest.getPaylineEnvironment().getNotificationURL(),
-                debitAll ? "Y" : "N",
-                paymentRequest.getPaylineEnvironment().isSandbox() ? "Y" : "N",
-                null
-        );
-    }
-
-    /**
-     * Public standard constructor.
-     */
-    public TsiGoRequest( int merchantId, String transactionId, String amount, String currency, int keyId,
+    protected TsiGoRequest( int merchantId, String transactionId, String amount, String currency, int keyId,
                          String productDescription, String urlOk, String urlNok, String urlS2s, String debitAll,
                          String th, Map<String, Object> s2sRequestParameters ){
         this.merchantId = merchantId;
@@ -138,7 +105,43 @@ public class TsiGoRequest {
         return bodyMap;
     }
 
-    public void setMac( String mac ){
-        this.mac = mac;
+    /**
+     * Implements the builder pattern to instantiate {@link TsiGoRequest} from a {@link PaymentRequest} object.
+     */
+    public static class Builder {
+
+        public TsiGoRequest fromPaymentRequest( PaymentRequest paymentRequest ){
+            // TODO: check for potential NPE ?
+            // TODO: check that all mandatory fields are not null and not empty ?
+
+            TsiGoRequest request = new TsiGoRequest(
+                    // TODO: Externalize "mid" key definition
+                    Integer.parseInt( paymentRequest.getContractConfiguration().getContractProperties().get("mid").getValue() ),
+                    this.formatTransactionId( paymentRequest.getTransactionId() ),
+                    this.formatAmount( paymentRequest.getAmount().getAmountInSmallestUnit() ),
+                    paymentRequest.getAmount().getCurrency().getCurrencyCode(),
+                    // TODO: Externalize "keyId" key definition
+                    Integer.parseInt( paymentRequest.getContractConfiguration().getContractProperties().get("keyId").getValue() ),
+                    "", // TODO: map it!
+                    paymentRequest.getPaylineEnvironment().getRedirectionReturnURL(),
+                    paymentRequest.getPaylineEnvironment().getRedirectionCancelURL(),
+                    paymentRequest.getPaylineEnvironment().getNotificationURL(),
+                    "N", // TODO: map it?
+                    paymentRequest.getPaylineEnvironment().isSandbox() ? "Y" : "N",
+                    null // TODO: put something inside ?
+            );
+
+            return request;
+        }
+
+        protected String formatAmount( BigInteger paymentRequestAmount ){
+            // TODO!
+            return "";
+        }
+
+        protected String formatTransactionId( String transactionId ){
+            // TODO!
+            return "";
+        }
     }
 }
