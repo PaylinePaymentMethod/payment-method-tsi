@@ -1,4 +1,4 @@
-package com.payline.payment.tsi.bean.request;
+package com.payline.payment.tsi.request;
 
 import org.junit.Assert;
 import org.junit.Test;

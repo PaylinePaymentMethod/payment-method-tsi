@@ -1,4 +1,4 @@
-package com.payline.payment.tsi.bean.request;
+package com.payline.payment.tsi.request;
 
 import com.payline.pmapi.bean.payment.request.PaymentRequest;
 
@@ -47,6 +47,7 @@ public class TsiGoRequest {
         // TODO: make it 32 characters long
         String transactionId = paymentRequest.getTransactionId();
         // TODO: convert into plain currency (not cents) and format it
+        // Convert BigInteger amount (cents) in plain currency unit amount
         String amount = paymentRequest.getAmount().getAmountInSmallestUnit().toString();
         // TODO: map it
         String productionDescription = "";
