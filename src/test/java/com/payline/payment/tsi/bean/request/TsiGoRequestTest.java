@@ -1,4 +1,4 @@
-package com.payline.payment.tsi.request;
+package com.payline.payment.tsi.bean.request;
 
 import org.junit.Assert;
 import org.junit.Test;
@@ -27,8 +27,8 @@ public class TsiGoRequestTest {
                 "http://boutique.com/returnOK.php",
                 "http:// boutique.com/returnNOK.php",
                 "http:// boutique.com /returnS2S.php",
-                false,
-                true,
+                "N",
+                "Y",
                 custom
         );
         String exampleMessage = "430|43b3a1b952dc5c1f2fd2a46162b3aaaa|20|EUR|430|Produit de " +
