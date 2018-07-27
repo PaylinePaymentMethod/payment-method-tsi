@@ -1,4 +1,4 @@
-package com.payline.payment.tsi;
+package com.payline.payment.tsi.service;
 
 import com.payline.pmapi.bean.notification.request.NotificationRequest;
 import com.payline.pmapi.bean.notification.response.NotificationResponse;

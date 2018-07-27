@@ -1,4 +1,4 @@
-package com.payline.payment.tsi;
+package com.payline.payment.tsi.service;
 
 import com.payline.pmapi.bean.payment.request.RedirectionPaymentRequest;
 import com.payline.pmapi.bean.payment.request.TransactionStatusRequest;
