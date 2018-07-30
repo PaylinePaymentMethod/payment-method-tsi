@@ -1,5 +1,6 @@
 package com.payline.payment.tsi.request;
 
+import com.payline.payment.tsi.TsiConstants;
 import com.payline.pmapi.bean.payment.request.PaymentRequest;
 
 import java.math.BigInteger;
@@ -87,11 +88,11 @@ public class TsiGoRequest {
         Map<String, Object> bodyMap = new HashMap<>();
 
         bodyMap.put( "mac", this.mac );
-        bodyMap.put( "mid", this.merchantId ); // TODO: attention au format ! (int demandé)
+        bodyMap.put( "mid", this.merchantId );
         bodyMap.put( "tid", this.transactionId );
-        bodyMap.put( "amount", this.amount ); // TODO: attention au format ! (float demandé, sans 0 en trop)
+        bodyMap.put( "amount", this.amount );
         bodyMap.put( "currency", this.currency );
-        bodyMap.put( "key_id", this.keyId ); // TODO: attention au format ! (int demandé)
+        bodyMap.put( "key_id", this.keyId );
         bodyMap.put( "product_desc", this.productDescription );
         bodyMap.put( "url_ok", this.urlOk );
         bodyMap.put( "url_nok", this.urlNok );
@@ -115,13 +116,11 @@ public class TsiGoRequest {
             // TODO: check that all mandatory fields are not null and not empty ?
 
             TsiGoRequest request = new TsiGoRequest(
-                    // TODO: Externalize "mid" key definition
-                    Integer.parseInt( paymentRequest.getContractConfiguration().getContractProperties().get("mid").getValue() ),
+                    Integer.parseInt( paymentRequest.getContractConfiguration().getContractProperties().get( TsiConstants.CONTRACT_MERCHANT_ID ).getValue() ),
                     this.formatTransactionId( paymentRequest.getTransactionId() ),
                     this.formatAmount( paymentRequest.getAmount().getAmountInSmallestUnit() ),
                     paymentRequest.getAmount().getCurrency().getCurrencyCode(),
-                    // TODO: Externalize "keyId" key definition
-                    Integer.parseInt( paymentRequest.getContractConfiguration().getContractProperties().get("keyId").getValue() ),
+                    Integer.parseInt( paymentRequest.getContractConfiguration().getContractProperties().get( TsiConstants.CONTRACT_KEY_ID ).getValue() ),
                     "", // TODO: map it!
                     paymentRequest.getPaylineEnvironment().getRedirectionReturnURL(),
                     paymentRequest.getPaylineEnvironment().getRedirectionCancelURL(),

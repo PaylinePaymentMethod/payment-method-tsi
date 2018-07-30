@@ -13,7 +13,7 @@ public class TsiGoRequestTest {
     private TsiGoRequest.Builder builder;
 
     @Before
-    public void initBuilder(){
+    public void setup(){
         this.builder = new TsiGoRequest.Builder();
     }
 
