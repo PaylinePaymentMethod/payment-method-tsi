@@ -1,4 +1,5 @@
 .gradle/
+build/
 out/
 build.gradle
 src/main/java/Main.java
