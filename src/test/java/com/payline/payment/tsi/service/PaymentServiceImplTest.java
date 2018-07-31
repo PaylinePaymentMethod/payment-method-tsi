@@ -2,6 +2,7 @@ package com.payline.payment.tsi.service;
 
 import com.payline.payment.tsi.exception.InvalidRequestException;
 import com.payline.payment.tsi.request.TsiGoRequest;
+import com.payline.payment.tsi.response.TsiGoResponseTest;
 import com.payline.payment.tsi.utils.HttpClient;
 import com.payline.pmapi.bean.payment.request.PaymentRequest;
 import com.payline.pmapi.bean.payment.response.PaymentResponse;
@@ -52,7 +53,7 @@ public class PaymentServiceImplTest {
     @Test
     public void testPaymentRequest_ok() throws IOException {
         // when: the HTTP call is a success
-        Response response = this.mockResponse( 200, "OK", 1, "OK" );
+        Response response = this.mockResponse( 200, "OK", 1, "OK", "http://redirect-url.com" );
         when( httpClient.doPost( anyString(), anyString(), anyString(), anyMap(), anyString() ) )
                 .thenReturn( response );
         PaymentResponse paymentResponse = service.paymentRequest( mock( PaymentRequest.class ) );
@@ -64,7 +65,7 @@ public class PaymentServiceImplTest {
     @Test
     public void testPaymentRequest_businessError() throws IOException {
         // when: the HTTP call returns a business error (wrong HMAC for example)
-        Response response = this.mockResponse( 200, "OK", 15, "WRONG HMAC" );
+        Response response = this.mockResponse( 200, "OK", 15, "WRONG HMAC", null );
         when( httpClient.doPost( anyString(), anyString(), anyString(), anyMap(), anyString() ) )
                 .thenReturn( response );
         PaymentResponse paymentResponse = service.paymentRequest( mock( PaymentRequest.class ) );
@@ -76,7 +77,7 @@ public class PaymentServiceImplTest {
     @Test
     public void testPaymentRequest_httpError() throws IOException {
         // when: the HTTP call returns a HTTP error (503 Service Unavailable par exemple)
-        Response response = this.mockResponse( 503, "Service Unavailable", null, null );
+        Response response = this.mockResponse( 503, "Service Unavailable", null, null, null );
         when( httpClient.doPost( anyString(), anyString(), anyString(), anyMap(), anyString() ) )
                 .thenReturn( response );
         PaymentResponse paymentResponse = service.paymentRequest( mock( PaymentRequest.class ) );
@@ -96,13 +97,10 @@ public class PaymentServiceImplTest {
         Assert.assertTrue( paymentResponse instanceof PaymentResponseFailure );
     }
 
-    private Response mockResponse( int httpCode, String httpMessage, Integer bodyStatus, String bodyMessage ){
+    private Response mockResponse( int httpCode, String httpMessage, Integer bodyStatus, String bodyMessage, String bodyUrl ){
         String jsonBody;
         if( bodyStatus != null && bodyMessage != null ){
-            jsonBody = "{" +
-                    "\"status\":" + bodyStatus + "," +
-                    " \"message\": \"" + bodyMessage + "\"" +
-                    "}";
+            jsonBody = TsiGoResponseTest.mockJson( bodyStatus, bodyMessage, bodyUrl, null, null );
         }
         else {
             jsonBody = "{}";

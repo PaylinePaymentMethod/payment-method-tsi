@@ -29,6 +29,7 @@ public class TsiGoResponseTest {
         Assert.assertEquals( message, response.getMessage() );
     }
 
+    @Test
     public void testBuilder_full(){
         // given: a full response body
         int status = 1;
@@ -50,11 +51,11 @@ public class TsiGoResponseTest {
         Assert.assertEquals( keyId, response.getKeyId() );
     }
 
-    private String mockJson( int status, String message ){
+    public static String mockJson( int status, String message ){
         return mockJson( status, message, null, null, null );
     }
 
-    private String mockJson( int status, String message, String url, String tid, String keyId ){
+    public static String mockJson( int status, String message, String url, String tid, String keyId ){
         String json = "{"
                 + "\"status\":" + status
                 + ",\"message\":\"" + message + "\"";

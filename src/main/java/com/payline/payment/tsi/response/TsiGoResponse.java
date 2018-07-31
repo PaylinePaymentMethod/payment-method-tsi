@@ -1,5 +1,8 @@
 package com.payline.payment.tsi.response;
 
+import com.google.gson.Gson;
+import com.google.gson.annotations.SerializedName;
+
 public class TsiGoResponse {
 
     /** The control code returned for a initialization transaction request */
@@ -11,6 +14,7 @@ public class TsiGoResponse {
     /** Unique transaction identifier */
     private String tid;
     /** The key id */
+    @SerializedName( "keyid" )
     private String keyId;
 
     protected TsiGoResponse( int status, String message ){
@@ -44,8 +48,8 @@ public class TsiGoResponse {
     public static class Builder {
 
         public TsiGoResponse fromJson( String jsonContent ){
-            // TODO !
-            return null;
+            Gson gson = new Gson();
+            return gson.fromJson( jsonContent, TsiGoResponse.class );
         }
 
     }
