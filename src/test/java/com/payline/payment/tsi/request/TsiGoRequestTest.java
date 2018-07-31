@@ -1,8 +1,13 @@
 package com.payline.payment.tsi.request;
 
+import com.payline.payment.tsi.exception.InvalidRequestException;
+import com.payline.payment.tsi.security.Hmac;
+import com.payline.payment.tsi.security.HmacAlgorithm;
+import com.payline.pmapi.bean.payment.request.PaymentRequest;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
+import org.mockito.Mockito;
 
 import java.math.BigInteger;
 import java.util.HashMap;
@@ -51,9 +56,25 @@ public class TsiGoRequestTest {
         Assert.assertEquals( exampleMessage, sealMessage );
     }
 
+    // TODO: Test checkInputRequest method
+
+    //@Test
+    public void testBuilder_fromPaymentRequest() throws InvalidRequestException {
+        // given: a valid PaymentRequest
+        // TODO: Mock a valid PaymentRequest and enable this test
+        PaymentRequest paymentRequest = Mockito.mock( PaymentRequest.class );
+
+        // when: instantiating the TSI request
+        TsiGoRequest request = builder.fromPaymentRequest( paymentRequest );
+
+        // then: request has a mac
+        Assert.assertNotNull( request.getMac() );
+        Assert.assertFalse( request.getMac().isEmpty() );
+    }
+
     @Test
     public void testBuilder_formatAmount_integer(){
-        // given: an cents amount with no cents
+        // given: a cents amount with no cents
         BigInteger amount = BigInteger.valueOf( 100 );
 
         // when: formatting amount, then: result has no separator
@@ -62,7 +83,7 @@ public class TsiGoRequestTest {
 
     @Test
     public void testBuilder_formatAmount_noTrailingZero(){
-        // given: an cents amount with no cents
+        // given: a cents amount with no cents
         BigInteger amount = BigInteger.valueOf( 102 );
 
         // when: formatting amount, then: result has a separator and a decimal part
@@ -71,7 +92,7 @@ public class TsiGoRequestTest {
 
     @Test
     public void testBuilder_formatAmount_trailingZero(){
-        // given: an cents amount with no cents
+        // given: a cents amount with no cents
         BigInteger amount = BigInteger.valueOf( 110 );
 
         // when: formatting the amount, then: result has no trailing zero on the decimal part

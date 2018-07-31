@@ -1,7 +1,13 @@
 package com.payline.payment.tsi.request;
 
 import com.payline.payment.tsi.TsiConstants;
+import com.payline.payment.tsi.exception.InvalidRequestException;
+import com.payline.payment.tsi.security.Hmac;
+import com.payline.payment.tsi.security.HmacAlgorithm;
 import com.payline.pmapi.bean.payment.request.PaymentRequest;
+import com.payline.pmapi.bean.payment.response.PaymentResponseFailure;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import java.math.BigInteger;
 import java.util.HashMap;
@@ -38,9 +44,6 @@ public class TsiGoRequest {
     // Non mandatory fields
     private Map<String, Object> s2sRequestParameters;
 
-    /**
-     * Protected standard constructor (mainly for test purpose)
-     */
     protected TsiGoRequest( int merchantId, String transactionId, String amount, String currency, int keyId,
                          String productDescription, String urlOk, String urlNok, String urlS2s, String debitAll,
                          String th, Map<String, Object> s2sRequestParameters ){
@@ -75,7 +78,6 @@ public class TsiGoRequest {
                 + this.urlS2s + "|"
                 + this.debitAll + "|"
                 + this.th ;
-
     }
 
     /**
@@ -84,26 +86,37 @@ public class TsiGoRequest {
      *
      * @return The key-value map containing the content of the request.
      */
-    public Map<String, Object> buildBodyMap(){
-        Map<String, Object> bodyMap = new HashMap<>();
+    public Map<String, String> buildBodyMap(){
+        Map<String, String> bodyMap = new HashMap<>();
 
         bodyMap.put( "mac", this.mac );
-        bodyMap.put( "mid", this.merchantId );
+        bodyMap.put( "mid", Integer.toString( this.merchantId ) );
         bodyMap.put( "tid", this.transactionId );
         bodyMap.put( "amount", this.amount );
         bodyMap.put( "currency", this.currency );
-        bodyMap.put( "key_id", this.keyId );
+        bodyMap.put( "key_id", Integer.toString( this.keyId ) );
         bodyMap.put( "product_desc", this.productDescription );
         bodyMap.put( "url_ok", this.urlOk );
         bodyMap.put( "url_nok", this.urlNok );
         bodyMap.put( "url_s2s", this.urlS2s );
         bodyMap.put( "debit_all", this.debitAll );
         bodyMap.put( "th", this.th );
+        // TODO: Resolve the Map-inside-Map problem OR remove this field if not needed
+        /*
         if( this.s2sRequestParameters != null ){
             bodyMap.put( "custom", this.s2sRequestParameters );
         }
+        */
 
         return bodyMap;
+    }
+
+    protected String getMac(){
+        return mac;
+    }
+
+    private void setMac( String mac ){
+        this.mac = mac;
     }
 
     /**
@@ -111,10 +124,11 @@ public class TsiGoRequest {
      */
     public static class Builder {
 
-        public TsiGoRequest fromPaymentRequest( PaymentRequest paymentRequest ){
-            // TODO: check for potential NPE ?
-            // TODO: check that all mandatory fields are not null and not empty ?
+        public TsiGoRequest fromPaymentRequest( PaymentRequest paymentRequest ) throws InvalidRequestException {
+            // Check the input request for NPEs and mandatory fields
+            this.checkInputRequest( paymentRequest );
 
+            // Instantiate the TsiGoRequest from input request
             TsiGoRequest request = new TsiGoRequest(
                     Integer.parseInt( paymentRequest.getContractConfiguration().getContractProperties().get( TsiConstants.CONTRACT_MERCHANT_ID ).getValue() ),
                     this.formatTransactionId( paymentRequest.getTransactionId() ),
@@ -130,14 +144,72 @@ public class TsiGoRequest {
                     null // TODO: put something inside ?
             );
 
+            // Seal the request with HMAC algorithm
+            // TODO: externalize key definition in a properties file
+            Hmac hmac = new Hmac( request.buildSealMessage(), "45f3bcf660df19f8364c222e887300fa", HmacAlgorithm.MD5 );
+            request.setMac( hmac.seal() );
+
             return request;
         }
 
+        /**
+         * Verifies that the input request contains all the required fields.
+         *
+         * @param paymentRequest The input request
+         * @throws InvalidRequestException If recovering the field value would result in a NPE or if the value is null or empty.
+         */
+        protected void checkInputRequest( PaymentRequest paymentRequest ) throws InvalidRequestException {
+            if( paymentRequest == null ){
+                throw new InvalidRequestException( "Request must not be null" );
+            }
+            if( paymentRequest.getContractConfiguration() == null
+                    || paymentRequest.getContractConfiguration().getContractProperties() == null  ){
+                throw new InvalidRequestException( "Contract configuration properties object must not be null" );
+            }
+            if( paymentRequest.getTransactionId() == null || paymentRequest.getTransactionId().isEmpty() ){
+                throw new InvalidRequestException( "Transaction id is required" );
+            }
+            if( paymentRequest.getAmount() == null || paymentRequest.getAmount().getAmountInSmallestUnit() == null ){
+                throw new InvalidRequestException( "Transaction amount is required" );
+            }
+            if( paymentRequest.getAmount().getCurrency() == null
+                    || paymentRequest.getAmount().getCurrency().getCurrencyCode() == null ){
+                throw new InvalidRequestException( "Transaction currency with a valid ISO 4217 code is required" );
+            }
+            if( paymentRequest.getPaylineEnvironment() == null ){
+                throw new InvalidRequestException( "PaylineEnvironment request property must not be null" );
+            }
+            if( paymentRequest.getPaylineEnvironment().getRedirectionReturnURL() == null
+                    || paymentRequest.getPaylineEnvironment().getRedirectionReturnURL().isEmpty() ){
+                throw new InvalidRequestException( "Redirection return URL is required" );
+            }
+            if( paymentRequest.getPaylineEnvironment().getRedirectionCancelURL() == null
+                    || paymentRequest.getPaylineEnvironment().getRedirectionCancelURL().isEmpty() ){
+                throw new InvalidRequestException( "Redirection cancel URL is required" );
+            }
+            if( paymentRequest.getPaylineEnvironment().getNotificationURL() == null
+                    || paymentRequest.getPaylineEnvironment().getNotificationURL().isEmpty() ){
+                throw new InvalidRequestException( "Notification URL is required" );
+            }
+        }
+
+        /**
+         * Formats the input amount according to TSI Go request specifications.
+         *
+         * @param paymentRequestAmount The input amount
+         * @return A string-formatted float amount
+         */
         protected String formatAmount( BigInteger paymentRequestAmount ){
             // TODO!
             return "";
         }
 
+        /**
+         * Formats the input transaction id according to TSI Go request specifications.
+         *
+         * @param transactionId The input transaction id
+         * @return A 32-characters-long transaction id
+         */
         protected String formatTransactionId( String transactionId ){
             // TODO!
             return "";

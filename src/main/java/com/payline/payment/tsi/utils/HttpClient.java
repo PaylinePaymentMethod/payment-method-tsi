@@ -25,7 +25,8 @@ public class HttpClient {
 
 
     // TODO: doc!
-    public Response doPost( String scheme, String host, String path, Map<String, String> body, String contentType ) throws IOException{
+    public Response doPost( String scheme, String host, String path, Map<String, String> body, String contentType )
+            throws IOException {
         // create body from Map params
         RequestBody requestBody = this.createMultipartBody( body );
 
