@@ -200,8 +200,12 @@ public class TsiGoRequest {
          * @return A string-formatted float amount
          */
         protected String formatAmount( BigInteger paymentRequestAmount ){
-            // TODO!
-            return "";
+            double amount = paymentRequestAmount.doubleValue() / 100;
+            if( amount == (long)amount ){
+                return String.format( "%d", (long)amount );
+            } else {
+                return String.format( "%s", amount );
+            }
         }
 
         /**
