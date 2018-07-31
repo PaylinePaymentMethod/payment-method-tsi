@@ -8,23 +8,23 @@ import com.payline.pmapi.bean.payment.PaylineEnvironment;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.InjectMocks;
+import org.mockito.junit.MockitoJUnitRunner;
 
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 
+@RunWith( MockitoJUnitRunner.class )
 public class ConfigurationServiceImplTest {
 
+    @InjectMocks
     private ConfigurationServiceImpl service;
 
-    @Before
-    public void setup(){
-        service = new ConfigurationServiceImpl();
-    }
-
     @Test
-    public void testConfigurationService_getParameters(){
+    public void testGetParameters(){
         // when: recovering contract parameters
         List<AbstractParameter> parameters = service.getParameters( Locale.FRANCE );
 
@@ -33,8 +33,8 @@ public class ConfigurationServiceImplTest {
     }
 
     @Test
-    public void testConfigurationService_check_wrongMerchantId(){
-        // given: a not-integer merchant id
+    public void testCheck_wrongMerchantId(){
+        // given: a non-integer merchant id
         HashMap<String, String> parameters = new HashMap<>();
         parameters.put( TsiConstants.CONTRACT_MERCHANT_ID, "abc" );
         parameters.put( TsiConstants.CONTRACT_KEY_ID, "123" );
@@ -43,47 +43,47 @@ public class ConfigurationServiceImplTest {
         // when: checking configuration fields values
         Map<String, String> errors = service.check( checkRequest );
 
-        // then:
+        // then: result contains 1 error
         Assert.assertEquals( 1, errors.size() );
     }
 
     @Test
-    public void testConfigurationService_check_wrongKeyId(){
-        // given:
+    public void testCheck_wrongKeyId(){
+        // given: a non-integer key id
         HashMap<String, String> parameters = new HashMap<>();
         parameters.put( TsiConstants.CONTRACT_MERCHANT_ID, "1234" );
         parameters.put( TsiConstants.CONTRACT_KEY_ID, "ABC" );
         ContractParametersCheckRequest checkRequest = this.setupCheckRequest( parameters );
 
-        // when:
+        // when: checking configuration fields values
         Map<String, String> errors = service.check( checkRequest );
 
-        // then:
+        // then: result contains 1 error
         Assert.assertEquals( 1, errors.size() );
     }
 
     @Test
-    public void testConfigurationService_isInteger_digits(){
+    public void testIsInteger_digits(){
         Assert.assertTrue( service.isInteger( "1234567890" ) );
     }
 
     @Test
-    public void testConfigurationService_isInteger_zero(){
+    public void testIsInteger_zero(){
         Assert.assertTrue( service.isInteger( "0" ) );
     }
 
     @Test
-    public void testConfigurationService_isInteger_null(){
+    public void testIsInteger_null(){
         Assert.assertFalse( service.isInteger( null ) );
     }
 
     @Test
-    public void testConfigurationService_isInteger_empty(){
+    public void testIsInteger_empty(){
         Assert.assertFalse( service.isInteger( "" ) );
     }
 
     @Test
-    public void testConfigurationService_isInteger_negative(){
+    public void testIsInteger_negative(){
         Assert.assertFalse( service.isInteger( "-123" ) );
     }
 
