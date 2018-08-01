@@ -6,6 +6,7 @@ import com.payline.payment.tsi.TsiConstants;
 import com.payline.payment.tsi.exception.InvalidRequestException;
 import com.payline.payment.tsi.security.Hmac;
 import com.payline.payment.tsi.security.HmacAlgorithm;
+import com.payline.pmapi.bean.payment.ContractProperty;
 import com.payline.pmapi.bean.payment.request.PaymentRequest;
 
 import java.math.BigInteger;
@@ -150,13 +151,23 @@ public class TsiGoRequest {
             if( paymentRequest == null ){
                 throw new InvalidRequestException( "Request must not be null" );
             }
+
             if( paymentRequest.getContractConfiguration() == null
                     || paymentRequest.getContractConfiguration().getContractProperties() == null  ){
                 throw new InvalidRequestException( "Contract configuration properties object must not be null" );
             }
+            Map<String, ContractProperty> contractProperties = paymentRequest.getContractConfiguration().getContractProperties();
+            if( contractProperties.get( TsiConstants.CONTRACT_MERCHANT_ID ) == null ){
+                throw new InvalidRequestException( "Missing contract configuration property: merchant id" );
+            }
+            if( contractProperties.get( TsiConstants.CONTRACT_KEY_ID ) == null ){
+                throw new InvalidRequestException( "Missing contract configuration property: key id" );
+            }
+
             if( paymentRequest.getTransactionId() == null || paymentRequest.getTransactionId().isEmpty() ){
                 throw new InvalidRequestException( "Transaction id is required" );
             }
+
             if( paymentRequest.getAmount() == null || paymentRequest.getAmount().getAmountInSmallestUnit() == null ){
                 throw new InvalidRequestException( "Transaction amount is required" );
             }
@@ -164,6 +175,7 @@ public class TsiGoRequest {
                     || paymentRequest.getAmount().getCurrency().getCurrencyCode() == null ){
                 throw new InvalidRequestException( "Transaction currency with a valid ISO 4217 code is required" );
             }
+            
             if( paymentRequest.getPaylineEnvironment() == null ){
                 throw new InvalidRequestException( "PaylineEnvironment request property must not be null" );
             }
