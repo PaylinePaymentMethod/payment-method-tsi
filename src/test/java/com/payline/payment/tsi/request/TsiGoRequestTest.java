@@ -1,8 +1,10 @@
 package com.payline.payment.tsi.request;
 
+import com.payline.payment.tsi.TsiConstants;
 import com.payline.payment.tsi.exception.InvalidRequestException;
 import com.payline.payment.tsi.security.Hmac;
 import com.payline.payment.tsi.security.HmacAlgorithm;
+import com.payline.pmapi.bean.payment.ContractProperty;
 import com.payline.pmapi.bean.payment.request.PaymentRequest;
 import org.junit.Assert;
 import org.junit.Before;
@@ -56,13 +58,25 @@ public class TsiGoRequestTest {
         Assert.assertEquals( exampleMessage, sealMessage );
     }
 
-    // TODO: Test checkInputRequest method
+    @Test
+    public void testBuilder_checkInputRequest_ok() throws InvalidRequestException {
+        // given: a valid PaymentRequest
+        PaymentRequest paymentRequest = (new TsiPaymentRequestMock()).mock();
 
-    //@Test
+        // when: checking the request validity,  then: no exception is thrown
+        builder.checkInputRequest( paymentRequest );
+    }
+
+    /*
+    For each case in which checkInputRequest should throw an exception,
+    check the TsiGoRequestCheckInputTest class.
+     */
+
+
+    @Test
     public void testBuilder_fromPaymentRequest() throws InvalidRequestException {
         // given: a valid PaymentRequest
-        // TODO: Mock a valid PaymentRequest and enable this test
-        PaymentRequest paymentRequest = Mockito.mock( PaymentRequest.class );
+        PaymentRequest paymentRequest = (new TsiPaymentRequestMock()).mock();
 
         // when: instantiating the TSI request
         TsiGoRequest request = builder.fromPaymentRequest( paymentRequest );
