@@ -76,6 +76,18 @@ public class PaymentServiceImplTest {
     }
 
     @Test
+    public void testPaymentRequest_noResponseBody() throws IOException {
+        // when: the HTTP call returns a response without body
+        Response response = this.mockResponse( 200, "OK", null, null, null );
+        when( httpClient.doPost( anyString(), anyString(), anyString(), any() ) )
+                .thenReturn( response );
+        PaymentResponse paymentResponse = service.paymentRequest( mock( PaymentRequest.class ) );
+
+        // then: returned object is an instance of PaymentResponseFailure
+        Assert.assertTrue( paymentResponse instanceof PaymentResponseFailure );
+    }
+
+    @Test
     public void testPaymentRequest_httpError() throws IOException {
         // when: the HTTP call returns a HTTP error (503 Service Unavailable par exemple)
         Response response = this.mockResponse( 503, "Service Unavailable", null, null, null );
@@ -99,18 +111,14 @@ public class PaymentServiceImplTest {
     }
 
     private Response mockResponse( int httpCode, String httpMessage, Integer bodyStatus, String bodyMessage, String bodyUrl ){
-        String jsonBody;
+        String jsonBody = null;
         if( bodyStatus != null && bodyMessage != null ){
             jsonBody = TsiGoResponseTest.mockJson( bodyStatus, bodyMessage, bodyUrl, null, null );
         }
-        else {
-            jsonBody = "{}";
-        }
-        ResponseBody responseBody = ResponseBody.create( MediaType.parse( "application/json" ), jsonBody );
         return ( new Response.Builder() )
                 .code( httpCode )
                 .message( httpMessage )
-                .body( responseBody )
+                .body( jsonBody == null ? null : ResponseBody.create( MediaType.parse( "application/json" ), jsonBody ) )
                 .request( (new Request.Builder()).url("http://fake.fr").build() )
                 .protocol( TEST_HTTP_PROTOCOL )
                 .build();
