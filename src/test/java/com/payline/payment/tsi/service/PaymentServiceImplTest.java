@@ -3,7 +3,7 @@ package com.payline.payment.tsi.service;
 import com.payline.payment.tsi.exception.InvalidRequestException;
 import com.payline.payment.tsi.request.TsiGoRequest;
 import com.payline.payment.tsi.response.TsiGoResponseTest;
-import com.payline.payment.tsi.utils.HttpClient;
+import com.payline.payment.tsi.utils.JsonHttpClient;
 import com.payline.pmapi.bean.payment.request.PaymentRequest;
 import com.payline.pmapi.bean.payment.response.PaymentResponse;
 import com.payline.pmapi.bean.payment.response.PaymentResponseFailure;
@@ -28,7 +28,7 @@ public class PaymentServiceImplTest {
     private static final Protocol TEST_HTTP_PROTOCOL = Protocol.HTTP_1_1;
 
     @Mock private TsiGoRequest.Builder requestBuilder;
-    @Mock private HttpClient httpClient;
+    @Mock private JsonHttpClient httpClient;
 
     @InjectMocks
     private PaymentServiceImpl service;
@@ -55,7 +55,7 @@ public class PaymentServiceImplTest {
     public void testPaymentRequest_ok() throws IOException {
         // when: the HTTP call is a success
         Response response = this.mockResponse( 200, "OK", 1, "OK", "http://redirect-url.com" );
-        when( httpClient.doPost( anyString(), anyString(), anyString(), anyMap(), anyString() ) )
+        when( httpClient.doPost( anyString(), anyString(), anyString(), any() ) )
                 .thenReturn( response );
         PaymentResponse paymentResponse = service.paymentRequest( mock( PaymentRequest.class ) );
 
@@ -67,7 +67,7 @@ public class PaymentServiceImplTest {
     public void testPaymentRequest_businessError() throws IOException {
         // when: the HTTP call returns a business error (wrong HMAC for example)
         Response response = this.mockResponse( 200, "OK", 15, "WRONG HMAC", null );
-        when( httpClient.doPost( anyString(), anyString(), anyString(), anyMap(), anyString() ) )
+        when( httpClient.doPost( anyString(), anyString(), anyString(), any() ) )
                 .thenReturn( response );
         PaymentResponse paymentResponse = service.paymentRequest( mock( PaymentRequest.class ) );
 
@@ -79,7 +79,7 @@ public class PaymentServiceImplTest {
     public void testPaymentRequest_httpError() throws IOException {
         // when: the HTTP call returns a HTTP error (503 Service Unavailable par exemple)
         Response response = this.mockResponse( 503, "Service Unavailable", null, null, null );
-        when( httpClient.doPost( anyString(), anyString(), anyString(), anyMap(), anyString() ) )
+        when( httpClient.doPost( anyString(), anyString(), anyString(), any() ) )
                 .thenReturn( response );
         PaymentResponse paymentResponse = service.paymentRequest( mock( PaymentRequest.class ) );
 
@@ -90,7 +90,7 @@ public class PaymentServiceImplTest {
     @Test
     public void testPaymentRequest_ioException() throws IOException {
         // when: the HTTP call returns an exception
-        when( httpClient.doPost( anyString(), anyString(), anyString(), anyMap(), anyString() ) )
+        when( httpClient.doPost( anyString(), anyString(), anyString(), any() ) )
                 .thenThrow( IOException.class );
         PaymentResponse paymentResponse = service.paymentRequest( mock( PaymentRequest.class ) );
 

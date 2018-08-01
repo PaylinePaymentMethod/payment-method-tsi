@@ -3,7 +3,7 @@ package com.payline.payment.tsi.service;
 import com.payline.payment.tsi.exception.InvalidRequestException;
 import com.payline.payment.tsi.request.TsiGoRequest;
 import com.payline.payment.tsi.response.TsiGoResponse;
-import com.payline.payment.tsi.utils.HttpClient;
+import com.payline.payment.tsi.utils.JsonHttpClient;
 import com.payline.pmapi.bean.common.FailureCause;
 import com.payline.pmapi.bean.payment.request.PaymentRequest;
 import com.payline.pmapi.bean.payment.response.PaymentResponse;
@@ -16,7 +16,6 @@ import org.apache.logging.log4j.Logger;
 
 import java.io.IOException;
 import java.net.URL;
-import java.util.Map;
 
 import static com.payline.pmapi.bean.payment.response.PaymentResponseRedirect.RedirectionRequest;
 
@@ -25,23 +24,23 @@ public class PaymentServiceImpl implements PaymentService {
     private static final Logger logger = LogManager.getLogger( PaymentServiceImpl.class );
 
     private TsiGoRequest.Builder requestBuilder;
-    private HttpClient httpClient;
+    private JsonHttpClient httpClient;
 
     public PaymentServiceImpl(){
-        this.httpClient = new HttpClient();
+        // TODO: make these values editable through a config file ?
+        this.httpClient = new JsonHttpClient( 5, 10, 15 );
         this.requestBuilder = new TsiGoRequest.Builder();
     }
 
     @Override
     public PaymentResponse paymentRequest( PaymentRequest paymentRequest ){
         try {
-            // Create Go request from Payline request and build the HTTP request body
+            // Create Go request from Payline request
             TsiGoRequest tsiGoRequest = requestBuilder.fromPaymentRequest( paymentRequest );
-            Map<String, String> requestBody = tsiGoRequest.buildBodyMap();
 
             // Send Go request
             // TODO: externalize scheme, host and path definitions!
-            Response response = httpClient.doPost( "https", "sandbox-voucher.tsiapi.com", "/context", requestBody, "application/json" );
+            Response response = httpClient.doPost( "https", "sandbox-voucher.tsiapi.com", "/context", tsiGoRequest.buildBody() );
 
             if( response != null && response.code() == 200 && response.body() != null ){
                 // Parse response
