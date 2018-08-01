@@ -53,4 +53,15 @@ public class TsiGoResponse {
         }
 
     }
+
+    @Override
+    public String toString() {
+        return "TsiGoResponse[" +
+                "status=" + this.status +
+                ", message=\"" + this.message + "\"" +
+                ", url=\"" + this.url + "\"" +
+                ", tid=" + this.tid +
+                ", keyId=" + this.keyId +
+                "]";
+    }
 }
