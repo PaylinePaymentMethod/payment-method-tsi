@@ -40,7 +40,7 @@ public class Hmac {
             byte[] bytes = mac.doFinal( this.message.getBytes( "UTF-8" ) );
 
             // Convert result to a readable string
-            StringBuffer hash = new StringBuffer();
+            StringBuilder hash = new StringBuilder();
             for( int i = 0; i < bytes.length; i++ ){
                 String hex = Integer.toHexString( 0xFF & bytes[ i ] ); // Conversion to hexa using a mask
                 if( hex.length() == 1 ){

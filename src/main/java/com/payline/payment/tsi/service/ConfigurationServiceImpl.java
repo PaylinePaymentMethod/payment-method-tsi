@@ -14,7 +14,7 @@ import java.util.*;
 public class ConfigurationServiceImpl implements ConfigurationService {
 
     // TODO: check PM-API doc for this format (and add it if necessary)
-    public static final String RELEASE_DATE_FORMAT = "dd/MM/yyyy";
+    private static final String RELEASE_DATE_FORMAT = "dd/MM/yyyy";
 
     @Override
     public List<AbstractParameter> getParameters( Locale locale ){

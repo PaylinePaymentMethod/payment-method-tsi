@@ -10,6 +10,8 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import java.math.BigInteger;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -124,7 +126,8 @@ public class TsiGoRequest {
      */
     public static class Builder {
 
-        public TsiGoRequest fromPaymentRequest( PaymentRequest paymentRequest ) throws InvalidRequestException {
+        public TsiGoRequest fromPaymentRequest( PaymentRequest paymentRequest )
+                throws InvalidRequestException, NoSuchAlgorithmException {
             // Check the input request for NPEs and mandatory fields
             this.checkInputRequest( paymentRequest );
 
@@ -209,14 +212,27 @@ public class TsiGoRequest {
         }
 
         /**
-         * Formats the input transaction id according to TSI Go request specifications.
+         * Hashes the input transaction id with MD5 to genreate a 32-characters-long unique
+         * transaction identifier according to TSI Go request specifications.
          *
          * @param transactionId The input transaction id
          * @return A 32-characters-long transaction id
          */
-        protected String formatTransactionId( String transactionId ){
-            // TODO!
-            return "";
+        protected String formatTransactionId( String transactionId ) throws NoSuchAlgorithmException {
+            // Generate the MD5 hash
+            byte[] hashBytes = MessageDigest.getInstance( "MD5" ).digest( transactionId.getBytes() );
+
+            // Convert it in a readable string
+            StringBuilder hash = new StringBuilder();
+            for( int i = 0; i < hashBytes.length; i++ ){
+                String hex = Integer.toHexString( 0xFF & hashBytes[ i ] ); // Conversion to hexa using a mask
+                if( hex.length() == 1 ){
+                    hash.append( '0' );
+                }
+                hash.append( hex );
+            }
+
+            return hash.toString();
         }
     }
 }

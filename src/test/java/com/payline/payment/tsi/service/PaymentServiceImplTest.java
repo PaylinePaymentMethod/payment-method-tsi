@@ -18,6 +18,7 @@ import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 
 import java.io.IOException;
+import java.security.NoSuchAlgorithmException;
 
 import static org.mockito.Mockito.*;
 
@@ -33,14 +34,14 @@ public class PaymentServiceImplTest {
     private PaymentServiceImpl service;
 
     @Before
-    public void mockRequestBuilder() throws InvalidRequestException {
+    public void mockRequestBuilder() throws InvalidRequestException, NoSuchAlgorithmException {
         // In most cases, the PaymentRequest-to-TsiGoRequest mapping is not what we want to test. So we mock it for every test.
         when( requestBuilder.fromPaymentRequest( any( PaymentRequest.class ) ) )
                 .thenReturn( mock( TsiGoRequest.class ) );
     }
 
     @Test
-    public void testPaymentRequest_invalidRequest() throws InvalidRequestException {
+    public void testPaymentRequest_invalidRequest() throws InvalidRequestException, NoSuchAlgorithmException {
         // when: the PaymentRequest is invalid
         when( requestBuilder.fromPaymentRequest( any( PaymentRequest.class ) ) )
                 .thenThrow( InvalidRequestException.class );

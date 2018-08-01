@@ -1,17 +1,13 @@
 package com.payline.payment.tsi.request;
 
-import com.payline.payment.tsi.TsiConstants;
 import com.payline.payment.tsi.exception.InvalidRequestException;
-import com.payline.payment.tsi.security.Hmac;
-import com.payline.payment.tsi.security.HmacAlgorithm;
-import com.payline.pmapi.bean.payment.ContractProperty;
 import com.payline.pmapi.bean.payment.request.PaymentRequest;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
-import org.mockito.Mockito;
 
 import java.math.BigInteger;
+import java.security.NoSuchAlgorithmException;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -74,7 +70,7 @@ public class TsiGoRequestTest {
 
 
     @Test
-    public void testBuilder_fromPaymentRequest() throws InvalidRequestException {
+    public void testBuilder_fromPaymentRequest() throws InvalidRequestException, NoSuchAlgorithmException {
         // given: a valid PaymentRequest
         PaymentRequest paymentRequest = (new TsiPaymentRequestMock()).mock();
 
@@ -114,7 +110,7 @@ public class TsiGoRequestTest {
     }
 
     @Test
-    public void testBuilder_formatTransactionId_shorter(){
+    public void testBuilder_formatTransactionId_shorter() throws NoSuchAlgorithmException {
         // given: a transaction id shorter than 32 characters
         String transactionId = "TSI4567890123456";
 
@@ -127,7 +123,7 @@ public class TsiGoRequestTest {
     }
 
     @Test
-    public void testBuilder_formatTransactionId_rightLength(){
+    public void testBuilder_formatTransactionId_rightLength() throws NoSuchAlgorithmException {
         // given: a transaction id 32 characters long
         String transactionId = "TSI45678901234567890123456789012";
 
@@ -140,7 +136,7 @@ public class TsiGoRequestTest {
     }
 
     @Test
-    public void testBuilder_formatTransactionId_longer(){
+    public void testBuilder_formatTransactionId_longer() throws NoSuchAlgorithmException {
         // given: a transaction id longer than 32 characters
         String transactionId = "TSI45678901234567890123456789012345678901234567890";
 

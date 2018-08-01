@@ -78,6 +78,10 @@ public class PaymentServiceImpl implements PaymentService {
             logger.error( "An IOException occurred while sending the HTTP request: " + e.getMessage() );
             return buildPaymentResponseFailure( "no code transmitted", FailureCause.COMMUNICATION_ERROR );
         }
+        catch( Exception e ){
+            logger.error( "An unexpected error occurred: ", e );
+            return buildPaymentResponseFailure( "no code transmitted", FailureCause.INTERNAL_ERROR );
+        }
     }
 
     private PaymentResponseFailure buildPaymentResponseFailure( String errorCode, FailureCause failureCause ){
