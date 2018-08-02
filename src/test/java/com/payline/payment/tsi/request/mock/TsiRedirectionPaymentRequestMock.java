@@ -1,19 +1,19 @@
-package com.payline.payment.tsi.request;
+package com.payline.payment.tsi.request.mock;
 
 import com.payline.payment.tsi.TsiConstants;
 import com.payline.pmapi.bean.payment.ContractProperty;
 
-public class TsiPaymentRequestMock extends PaymentRequestMock {
+public class TsiRedirectionPaymentRequestMock extends RedirectionPaymentRequestMock {
 
     @Override
-    public TsiPaymentRequestMock reset(){
+    public TsiRedirectionPaymentRequestMock reset(){
         super.reset();
         this.contractProperties.put( TsiConstants.CONTRACT_MERCHANT_ID, new ContractProperty( "123" ) );
         this.contractProperties.put( TsiConstants.CONTRACT_KEY_ID, new ContractProperty( "234" ) );
         return this;
     }
 
-    public TsiPaymentRequestMock withMerchantId( Integer merchantId ){
+    public TsiRedirectionPaymentRequestMock withMerchantId( Integer merchantId ){
         if( merchantId != null ){
             this.contractProperties.put( TsiConstants.CONTRACT_MERCHANT_ID, new ContractProperty( Integer.toString( merchantId ) ) );
         } else {
@@ -22,7 +22,7 @@ public class TsiPaymentRequestMock extends PaymentRequestMock {
         return this;
     }
 
-    public TsiPaymentRequestMock withKeyId( Integer keyId ){
+    public TsiRedirectionPaymentRequestMock withKeyId( Integer keyId ){
         if( keyId != null ){
             this.contractProperties.put( TsiConstants.CONTRACT_KEY_ID, new ContractProperty( Integer.toString( keyId ) ) );
         } else {
@@ -30,4 +30,5 @@ public class TsiPaymentRequestMock extends PaymentRequestMock {
         }
         return this;
     }
+
 }

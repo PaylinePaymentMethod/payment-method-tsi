@@ -1,6 +1,7 @@
 package com.payline.payment.tsi.request;
 
 import com.payline.payment.tsi.exception.InvalidRequestException;
+import com.payline.payment.tsi.request.mock.TsiPaymentRequestMock;
 import com.payline.pmapi.bean.payment.request.PaymentRequest;
 import org.junit.Before;
 import org.junit.Test;

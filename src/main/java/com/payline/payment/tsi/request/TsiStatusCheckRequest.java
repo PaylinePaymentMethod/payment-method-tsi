@@ -1,8 +1,16 @@
 package com.payline.payment.tsi.request;
 
 import com.google.gson.annotations.SerializedName;
+import com.payline.payment.tsi.TsiConstants;
+import com.payline.payment.tsi.exception.InvalidRequestException;
 import com.payline.payment.tsi.security.Hmac;
 import com.payline.payment.tsi.security.HmacAlgorithm;
+import com.payline.pmapi.bean.payment.ContractProperty;
+import com.payline.pmapi.bean.payment.request.PaymentRequest;
+import com.payline.pmapi.bean.payment.request.RedirectionPaymentRequest;
+
+import java.security.NoSuchAlgorithmException;
+import java.util.Map;
 
 public class TsiStatusCheckRequest extends TsiSealedJsonRequest {
 
@@ -13,7 +21,7 @@ public class TsiStatusCheckRequest extends TsiSealedJsonRequest {
     @SerializedName( "id" )
     private int keyId;
 
-    public TsiStatusCheckRequest( String transactionId, int keyId ) {
+    protected TsiStatusCheckRequest( String transactionId, int keyId ) {
         this.transactionId = transactionId;
         this.keyId = keyId;
     }
@@ -23,10 +31,51 @@ public class TsiStatusCheckRequest extends TsiSealedJsonRequest {
         return this.transactionId + "|" + this.keyId;
     }
 
-    public TsiStatusCheckRequest sealIt(){
-        // TODO: externalize key definition in a properties file
-        Hmac hmac = new Hmac( "45f3bcf660df19f8364c222e887300fa", HmacAlgorithm.MD5 );
-        this.setMac( hmac.digest( this.buildSealMessage() ) );
-        return this;
+    public static class Builder extends TsiSealedJsonRequest.Builder {
+
+        public TsiStatusCheckRequest fromRedirectionPaymentRequest( RedirectionPaymentRequest redirectionPaymentRequest )
+                throws NoSuchAlgorithmException, InvalidRequestException {
+
+            // Check the input request for NPEs and mandatory fields
+            this.checkInputRequest( redirectionPaymentRequest );
+
+            // Instantiate the TsiStatusCheckRequest from input request
+            TsiStatusCheckRequest request = new TsiStatusCheckRequest(
+                    this.formatTransactionId( redirectionPaymentRequest.getTransactionId() ),
+                    Integer.parseInt( redirectionPaymentRequest.getContractConfiguration().getContractProperties().get( TsiConstants.CONTRACT_KEY_ID ).getValue() )
+            );
+
+            // Seal the request with HMAC algorithm
+            this.sealRequest( request );
+
+            return request;
+        }
+
+        /**
+         * Verifies that the input request contains all the required fields.
+         *
+         * @param redirectionPaymentRequest The input request
+         * @throws InvalidRequestException If recovering the field value would result in a NPE or if the value is null or empty.
+         */
+        protected void checkInputRequest( RedirectionPaymentRequest redirectionPaymentRequest )
+                throws InvalidRequestException {
+
+            if( redirectionPaymentRequest == null ){
+                throw new InvalidRequestException( "Request must not be null" );
+            }
+
+            if( redirectionPaymentRequest.getContractConfiguration() == null
+                    || redirectionPaymentRequest.getContractConfiguration().getContractProperties() == null  ){
+                throw new InvalidRequestException( "Contract configuration properties object must not be null" );
+            }
+            if( redirectionPaymentRequest.getContractConfiguration().getContractProperties().get( TsiConstants.CONTRACT_KEY_ID ) == null ){
+                throw new InvalidRequestException( "Missing contract configuration property: key id" );
+            }
+
+            if( redirectionPaymentRequest.getTransactionId() == null || redirectionPaymentRequest.getTransactionId().isEmpty() ){
+                throw new InvalidRequestException( "Transaction id is required" );
+            }
+        }
+
     }
 }

@@ -1,4 +1,4 @@
-package com.payline.payment.tsi.request;
+package com.payline.payment.tsi.request.mock;
 
 import com.payline.pmapi.bean.common.Amount;
 import com.payline.pmapi.bean.payment.*;
@@ -10,16 +10,19 @@ import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
 
+/**
+ * Generates PaymentRequest mock objects.
+ */
 public class PaymentRequestMock {
 
-    private BigInteger amount;
-    private Currency currency;
+    protected BigInteger amount;
+    protected Currency currency;
     protected Map<String, ContractProperty> contractProperties;
-    private String successUrl;
-    private String cancelUrl;
-    private String notificationUrl;
-    private String transactionId;
-    private String softDescriptor;
+    protected String successUrl;
+    protected String cancelUrl;
+    protected String notificationUrl;
+    protected String transactionId;
+    protected String softDescriptor;
 
     public PaymentRequestMock(){
         reset();

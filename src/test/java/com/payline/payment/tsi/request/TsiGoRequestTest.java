@@ -1,6 +1,7 @@
 package com.payline.payment.tsi.request;
 
 import com.payline.payment.tsi.exception.InvalidRequestException;
+import com.payline.payment.tsi.request.mock.TsiPaymentRequestMock;
 import com.payline.pmapi.bean.payment.request.PaymentRequest;
 import org.junit.Assert;
 import org.junit.Before;
@@ -107,45 +108,6 @@ public class TsiGoRequestTest {
 
         // when: formatting the amount, then: result has no trailing zero on the decimal part
         Assert.assertEquals( "1.1", this.builder.formatAmount( amount ) );
-    }
-
-    @Test
-    public void testBuilder_formatTransactionId_shorter() throws NoSuchAlgorithmException {
-        // given: a transaction id shorter than 32 characters
-        String transactionId = "TSI4567890123456";
-
-        // when: formatting the transaction id
-        String formatted = this.builder.formatTransactionId( transactionId );
-
-        // then: result is not null and is 32 characters long
-        Assert.assertNotNull( formatted );
-        Assert.assertEquals( 32, formatted.length() );
-    }
-
-    @Test
-    public void testBuilder_formatTransactionId_rightLength() throws NoSuchAlgorithmException {
-        // given: a transaction id 32 characters long
-        String transactionId = "TSI45678901234567890123456789012";
-
-        // when: formatting the transaction id
-        String formatted = this.builder.formatTransactionId( transactionId );
-
-        // then: result is not null and is 32 characters long
-        Assert.assertNotNull( formatted );
-        Assert.assertEquals( 32, formatted.length() );
-    }
-
-    @Test
-    public void testBuilder_formatTransactionId_longer() throws NoSuchAlgorithmException {
-        // given: a transaction id longer than 32 characters
-        String transactionId = "TSI45678901234567890123456789012345678901234567890";
-
-        // when: formatting the transaction id
-        String formatted = this.builder.formatTransactionId( transactionId );
-
-        // then: result is not null and is 32 characters long
-        Assert.assertNotNull( formatted );
-        Assert.assertEquals( 32, formatted.length() );
     }
 
 }

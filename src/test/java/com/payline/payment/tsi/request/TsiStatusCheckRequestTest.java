@@ -1,16 +1,29 @@
 package com.payline.payment.tsi.request;
 
+import com.payline.payment.tsi.exception.InvalidRequestException;
+import com.payline.payment.tsi.request.mock.TsiRedirectionPaymentRequestMock;
+import com.payline.pmapi.bean.payment.request.RedirectionPaymentRequest;
 import org.junit.Assert;
+import org.junit.Before;
 import org.junit.Test;
 
+import java.security.NoSuchAlgorithmException;
+
 public class TsiStatusCheckRequestTest {
+
+    private TsiStatusCheckRequest.Builder builder;
+
+    @Before
+    public void setup() {
+        this.builder = new TsiStatusCheckRequest.Builder();
+    }
 
     /**
      * Uses the example given in TSI's Merchant API integration documentation to validate the construction of the message
      * used to seal the request.
      */
     @Test
-    public void testSealMessage(){
+    public void testSealMessage() {
         // given: the example request and message
         TsiStatusCheckRequest exampleRequest = new TsiStatusCheckRequest(
                 "43b3a1b952dc5c1f2fd2a46162b3cbee",
@@ -26,19 +39,30 @@ public class TsiStatusCheckRequestTest {
     }
 
     @Test
-    public void testSealIt(){
-        // given: the example request and message
-        TsiStatusCheckRequest exampleRequest = new TsiStatusCheckRequest(
-                "43b3a1b952dc5c1f2fd2a46162b3cbee",
-                441
-        );
+    public void testBuilder_checkInputRequest_ok() throws InvalidRequestException {
+        // given: a valid RedirectionPaymentRequest
+        RedirectionPaymentRequest redirectionPaymentRequest = ( new TsiRedirectionPaymentRequestMock() ).mock();
 
-        // when: sealing the request
-        exampleRequest.sealIt();
+        // when: checking the request validity,  then: no exception is thrown
+        builder.checkInputRequest( redirectionPaymentRequest );
+    }
 
-        // then: the mac field is not null and 32 characters long
-        Assert.assertNotNull( exampleRequest.getMac() );
-        Assert.assertEquals( 32, exampleRequest.getMac().length() );
+    /*
+    For each case in which checkInputRequest should throw an exception,
+    check the TsiStatusCheckRequestCheckInputTest class.
+     */
+
+    @Test
+    public void testBuilder_fromPaymentRequest() throws InvalidRequestException, NoSuchAlgorithmException {
+        // given: a valid RedirectionPaymentRequest
+        RedirectionPaymentRequest redirectionPaymentRequest = (new TsiRedirectionPaymentRequestMock()).mock();
+
+        // when: instantiating the TSI request
+        TsiStatusCheckRequest request = builder.fromRedirectionPaymentRequest( redirectionPaymentRequest );
+
+        // then: request has a mac
+        Assert.assertNotNull( request.getMac() );
+        Assert.assertFalse( request.getMac().isEmpty() );
     }
 
 }

@@ -91,10 +91,11 @@ public class TsiGoRequest extends TsiSealedJsonRequest {
     /**
      * Implements the builder pattern to instantiate {@link TsiGoRequest} from a {@link PaymentRequest} object.
      */
-    public static class Builder {
+    public static class Builder extends TsiSealedJsonRequest.Builder {
 
         public TsiGoRequest fromPaymentRequest( PaymentRequest paymentRequest )
                 throws InvalidRequestException, NoSuchAlgorithmException {
+
             // Check the input request for NPEs and mandatory fields
             this.checkInputRequest( paymentRequest );
 
@@ -115,9 +116,7 @@ public class TsiGoRequest extends TsiSealedJsonRequest {
             );
 
             // Seal the request with HMAC algorithm
-            // TODO: externalize key definition in a properties file
-            Hmac hmac = new Hmac( "45f3bcf660df19f8364c222e887300fa", HmacAlgorithm.MD5 );
-            request.setMac( hmac.digest( request.buildSealMessage() ) );
+            this.sealRequest( request );
 
             return request;
         }
@@ -187,30 +186,6 @@ public class TsiGoRequest extends TsiSealedJsonRequest {
             } else {
                 return String.format( "%s", amount );
             }
-        }
-
-        /**
-         * Hashes the input transaction id with MD5 to genreate a 32-characters-long unique
-         * transaction identifier according to TSI Go request specifications.
-         *
-         * @param transactionId The input transaction id
-         * @return A 32-characters-long transaction id
-         */
-        protected String formatTransactionId( String transactionId ) throws NoSuchAlgorithmException {
-            // Generate the MD5 hash
-            byte[] hashBytes = MessageDigest.getInstance( "MD5" ).digest( transactionId.getBytes() );
-
-            // Convert it in a readable string
-            StringBuilder hash = new StringBuilder();
-            for( int i = 0; i < hashBytes.length; i++ ){
-                String hex = Integer.toHexString( 0xFF & hashBytes[ i ] ); // Conversion to hexa using a mask
-                if( hex.length() == 1 ){
-                    hash.append( '0' );
-                }
-                hash.append( hex );
-            }
-
-            return hash.toString();
         }
     }
 }
