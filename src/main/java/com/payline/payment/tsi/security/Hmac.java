@@ -18,16 +18,14 @@ public class Hmac {
     private static final Logger logger = LogManager.getLogger( Hmac.class );
 
     private String algorithm;
-    private String message;
     private String key;
 
-    public Hmac( String message, String key, HmacAlgorithm algorithm ){
+    public Hmac( String key, HmacAlgorithm algorithm ){
         this.algorithm = algorithm.toString();
-        this.message = message;
         this.key = key;
     }
 
-    public String seal(){
+    public String digest( String message ){
         String seal = null;
 
         try {
@@ -37,7 +35,7 @@ public class Hmac {
             mac.init(key);
 
             // Process the message and finishes MAC operation
-            byte[] bytes = mac.doFinal( this.message.getBytes( "UTF-8" ) );
+            byte[] bytes = mac.doFinal( message.getBytes( "UTF-8" ) );
 
             // Convert result to a readable string
             StringBuilder hash = new StringBuilder();

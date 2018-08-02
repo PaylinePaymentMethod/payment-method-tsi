@@ -15,8 +15,8 @@ public class HmacTest {
         String key = "Jefe";
         String result = "750c783e6ab0b503eaa86e310a5db738";
 
-        Hmac hmac = new Hmac( message, key, HmacAlgorithm.MD5 );
-        Assert.assertEquals( result, hmac.seal() );
+        Hmac hmac = new Hmac( key, HmacAlgorithm.MD5 );
+        Assert.assertEquals( result, hmac.digest( message ) );
     }
 
     /**
@@ -29,8 +29,8 @@ public class HmacTest {
         String key = "key";
         String result = "80070713463e7749b90c2dc24911e275";
 
-        Hmac hmac = new Hmac( message, key, HmacAlgorithm.MD5 );
-        Assert.assertEquals( result, hmac.seal() );
+        Hmac hmac = new Hmac( key, HmacAlgorithm.MD5 );
+        Assert.assertEquals( result, hmac.digest( message ) );
     }
 
 }

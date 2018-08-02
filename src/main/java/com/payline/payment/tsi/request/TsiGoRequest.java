@@ -135,8 +135,8 @@ public class TsiGoRequest {
 
             // Seal the request with HMAC algorithm
             // TODO: externalize key definition in a properties file
-            Hmac hmac = new Hmac( request.buildSealMessage(), "45f3bcf660df19f8364c222e887300fa", HmacAlgorithm.MD5 );
-            request.setMac( hmac.seal() );
+            Hmac hmac = new Hmac( "45f3bcf660df19f8364c222e887300fa", HmacAlgorithm.MD5 );
+            request.setMac( hmac.digest( request.buildSealMessage() ) );
 
             return request;
         }
