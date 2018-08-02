@@ -1,6 +1,5 @@
 package com.payline.payment.tsi.request;
 
-import com.google.gson.Gson;
 import com.google.gson.annotations.SerializedName;
 import com.payline.payment.tsi.TsiConstants;
 import com.payline.payment.tsi.exception.InvalidRequestException;
@@ -14,11 +13,9 @@ import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.Map;
 
-public class TsiGoRequest {
+public class TsiGoRequest extends TsiSealedJsonRequest {
 
     // Mandatory fields
-    /** The HMAC seal for the request (generated from the other request fields) */
-    private String mac;
     /** The merchant identifier. */
     @SerializedName( "mid" )
     private int merchantId;
@@ -76,6 +73,7 @@ public class TsiGoRequest {
      *
      * @return The message
      */
+    @Override
     public String buildSealMessage(){
         return this.merchantId + "|"
                 + this.transactionId + "|"
@@ -88,23 +86,6 @@ public class TsiGoRequest {
                 + this.urlS2s + "|"
                 + this.debitAll + "|"
                 + this.th ;
-    }
-
-    /**
-     * Builds the request body.
-     *
-     * @return a JSON formatted string.
-     */
-    public String buildBody(){
-        return (new Gson()).toJson( this );
-    }
-
-    protected String getMac(){
-        return mac;
-    }
-
-    protected void setMac( String mac ){
-        this.mac = mac;
     }
 
     /**
