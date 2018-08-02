@@ -16,77 +16,53 @@ import org.apache.logging.log4j.Logger;
 
 import java.io.IOException;
 import java.net.URL;
+import java.security.NoSuchAlgorithmException;
 
 import static com.payline.pmapi.bean.payment.response.PaymentResponseRedirect.RedirectionRequest;
 
-public class PaymentServiceImpl implements PaymentService {
+public class PaymentServiceImpl extends AbstractPaymentHttpService implements PaymentService {
 
     private static final Logger logger = LogManager.getLogger( PaymentServiceImpl.class );
 
     private TsiGoRequest.Builder requestBuilder;
-    private JsonHttpClient httpClient;
 
     public PaymentServiceImpl(){
-        // TODO: make these values editable through a config file ?
-        this.httpClient = new JsonHttpClient( 5, 10, 15 );
+        super();
         this.requestBuilder = new TsiGoRequest.Builder();
     }
 
     @Override
-    public PaymentResponse paymentRequest( PaymentRequest paymentRequest ){
-        try {
-            // Create Go request from Payline request
-            TsiGoRequest tsiGoRequest = requestBuilder.fromPaymentRequest( paymentRequest );
-
-            // Send Go request
-            // TODO: externalize scheme, host and path definitions!
-            Response response = httpClient.doPost( "https", "sandbox-voucher.tsiapi.com", "/context", tsiGoRequest.buildBody() );
-
-            if( response != null && response.code() == 200 && response.body() != null ){
-                // Parse response
-                TsiGoResponse tsiGoResponse = (new TsiGoResponse.Builder()).fromJson( response.body().string() );
-
-                // If status == 1, proceed with the redirection
-                if( tsiGoResponse.getStatus() == 1 ){
-                    String redirectUrl = tsiGoResponse.getUrl();
-
-                    RedirectionRequest redirectionRequest = new RedirectionRequest( new URL( redirectUrl ) );
-                    return PaymentResponseRedirect.PaymentResponseRedirectBuilder.aPaymentResponseRedirect()
-                            .withRedirectionRequest( redirectionRequest )
-                            .build();
-                }
-                else {
-                    logger.error( "TSI Go request returned an error: " + tsiGoResponse.getMessage() + "(" + Integer.toString( tsiGoResponse.getStatus() ) + ")" );
-                    return buildPaymentResponseFailure( tsiGoResponse.getMessage(), FailureCause.PAYMENT_PARTNER_ERROR );
-                }
-            }
-            else if( response == null || response.body() == null ){
-                logger.error( "The HTTP response or its body is null and should not be" );
-                return buildPaymentResponseFailure( "no code transmitted", FailureCause.INTERNAL_ERROR );
-            }
-            else {
-                logger.error( "An HTTP error occurred while sending the request: " + response.message() );
-                return buildPaymentResponseFailure( Integer.toString( response.code() ), FailureCause.COMMUNICATION_ERROR );
-            }
-        }
-        catch( InvalidRequestException e ){
-            logger.error( "PaymentRequest is invalid: " + e.getMessage() );
-            return buildPaymentResponseFailure( "no code transmitted", FailureCause.INVALID_DATA );
-        }
-        catch( IOException e ){
-            logger.error( "An IOException occurred while sending the HTTP request: " + e.getMessage() );
-            return buildPaymentResponseFailure( "no code transmitted", FailureCause.COMMUNICATION_ERROR );
-        }
-        catch( Exception e ){
-            logger.error( "An unexpected error occurred: ", e );
-            return buildPaymentResponseFailure( "no code transmitted", FailureCause.INTERNAL_ERROR );
-        }
+    public PaymentResponse paymentRequest( PaymentRequest paymentRequest ) {
+        return this.processRequest( paymentRequest );
     }
 
-    private PaymentResponseFailure buildPaymentResponseFailure( String errorCode, FailureCause failureCause ){
-        return PaymentResponseFailure.PaymentResponseFailureBuilder.aPaymentResponseFailure()
-                .withFailureCause( failureCause )
-                .withErrorCode( errorCode )
-                .build();
+    @Override
+    public Response createSendRequest( PaymentRequest paymentRequest ) throws IOException, InvalidRequestException, NoSuchAlgorithmException {
+        // Create Go request from Payline request
+        TsiGoRequest tsiGoRequest = requestBuilder.fromPaymentRequest( paymentRequest );
+
+        // Send Go request
+        // TODO: externalize scheme, host and path definitions!
+        return httpClient.doPost( "https", "sandbox-voucher.tsiapi.com", "/context", tsiGoRequest.buildBody() );
+    }
+
+    @Override
+    public PaymentResponse processResponse( Response response ) throws IOException {
+        // Parse response
+        TsiGoResponse tsiGoResponse = (new TsiGoResponse.Builder()).fromJson( response.body().string() );
+
+        // If status == 1, proceed with the redirection
+        if( tsiGoResponse.getStatus() == 1 ){
+            String redirectUrl = tsiGoResponse.getUrl();
+
+            RedirectionRequest redirectionRequest = new RedirectionRequest( new URL( redirectUrl ) );
+            return PaymentResponseRedirect.PaymentResponseRedirectBuilder.aPaymentResponseRedirect()
+                    .withRedirectionRequest( redirectionRequest )
+                    .build();
+        }
+        else {
+            logger.error( "TSI Go request returned an error: " + tsiGoResponse.getMessage() + "(" + Integer.toString( tsiGoResponse.getStatus() ) + ")" );
+            return buildPaymentResponseFailure( tsiGoResponse.getMessage(), FailureCause.PAYMENT_PARTNER_ERROR );
+        }
     }
 }

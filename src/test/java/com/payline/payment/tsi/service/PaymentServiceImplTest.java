@@ -41,17 +41,6 @@ public class PaymentServiceImplTest {
     }
 
     @Test
-    public void testPaymentRequest_invalidRequest() throws InvalidRequestException, NoSuchAlgorithmException {
-        // when: the PaymentRequest is invalid
-        when( requestBuilder.fromPaymentRequest( any( PaymentRequest.class ) ) )
-                .thenThrow( InvalidRequestException.class );
-        PaymentResponse paymentResponse = service.paymentRequest( mock( PaymentRequest.class ) );
-
-        // then: returned object is an instance of PaymentResponseFailure
-        Assert.assertTrue( paymentResponse instanceof PaymentResponseFailure );
-    }
-
-    @Test
     public void testPaymentRequest_ok() throws IOException {
         // when: the HTTP call is a success
         Response response = this.mockResponse( 200, "OK", 1, "OK", "http://redirect-url.com" );
@@ -61,6 +50,17 @@ public class PaymentServiceImplTest {
 
         // then: returned object is an instance of PaymentResponseRedirect
         Assert.assertTrue( paymentResponse instanceof PaymentResponseRedirect );
+    }
+
+    @Test
+    public void testPaymentRequest_invalidRequest() throws InvalidRequestException, NoSuchAlgorithmException {
+        // when: the PaymentRequest is invalid
+        when( requestBuilder.fromPaymentRequest( any( PaymentRequest.class ) ) )
+                .thenThrow( InvalidRequestException.class );
+        PaymentResponse paymentResponse = service.paymentRequest( mock( PaymentRequest.class ) );
+
+        // then: returned object is an instance of PaymentResponseFailure
+        Assert.assertTrue( paymentResponse instanceof PaymentResponseFailure );
     }
 
     @Test
