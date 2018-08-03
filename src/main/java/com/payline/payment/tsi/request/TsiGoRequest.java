@@ -106,7 +106,7 @@ public class TsiGoRequest extends TsiSealedJsonRequest {
                     this.formatAmount( paymentRequest.getAmount().getAmountInSmallestUnit() ),
                     paymentRequest.getAmount().getCurrency().getCurrencyCode(),
                     Integer.parseInt( paymentRequest.getContractConfiguration().getContractProperties().get( TsiConstants.CONTRACT_KEY_ID ).getValue() ),
-                    "", // TODO: ajouter une propriété de configuration pour ça !
+                    "Ticket Premium", // TODO: ajouter une propriété de ContractConfiguration pour ça !
                     paymentRequest.getPaylineEnvironment().getRedirectionReturnURL(),
                     paymentRequest.getPaylineEnvironment().getRedirectionCancelURL(),
                     paymentRequest.getPaylineEnvironment().getNotificationURL(),
