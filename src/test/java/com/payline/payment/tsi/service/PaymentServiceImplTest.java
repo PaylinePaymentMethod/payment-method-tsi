@@ -54,7 +54,7 @@ public class PaymentServiceImplTest {
 
     @Test
     public void testPaymentRequest_invalidRequest() throws InvalidRequestException, NoSuchAlgorithmException {
-        // when: the PaymentRequest is invalid
+        // when: the PaymentRequest is invalid, i.e. the builder throws an exception
         when( requestBuilder.fromPaymentRequest( any( PaymentRequest.class ) ) )
                 .thenThrow( InvalidRequestException.class );
         PaymentResponse paymentResponse = service.paymentRequest( mock( PaymentRequest.class ) );

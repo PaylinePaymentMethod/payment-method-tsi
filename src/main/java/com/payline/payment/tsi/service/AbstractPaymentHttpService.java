@@ -14,11 +14,11 @@ import java.io.IOException;
 import java.security.NoSuchAlgorithmException;
 
 /**
- * This abstract service handles the common issues encountered when sending, receiving and processing a {@link PaymentRequest}
+ * This abstract service handles the common issues encountered when sending, receiving and processing a {@link PaymentRequest} (or subclass)
  * It delegates the specific parts to the classes that will extends it, through the abstract methods.
  * This way, most of the exception handling can be done here, once.
  */
-public abstract class AbstractPaymentHttpService {
+public abstract class AbstractPaymentHttpService<T extends PaymentRequest> {
 
     private static final Logger logger = LogManager.getLogger( AbstractPaymentHttpService.class );
 
@@ -38,11 +38,11 @@ public abstract class AbstractPaymentHttpService {
      * @throws InvalidRequestException Thrown if the input request in not valid
      * @throws NoSuchAlgorithmException Thrown if the HMAC algorithm is not available
      */
-    public abstract Response createSendRequest( PaymentRequest paymentRequest ) throws IOException, InvalidRequestException, NoSuchAlgorithmException;
+    public abstract Response createSendRequest( T paymentRequest ) throws IOException, InvalidRequestException, NoSuchAlgorithmException;
 
     /**
      * Process the response from the HTTP call.
-     * It focuses on business aspect of the processing : the technical part has already been done by {@link #processRequest(PaymentRequest)}.
+     * It focuses on business aspect of the processing : the technical part has already been done by {@link #processRequest(PaymentRequest)} .
      *
      * @param response The {@link Response} from the HTTP call, which HTTP code is 200 and which body is not null.
      * @return The {@link PaymentResponse}
@@ -51,12 +51,12 @@ public abstract class AbstractPaymentHttpService {
     public abstract PaymentResponse processResponse( Response response ) throws IOException;
 
     /**
-     * Process a {@link PaymentRequest}, handling all the generic error cases
+     * Process a {@link PaymentRequest} (or subclass), handling all the generic error cases
      *
      * @param paymentRequest The input request from Payline
      * @return The corresponding {@link PaymentResponse}
      */
-    protected PaymentResponse processRequest( PaymentRequest paymentRequest ){
+    protected PaymentResponse processRequest( T paymentRequest ){
         try {
             // Mandate the child class to create and send the request (which is specific to each implementation)
             Response response = this.createSendRequest( paymentRequest );
