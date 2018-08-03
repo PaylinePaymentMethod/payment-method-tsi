@@ -1,6 +1,5 @@
 .gradle/
 build/
 out/
-build.gradle
 src/main/java/Main.java
 src/test/java/com/payline/pmapi/
