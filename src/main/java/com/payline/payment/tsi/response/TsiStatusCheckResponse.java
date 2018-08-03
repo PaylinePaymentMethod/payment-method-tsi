@@ -82,6 +82,14 @@ public class TsiStatusCheckResponse {
         return country;
     }
 
+    public String getResume(){
+        return "authid: " + this.authId
+                + ", tid: " + this.tid
+                + ", multi: " + this.multi
+                + ", dtime: " + this.dtime
+                + ", country: " + this.country;
+    }
+
     /**
      * Implements the builder pattern to instantiate {@link TsiStatusCheckResponse} from a JSON string content.
      */

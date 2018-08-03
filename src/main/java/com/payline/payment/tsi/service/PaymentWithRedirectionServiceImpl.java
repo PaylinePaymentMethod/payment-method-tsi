@@ -2,11 +2,15 @@ package com.payline.payment.tsi.service;
 
 import com.payline.payment.tsi.exception.InvalidRequestException;
 import com.payline.payment.tsi.request.TsiStatusCheckRequest;
+import com.payline.payment.tsi.response.TsiStatusCheckResponse;
+import com.payline.pmapi.bean.common.FailureCause;
 import com.payline.pmapi.bean.common.Message;
 import com.payline.pmapi.bean.payment.request.RedirectionPaymentRequest;
 import com.payline.pmapi.bean.payment.request.TransactionStatusRequest;
 import com.payline.pmapi.bean.payment.response.PaymentResponse;
 import com.payline.pmapi.bean.payment.response.PaymentResponseSuccess;
+import com.payline.pmapi.bean.payment.response.buyerpaymentidentifier.BuyerPaymentId;
+import com.payline.pmapi.bean.payment.response.buyerpaymentidentifier.impl.Email;
 import com.payline.pmapi.service.PaymentWithRedirectionService;
 import okhttp3.Response;
 import org.apache.logging.log4j.LogManager;
@@ -28,13 +32,7 @@ public class PaymentWithRedirectionServiceImpl extends AbstractPaymentHttpServic
 
     @Override
     public PaymentResponse finalizeRedirectionPayment( RedirectionPaymentRequest redirectionPaymentRequest ) {
-        // Example :
-        return PaymentResponseSuccess.PaymentResponseSuccessBuilder.aPaymentResponseSuccess()
-                .withMessage( new Message( Message.MessageType.SUCCESS, "" ) )
-                .withStatusCode( "0" )
-                .withTransactionIdentifier( "transactionId" )
-                .withTransactionDetails( null )
-                .build();
+        return this.processRequest( redirectionPaymentRequest );
     }
 
     @Override
@@ -50,8 +48,25 @@ public class PaymentWithRedirectionServiceImpl extends AbstractPaymentHttpServic
 
     @Override
     public PaymentResponse processResponse( Response response ) throws IOException {
-        // TODO
-        return null;
+        // Parse response
+        TsiStatusCheckResponse statusCheck = (new TsiStatusCheckResponse.Builder()).fromJson( response.body().string() );
+
+        // Status = "OK" and no error : transaction is a success
+        if( "OK".equals( statusCheck.getStatus() ) && !statusCheck.isError() ){
+            return PaymentResponseSuccess.PaymentResponseSuccessBuilder.aPaymentResponseSuccess()
+                    .withMessage( new Message( Message.MessageType.SUCCESS, statusCheck.getMessage() ) )
+                    .withStatusCode( statusCheck.getErCode() )
+                    .withTransactionIdentifier( statusCheck.getAuthId() )
+                    // TODO: replace the fake email by another solution (waiting for another release from PM-API)
+                    .withTransactionDetails( Email.EmailBuilder.anEmail().withEmail( "fake.address@tsi.fake.fr" ).build() )
+                    .withTransactionAdditionalData( statusCheck.getResume() )
+                    .build();
+        }
+        // no valid transaction was found or an error occurred
+        else {
+            logger.error( "TSI Status Check request returned an error: " + statusCheck.getMessage() + "(" + statusCheck.getErCode() + ")" );
+            return buildPaymentResponseFailure( statusCheck.getMessage(), FailureCause.PAYMENT_PARTNER_ERROR );
+        }
     }
 
     @Override

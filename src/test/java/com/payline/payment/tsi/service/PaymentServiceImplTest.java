@@ -89,7 +89,7 @@ public class PaymentServiceImplTest {
 
     @Test
     public void testPaymentRequest_httpError() throws IOException {
-        // when: the HTTP call returns a HTTP error (503 Service Unavailable par exemple)
+        // when: the HTTP call returns a HTTP error (503 Service Unavailable par example)
         Response response = this.mockResponse( 503, "Service Unavailable", null, null, null );
         when( httpClient.doPost( anyString(), anyString(), anyString(), any() ) )
                 .thenReturn( response );
@@ -101,7 +101,7 @@ public class PaymentServiceImplTest {
 
     @Test
     public void testPaymentRequest_ioException() throws IOException {
-        // when: the HTTP call returns an exception
+        // when: the HTTP call throws an exception
         when( httpClient.doPost( anyString(), anyString(), anyString(), any() ) )
                 .thenThrow( IOException.class );
         PaymentResponse paymentResponse = service.paymentRequest( mock( PaymentRequest.class ) );
