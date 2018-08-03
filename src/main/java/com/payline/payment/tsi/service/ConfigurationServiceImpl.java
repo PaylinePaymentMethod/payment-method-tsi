@@ -71,7 +71,7 @@ public class ConfigurationServiceImpl implements ConfigurationService {
         LocalDate date = LocalDate.parse( "26/09/2018", DateTimeFormatter.ofPattern( RELEASE_DATE_FORMAT ) );
         return ReleaseInformation.ReleaseBuilder.aRelease()
                 .withDate( date )
-                .withVersion( "1.0-SNAPSHOT" )
+                .withVersion( "1.0.0-SNAPSHOT" )
                 .build();
     }
 
