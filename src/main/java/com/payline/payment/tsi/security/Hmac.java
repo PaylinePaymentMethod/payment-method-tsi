@@ -30,9 +30,9 @@ public class Hmac {
 
         try {
             // Init Mac instance
-            SecretKeySpec key = new SecretKeySpec( this.key.getBytes("UTF-8"), this.algorithm );
+            SecretKeySpec secretKey = new SecretKeySpec( this.key.getBytes("UTF-8"), this.algorithm );
             Mac mac = Mac.getInstance( this.algorithm );
-            mac.init(key);
+            mac.init( secretKey );
 
             // Process the message and finishes MAC operation
             byte[] bytes = mac.doFinal( message.getBytes( "UTF-8" ) );
