@@ -40,7 +40,9 @@ sonarqube {
 
         property "sonar.organization", "thales-services-monext"
         property "sonar.host.url", "https://sonarcloud.io"
-        property "sonar.branch.name", "develop"
+
+        property "sonar.exclusions", "src/main/java/Main.java"
+        property "sonar.coverage.exclusions", "src/main/java/Main.java"
     }
 }
 
