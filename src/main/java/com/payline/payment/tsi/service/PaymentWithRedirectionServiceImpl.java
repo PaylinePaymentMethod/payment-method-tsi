@@ -9,7 +9,6 @@ import com.payline.pmapi.bean.payment.request.RedirectionPaymentRequest;
 import com.payline.pmapi.bean.payment.request.TransactionStatusRequest;
 import com.payline.pmapi.bean.payment.response.PaymentResponse;
 import com.payline.pmapi.bean.payment.response.PaymentResponseSuccess;
-import com.payline.pmapi.bean.payment.response.buyerpaymentidentifier.BuyerPaymentId;
 import com.payline.pmapi.bean.payment.response.buyerpaymentidentifier.impl.Email;
 import com.payline.pmapi.service.PaymentWithRedirectionService;
 import okhttp3.Response;
@@ -71,7 +70,6 @@ public class PaymentWithRedirectionServiceImpl extends AbstractPaymentHttpServic
 
     @Override
     public PaymentResponse handleSessionExpired( TransactionStatusRequest transactionStatusRequest ) {
-        // TODO
-        return null;
+        return buildPaymentResponseFailure( "timeout", FailureCause.SESSION_EXPIRED );
     }
 }
