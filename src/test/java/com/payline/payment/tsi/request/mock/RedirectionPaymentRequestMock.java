@@ -14,9 +14,12 @@ import java.util.Locale;
  */
 public class RedirectionPaymentRequestMock extends PaymentRequestMock {
 
+    protected String redirectionContext;
+
     @Override
     public RedirectionPaymentRequest mock(){
         return RedirectionPaymentRequest.builder()
+                .withRedirectionContext( this.redirectionContext )
                 .withAmount( new Amount( this.amount, this.currency ) )
                 .withBrowser( new Browser( "", Locale.FRANCE ) )
                 .withContractConfiguration( new ContractConfiguration( "", this.contractProperties ) )
@@ -25,5 +28,10 @@ public class RedirectionPaymentRequestMock extends PaymentRequestMock {
                 .withOrder( Order.OrderBuilder.anOrder().withReference( this.transactionId ).build() )
                 .withSoftDescriptor( this.softDescriptor )
                 .build();
+    }
+
+    public RedirectionPaymentRequestMock withRedirectionContext( String redirectionContext ){
+        this.redirectionContext = redirectionContext;
+        return this;
     }
 }

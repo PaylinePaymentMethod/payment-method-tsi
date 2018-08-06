@@ -53,7 +53,7 @@ public class TsiStatusCheckRequestTest {
      */
 
     @Test
-    public void testBuilder_fromPaymentRequest() throws InvalidRequestException, NoSuchAlgorithmException {
+    public void testBuilder_fromPaymentRequest() throws InvalidRequestException {
         // given: a valid RedirectionPaymentRequest
         RedirectionPaymentRequest redirectionPaymentRequest = (new TsiRedirectionPaymentRequestMock()).mock();
 
@@ -63,6 +63,13 @@ public class TsiStatusCheckRequestTest {
         // then: request has a mac
         Assert.assertNotNull( request.getMac() );
         Assert.assertFalse( request.getMac().isEmpty() );
+    }
+
+    public static TsiStatusCheckRequest sample(){
+        return new TsiStatusCheckRequest(
+                "1234567890",
+                123
+        );
     }
 
 }

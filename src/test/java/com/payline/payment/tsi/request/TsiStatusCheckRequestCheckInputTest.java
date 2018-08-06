@@ -50,8 +50,8 @@ public class TsiStatusCheckRequestCheckInputTest {
         });
 
         dataList.add( new Object[]{
-                "No transaction id",
-                mocker.reset().withTransactionId( null ).mock()
+                "No tid passed through redirection context",
+                mocker.reset().withRedirectionContext( null ).mock()
         });
 
         return dataList;

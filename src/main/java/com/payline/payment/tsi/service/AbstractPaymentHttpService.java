@@ -65,13 +65,13 @@ public abstract class AbstractPaymentHttpService<T extends PaymentRequest> {
                 // Mandate the child class to process the request when it's OK (which is specific to each implementation)
                 return this.processResponse( response );
             }
-            else if( response == null || response.body() == null ){
-                logger.error( "The HTTP response or its body is null and should not be" );
-                return buildPaymentResponseFailure( "no code transmitted", FailureCause.INTERNAL_ERROR );
-            }
-            else {
+            else if( response.code() != 200 ){
                 logger.error( "An HTTP error occurred while sending the request: " + response.message() );
                 return buildPaymentResponseFailure( Integer.toString( response.code() ), FailureCause.COMMUNICATION_ERROR );
+            }
+            else {
+                logger.error( "The HTTP response or its body is null and should not be" );
+                return buildPaymentResponseFailure( "no code transmitted", FailureCause.INTERNAL_ERROR );
             }
         }
         catch( InvalidRequestException e ){

@@ -110,4 +110,21 @@ public class TsiGoRequestTest {
         Assert.assertEquals( "1.1", this.builder.formatAmount( amount ) );
     }
 
+    public static TsiGoRequest sample(){
+        return new TsiGoRequest(
+                123,
+                "1234567890",
+                "10",
+                "EUR",
+                123,
+                "Ticket Premium",
+                "http://boutique.com/returnOK.php",
+                "http://boutique.com/returnNOK.php",
+                "http://boutique.com/returnS2S.php",
+                "N",
+                "Y",
+                null
+        );
+    }
+
 }

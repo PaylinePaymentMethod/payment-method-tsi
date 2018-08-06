@@ -3,6 +3,7 @@ package com.payline.payment.tsi.service;
 import com.payline.payment.tsi.TsiConstants;
 import com.payline.pmapi.bean.configuration.AbstractParameter;
 import com.payline.pmapi.bean.configuration.ContractParametersCheckRequest;
+import com.payline.pmapi.bean.configuration.ReleaseInformation;
 import com.payline.pmapi.bean.payment.ContractConfiguration;
 import com.payline.pmapi.bean.payment.PaylineEnvironment;
 import org.junit.Assert;
@@ -16,6 +17,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+
+import static org.mockito.Mockito.mock;
 
 @RunWith( MockitoJUnitRunner.class )
 public class ConfigurationServiceImplTest {
@@ -60,6 +63,27 @@ public class ConfigurationServiceImplTest {
 
         // then: result contains 1 error
         Assert.assertEquals( 1, errors.size() );
+    }
+
+    // TODO: Improve this test case ! Testing the result is not null is not enough.
+    @Test
+    public void testGetReleaseInformation_notNull(){
+        // when: getReleaseInformation method is called
+        ReleaseInformation releaseInformation = service.getReleaseInformation();
+
+        // then: result is not null
+        Assert.assertNotNull( releaseInformation );
+    }
+
+    // TODO: Improve this test case ! Testing the result is not empty is not enough.
+    @Test
+    public void testGetName_notNull(){
+        // when: getReleaseInformation method is called
+        String name = service.getName( Locale.FRANCE );
+
+        // then: result is not null and not empty
+        Assert.assertNotNull( name );
+        Assert.assertFalse( name.isEmpty() );
     }
 
     @Test

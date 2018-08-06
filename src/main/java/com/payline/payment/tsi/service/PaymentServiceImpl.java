@@ -18,7 +18,7 @@ import java.security.NoSuchAlgorithmException;
 
 import static com.payline.pmapi.bean.payment.response.PaymentResponseRedirect.RedirectionRequest;
 
-public class PaymentServiceImpl extends AbstractPaymentHttpService implements PaymentService {
+public class PaymentServiceImpl extends AbstractPaymentHttpService<PaymentRequest> implements PaymentService {
 
     private static final Logger logger = LogManager.getLogger( PaymentServiceImpl.class );
 
@@ -31,7 +31,7 @@ public class PaymentServiceImpl extends AbstractPaymentHttpService implements Pa
 
     @Override
     public PaymentResponse paymentRequest( PaymentRequest paymentRequest ) {
-        return this.processRequest( paymentRequest );
+        return processRequest( paymentRequest );
     }
 
     @Override
@@ -41,7 +41,7 @@ public class PaymentServiceImpl extends AbstractPaymentHttpService implements Pa
 
         // Send Go request
         // TODO: externalize scheme, host and path definitions!
-        return httpClient.doPost( "https", "sandbox-voucher.tsiapi.com", "/context", tsiGoRequest.buildBody() );
+        return httpClient.doPost( "https", "sandbox-voucher.tsiapi.com", "context", tsiGoRequest.buildBody() );
     }
 
     @Override
@@ -56,6 +56,7 @@ public class PaymentServiceImpl extends AbstractPaymentHttpService implements Pa
             RedirectionRequest redirectionRequest = new RedirectionRequest( new URL( redirectUrl ) );
             return PaymentResponseRedirect.PaymentResponseRedirectBuilder.aPaymentResponseRedirect()
                     .withRedirectionRequest( redirectionRequest )
+                    .withTransactionIdentifier( tsiGoResponse.getTid() )
                     .build();
         }
         else {

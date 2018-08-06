@@ -34,14 +34,14 @@ public class TsiStatusCheckRequest extends TsiSealedJsonRequest {
     public static class Builder extends TsiSealedJsonRequest.Builder {
 
         public TsiStatusCheckRequest fromRedirectionPaymentRequest( RedirectionPaymentRequest redirectionPaymentRequest )
-                throws NoSuchAlgorithmException, InvalidRequestException {
+                throws InvalidRequestException {
 
             // Check the input request for NPEs and mandatory fields
             this.checkInputRequest( redirectionPaymentRequest );
 
             // Instantiate the TsiStatusCheckRequest from input request
             TsiStatusCheckRequest request = new TsiStatusCheckRequest(
-                    this.formatTransactionId( redirectionPaymentRequest.getTransactionId() ),
+                    redirectionPaymentRequest.getRedirectionContext().toString(), // Should contain the tid
                     Integer.parseInt( redirectionPaymentRequest.getContractConfiguration().getContractProperties().get( TsiConstants.CONTRACT_KEY_ID ).getValue() )
             );
 
@@ -72,8 +72,8 @@ public class TsiStatusCheckRequest extends TsiSealedJsonRequest {
                 throw new InvalidRequestException( "Missing contract configuration property: key id" );
             }
 
-            if( redirectionPaymentRequest.getTransactionId() == null || redirectionPaymentRequest.getTransactionId().isEmpty() ){
-                throw new InvalidRequestException( "Transaction id is required" );
+            if( redirectionPaymentRequest.getRedirectionContext() == null || redirectionPaymentRequest.getRedirectionContext().toString().isEmpty() ){
+                throw new InvalidRequestException( "Redirection context (containing the tid) is required" );
             }
         }
 

@@ -16,7 +16,6 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import java.io.IOException;
-import java.security.NoSuchAlgorithmException;
 
 public class PaymentWithRedirectionServiceImpl extends AbstractPaymentHttpService<RedirectionPaymentRequest> implements PaymentWithRedirectionService {
 
@@ -31,18 +30,18 @@ public class PaymentWithRedirectionServiceImpl extends AbstractPaymentHttpServic
 
     @Override
     public PaymentResponse finalizeRedirectionPayment( RedirectionPaymentRequest redirectionPaymentRequest ) {
-        return this.processRequest( redirectionPaymentRequest );
+        return processRequest( redirectionPaymentRequest );
     }
 
     @Override
     public Response createSendRequest( RedirectionPaymentRequest redirectionPaymentRequest )
-            throws IOException, InvalidRequestException, NoSuchAlgorithmException {
+            throws IOException, InvalidRequestException {
         // Create StatusCheck request from Payline input
         TsiStatusCheckRequest statusCheckRequest = requestBuilder.fromRedirectionPaymentRequest( redirectionPaymentRequest );
 
         // Call StatusCheck to recover transaction info
         // TODO: externalize scheme, host and path definitions!
-        return httpClient.doPost( "https", "sandbox-voucher.tsiapi.com", "/checkstatus", statusCheckRequest.buildBody() );
+        return httpClient.doPost( "https", "sandbox-voucher.tsiapi.com", "checkstatus", statusCheckRequest.buildBody() );
     }
 
     @Override
@@ -55,8 +54,9 @@ public class PaymentWithRedirectionServiceImpl extends AbstractPaymentHttpServic
             return PaymentResponseSuccess.PaymentResponseSuccessBuilder.aPaymentResponseSuccess()
                     .withMessage( new Message( Message.MessageType.SUCCESS, statusCheck.getMessage() ) )
                     .withStatusCode( statusCheck.getErCode() )
-                    .withTransactionIdentifier( statusCheck.getAuthId() )
+                    .withTransactionIdentifier( statusCheck.getTid() )
                     // TODO: replace the fake email by another solution (waiting for another release from PM-API)
+                    // TODO: make the fake email configurable
                     .withTransactionDetails( Email.EmailBuilder.anEmail().withEmail( "fake.address@tsi.fake.fr" ).build() )
                     .withTransactionAdditionalData( statusCheck.getResume() )
                     .build();

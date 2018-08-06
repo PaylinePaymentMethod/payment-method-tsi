@@ -10,6 +10,7 @@ public class TsiRedirectionPaymentRequestMock extends RedirectionPaymentRequestM
         super.reset();
         this.contractProperties.put( TsiConstants.CONTRACT_MERCHANT_ID, new ContractProperty( "123" ) );
         this.contractProperties.put( TsiConstants.CONTRACT_KEY_ID, new ContractProperty( "234" ) );
+        this.redirectionContext = "1234567890";
         return this;
     }
 

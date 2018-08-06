@@ -51,7 +51,7 @@ public class TsiStatusCheckResponseTest {
         List<String> fields = new ArrayList<>();
 
         if( authId != null ){
-            fields.add( "\"authid\":\"" + authId + "\"" );
+            fields.add( "\"authId\":\"" + authId + "\"" );
         }
         if( tid != null ){
             fields.add( "\"tid\":\"" + tid + "\"" );

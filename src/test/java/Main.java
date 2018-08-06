@@ -1,6 +1,5 @@
 package com.payline.payment.tsi.request;
 
-import com.payline.payment.tsi.request.TsiGoRequest;
 import com.payline.payment.tsi.response.TsiGoResponse;
 import com.payline.payment.tsi.security.Hmac;
 import com.payline.payment.tsi.security.HmacAlgorithm;
@@ -8,6 +7,8 @@ import com.payline.payment.tsi.utils.JsonHttpClient;
 import okhttp3.Response;
 
 import java.io.IOException;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -53,10 +54,10 @@ public class Main {
 
         // Build request
         Map<String, Object> custom = new HashMap<>();
-        custom.put("ref", "123456");
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern( "000000000000000000yyyyMMddHHmmss" );
         TsiGoRequest request = new TsiGoRequest(
                 806,
-                "abcdefghijklmnopkrstuvwxyz12346P",
+                LocalDateTime.now().format( formatter ),
                 "1.02",
                 "EUR",
                 806,
@@ -66,7 +67,7 @@ public class Main {
                 "http://boutique.com/returnS2S.php",
                 "N",
                 "Y",
-                custom
+                null
         );
 
         // Seal request
@@ -82,7 +83,13 @@ public class Main {
 
         // Parse the response
         TsiGoResponse tsiGoResponse = (new TsiGoResponse.Builder()).fromJson( response.body().string() );
-        System.out.println( tsiGoResponse );
+        System.out.println( "TsiGoResponse[" +
+                "status=" + tsiGoResponse.getStatus() +
+                ", message=\"" + tsiGoResponse.getMessage() + "\"" +
+                ", url=\"" + tsiGoResponse.getUrl() + "\"" +
+                ", tid=" + tsiGoResponse.getTid() +
+                ", keyId=" + tsiGoResponse.getKeyId() +
+                "]" );
 
         String statusCheckMac = hmac.digest( tsiGoResponse.getTid() + "|" + tsiGoResponse.getKeyId() );
         System.out.println( "Status Check mac: " + statusCheckMac );

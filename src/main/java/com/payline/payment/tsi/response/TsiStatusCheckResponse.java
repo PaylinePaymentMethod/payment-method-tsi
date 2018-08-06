@@ -6,7 +6,6 @@ import com.google.gson.annotations.SerializedName;
 public class TsiStatusCheckResponse {
 
     /** Authorization id */
-    @SerializedName( "authid" )
     private String authId;
     /** Transaction identifier */
     private String tid;
@@ -83,7 +82,7 @@ public class TsiStatusCheckResponse {
     }
 
     public String getResume(){
-        return "authid: " + this.authId
+        return "authId: " + this.authId
                 + ", tid: " + this.tid
                 + ", multi: " + this.multi
                 + ", dtime: " + this.dtime
