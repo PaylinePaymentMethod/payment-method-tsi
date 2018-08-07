@@ -17,8 +17,8 @@ public class Main {
 
     public static void main( String[] args ) throws IOException {
         //hmacThis( "abcdefghijklmnopkrstuvwxyz12345|806" );
-        //http();
-        props();
+        http();
+        //props();
     }
 
     private static void hmac(){

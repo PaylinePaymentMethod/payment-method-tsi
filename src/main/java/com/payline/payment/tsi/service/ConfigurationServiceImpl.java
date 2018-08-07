@@ -1,10 +1,7 @@
 package com.payline.payment.tsi.service;
 
 import com.payline.payment.tsi.TsiConstants;
-import com.payline.pmapi.bean.configuration.AbstractParameter;
-import com.payline.pmapi.bean.configuration.ContractParametersCheckRequest;
-import com.payline.pmapi.bean.configuration.InputParameter;
-import com.payline.pmapi.bean.configuration.ReleaseInformation;
+import com.payline.pmapi.bean.configuration.*;
 import com.payline.pmapi.service.ConfigurationService;
 
 import java.time.LocalDate;
@@ -29,6 +26,15 @@ public class ConfigurationServiceImpl implements ConfigurationService {
 
         parameters.add( merchantId );
 
+        // Key value
+        final InputParameter keyValue = new InputParameter();
+        keyValue.setKey( TsiConstants.CONTRACT_KEY_VALUE );
+        keyValue.setLabel( "secret key" ); // TODO: internationalize
+        keyValue.setDescription( "The secret key provided by TSI" ); // TODO: internationalize
+        keyValue.setRequired( true );
+
+        parameters.add( keyValue );
+
         // Key ID
         final InputParameter keyId = new InputParameter();
         keyId.setKey( TsiConstants.CONTRACT_KEY_ID );
@@ -37,6 +43,9 @@ public class ConfigurationServiceImpl implements ConfigurationService {
         keyId.setRequired( true );
 
         parameters.add( keyId );
+
+        // Product description
+        // TODO !
 
         return parameters;
     }
@@ -58,6 +67,8 @@ public class ConfigurationServiceImpl implements ConfigurationService {
         if( !isInteger( keyId ) ){
             errors.put( TsiConstants.CONTRACT_KEY_ID, "key identifier must be an integer" ); // TODO: internationalize
         }
+
+        // TODO: is the secret key always 32-characters-long ?
 
         // TODO: is there a TSI endpoint to test the connection ?
 

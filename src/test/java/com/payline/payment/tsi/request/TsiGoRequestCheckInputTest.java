@@ -52,6 +52,11 @@ public class TsiGoRequestCheckInputTest {
         });
 
         dataList.add( new Object[]{
+                "Mission contract property: secret key",
+                mocker.withKeyValue( null ).mock()
+        });
+
+        dataList.add( new Object[]{
                 "Missing contract property: key id",
                 mocker.reset().withKeyId( null ).mock()
         });

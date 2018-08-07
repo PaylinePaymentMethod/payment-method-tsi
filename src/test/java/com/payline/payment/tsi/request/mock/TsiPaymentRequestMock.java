@@ -9,6 +9,7 @@ public class TsiPaymentRequestMock extends PaymentRequestMock {
     public TsiPaymentRequestMock reset(){
         super.reset();
         this.contractProperties.put( TsiConstants.CONTRACT_MERCHANT_ID, new ContractProperty( "123" ) );
+        this.contractProperties.put( TsiConstants.CONTRACT_KEY_VALUE, new ContractProperty( "secret" ) );
         this.contractProperties.put( TsiConstants.CONTRACT_KEY_ID, new ContractProperty( "234" ) );
         return this;
     }
@@ -27,6 +28,15 @@ public class TsiPaymentRequestMock extends PaymentRequestMock {
             this.contractProperties.put( TsiConstants.CONTRACT_KEY_ID, new ContractProperty( Integer.toString( keyId ) ) );
         } else {
             this.contractProperties.remove( TsiConstants.CONTRACT_KEY_ID );
+        }
+        return this;
+    }
+
+    public TsiPaymentRequestMock withKeyValue( String keyValue ){
+        if( keyValue != null ){
+            this.contractProperties.put( TsiConstants.CONTRACT_KEY_VALUE, new ContractProperty( keyValue ) );
+        } else {
+            this.contractProperties.remove( TsiConstants.CONTRACT_KEY_VALUE );
         }
         return this;
     }

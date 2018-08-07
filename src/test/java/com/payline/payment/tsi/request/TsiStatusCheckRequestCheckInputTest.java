@@ -45,6 +45,11 @@ public class TsiStatusCheckRequestCheckInputTest {
         TsiRedirectionPaymentRequestMock mocker = new TsiRedirectionPaymentRequestMock();
 
         dataList.add( new Object[]{
+                "Missing contract property: secret key",
+                mocker.reset().withKeyValue( null ).mock()
+        });
+
+        dataList.add( new Object[]{
                 "Missing contract property: key id",
                 mocker.reset().withKeyId( null ).mock()
         });

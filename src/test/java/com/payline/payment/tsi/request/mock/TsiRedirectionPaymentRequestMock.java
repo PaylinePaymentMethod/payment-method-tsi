@@ -9,6 +9,7 @@ public class TsiRedirectionPaymentRequestMock extends RedirectionPaymentRequestM
     public TsiRedirectionPaymentRequestMock reset(){
         super.reset();
         this.contractProperties.put( TsiConstants.CONTRACT_MERCHANT_ID, new ContractProperty( "123" ) );
+        this.contractProperties.put( TsiConstants.CONTRACT_KEY_VALUE, new ContractProperty( "secret" ) );
         this.contractProperties.put( TsiConstants.CONTRACT_KEY_ID, new ContractProperty( "234" ) );
         this.redirectionContext = "1234567890";
         return this;
@@ -28,6 +29,15 @@ public class TsiRedirectionPaymentRequestMock extends RedirectionPaymentRequestM
             this.contractProperties.put( TsiConstants.CONTRACT_KEY_ID, new ContractProperty( Integer.toString( keyId ) ) );
         } else {
             this.contractProperties.remove( TsiConstants.CONTRACT_KEY_ID );
+        }
+        return this;
+    }
+
+    public TsiRedirectionPaymentRequestMock withKeyValue( String keyValue ){
+        if( keyValue != null ){
+            this.contractProperties.put( TsiConstants.CONTRACT_KEY_VALUE, new ContractProperty( keyValue ) );
+        } else {
+            this.contractProperties.remove( TsiConstants.CONTRACT_KEY_VALUE );
         }
         return this;
     }

@@ -48,7 +48,9 @@ public class TsiPaymentIT extends AbstractPaymentIntegration {
     @Override
     protected Map<String, ContractProperty> generateParameterContract() {
         Map<String, ContractProperty> contractProperties = new HashMap<>();
+        // TODO: Externalize these test values
         contractProperties.put( TsiConstants.CONTRACT_MERCHANT_ID, new ContractProperty( "806" ) );
+        contractProperties.put( TsiConstants.CONTRACT_KEY_VALUE, new ContractProperty( "45f3bcf660df19f8364c222e887300fa" ) );
         contractProperties.put( TsiConstants.CONTRACT_KEY_ID, new ContractProperty( "806" ) );
         return contractProperties;
     }
@@ -77,14 +79,14 @@ public class TsiPaymentIT extends AbstractPaymentIntegration {
 
             // Login
             // TODO: Externalize these test values
-            driver.findElement( By.id( "email" ) ).sendKeys( "docifozih@taylorventuresllc.com" );
+            driver.findElement( By.id( "email" ) ).sendKeys( "vudal@travala10.com" );
             driver.findElement( By.id( "btn-submit" ) ).click();
-            driver.findElement( By.id( "password-field" ) ).sendKeys( "Tototo123!" );
+            driver.findElement( By.id( "password-field" ) ).sendKeys( "IT38dQ4H2CEg!" );
             driver.findElement( By.id( "btn-submit" ) ).click();
 
 
             // Enter ticket premium code
-            driver.findElement( By.id( "PIN" ) ).sendKeys( "0092649019253691" );
+            driver.findElement( By.id( "PIN" ) ).sendKeys( "7837629025910256" );
             driver.findElement( By.name( "SEND" ) ).click();
 
             // Wait for redirection to success or cancel url

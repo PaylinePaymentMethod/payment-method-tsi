@@ -46,8 +46,8 @@ public class TsiStatusCheckRequest extends TsiSealedJsonRequest {
             );
 
             // Seal the request with HMAC algorithm
-            // TODO: Put the key into the contract configuration properties !
-            this.sealRequest( request, "45f3bcf660df19f8364c222e887300fa" );
+            String secretKey = redirectionPaymentRequest.getContractConfiguration().getContractProperties().get( TsiConstants.CONTRACT_KEY_VALUE ).getValue();
+            this.sealRequest( request, secretKey );
 
             return request;
         }
@@ -71,6 +71,9 @@ public class TsiStatusCheckRequest extends TsiSealedJsonRequest {
             if( redirectionPaymentRequest.getContractConfiguration() == null
                     || redirectionPaymentRequest.getContractConfiguration().getContractProperties() == null  ){
                 throw new InvalidRequestException( "Contract configuration properties object must not be null" );
+            }
+            if( redirectionPaymentRequest.getContractConfiguration().getContractProperties().get( TsiConstants.CONTRACT_KEY_VALUE ) == null ){
+                throw new InvalidRequestException( "Missing contract configuration property: secret key" );
             }
             if( redirectionPaymentRequest.getContractConfiguration().getContractProperties().get( TsiConstants.CONTRACT_KEY_ID ) == null ){
                 throw new InvalidRequestException( "Missing contract configuration property: key id" );

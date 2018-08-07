@@ -32,7 +32,7 @@ public class ConfigurationServiceImplTest {
         List<AbstractParameter> parameters = service.getParameters( Locale.FRANCE );
 
         // then: exactly 2 parameters are returned
-        Assert.assertEquals( 2, parameters.size() );
+        Assert.assertEquals( 3, parameters.size() );
     }
 
     @Test
@@ -40,6 +40,7 @@ public class ConfigurationServiceImplTest {
         // given: a non-integer merchant id
         HashMap<String, String> parameters = new HashMap<>();
         parameters.put( TsiConstants.CONTRACT_MERCHANT_ID, "abc" );
+        parameters.put( TsiConstants.CONTRACT_KEY_VALUE, "secret" );
         parameters.put( TsiConstants.CONTRACT_KEY_ID, "123" );
         ContractParametersCheckRequest checkRequest = this.setupCheckRequest( parameters );
 
@@ -55,6 +56,7 @@ public class ConfigurationServiceImplTest {
         // given: a non-integer key id
         HashMap<String, String> parameters = new HashMap<>();
         parameters.put( TsiConstants.CONTRACT_MERCHANT_ID, "1234" );
+        parameters.put( TsiConstants.CONTRACT_KEY_VALUE, "secret" );
         parameters.put( TsiConstants.CONTRACT_KEY_ID, "ABC" );
         ContractParametersCheckRequest checkRequest = this.setupCheckRequest( parameters );
 
