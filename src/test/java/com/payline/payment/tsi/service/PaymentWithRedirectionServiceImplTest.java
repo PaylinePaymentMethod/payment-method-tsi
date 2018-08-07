@@ -4,7 +4,7 @@ import com.payline.payment.tsi.exception.InvalidRequestException;
 import com.payline.payment.tsi.request.TsiStatusCheckRequest;
 import com.payline.payment.tsi.request.TsiStatusCheckRequestTest;
 import com.payline.payment.tsi.response.TsiStatusCheckResponseTest;
-import com.payline.payment.tsi.utils.JsonHttpClient;
+import com.payline.payment.tsi.utils.http.JsonHttpClient;
 import com.payline.pmapi.bean.payment.request.RedirectionPaymentRequest;
 import com.payline.pmapi.bean.payment.request.TransactionStatusRequest;
 import com.payline.pmapi.bean.payment.response.PaymentResponse;
@@ -17,6 +17,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
+import org.mockito.Mockito;
 import org.mockito.junit.MockitoJUnitRunner;
 
 import java.io.IOException;
@@ -47,7 +48,7 @@ public class PaymentWithRedirectionServiceImplTest {
         Response response = this.mockResponse( 200, "OK", "OK", 0, "SUCCESSFUL TRANSACTION FOUND" );
         when( httpClient.doPost( anyString(), anyString(), anyString(), anyString() ) )
                 .thenReturn( response );
-        PaymentResponse paymentResponse = service.finalizeRedirectionPayment( mock( RedirectionPaymentRequest.class ) );
+        PaymentResponse paymentResponse = service.finalizeRedirectionPayment( mock( RedirectionPaymentRequest.class, Mockito.RETURNS_DEEP_STUBS ) );
 
         // then: returned object is an instance of PaymentResponseSuccess
         Assert.assertTrue( paymentResponse instanceof PaymentResponseSuccess );

@@ -3,6 +3,8 @@ package com.payline.payment.tsi.service;
 import com.payline.payment.tsi.exception.InvalidRequestException;
 import com.payline.payment.tsi.request.TsiStatusCheckRequest;
 import com.payline.payment.tsi.response.TsiStatusCheckResponse;
+import com.payline.payment.tsi.utils.config.ConfigEnvironment;
+import com.payline.payment.tsi.utils.config.ConfigProperties;
 import com.payline.pmapi.bean.common.FailureCause;
 import com.payline.pmapi.bean.common.Message;
 import com.payline.pmapi.bean.payment.request.RedirectionPaymentRequest;
@@ -40,8 +42,11 @@ public class PaymentWithRedirectionServiceImpl extends AbstractPaymentHttpServic
         TsiStatusCheckRequest statusCheckRequest = requestBuilder.fromRedirectionPaymentRequest( redirectionPaymentRequest );
 
         // Call StatusCheck to recover transaction info
-        // TODO: externalize scheme, host and path definitions!
-        return httpClient.doPost( "https", "sandbox-voucher.tsiapi.com", "checkstatus", statusCheckRequest.buildBody() );
+        ConfigEnvironment env = redirectionPaymentRequest.getPaylineEnvironment().isSandbox() ? ConfigEnvironment.TEST : ConfigEnvironment.PROD;
+        String scheme = ConfigProperties.get( "tsi.scheme", env );
+        String host = ConfigProperties.get( "tsi.host", env );
+        String path = ConfigProperties.get( "tsi.statusCheck.path", env );
+        return httpClient.doPost( scheme, host, path, statusCheckRequest.buildBody() );
     }
 
     @Override

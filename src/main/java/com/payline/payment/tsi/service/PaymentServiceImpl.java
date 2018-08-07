@@ -3,6 +3,8 @@ package com.payline.payment.tsi.service;
 import com.payline.payment.tsi.exception.InvalidRequestException;
 import com.payline.payment.tsi.request.TsiGoRequest;
 import com.payline.payment.tsi.response.TsiGoResponse;
+import com.payline.payment.tsi.utils.config.ConfigEnvironment;
+import com.payline.payment.tsi.utils.config.ConfigProperties;
 import com.payline.pmapi.bean.common.FailureCause;
 import com.payline.pmapi.bean.payment.request.PaymentRequest;
 import com.payline.pmapi.bean.payment.response.PaymentResponse;
@@ -11,6 +13,7 @@ import com.payline.pmapi.service.PaymentService;
 import okhttp3.Response;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.omg.CORBA.Environment;
 
 import java.io.IOException;
 import java.net.URL;
@@ -40,8 +43,11 @@ public class PaymentServiceImpl extends AbstractPaymentHttpService<PaymentReques
         TsiGoRequest tsiGoRequest = requestBuilder.fromPaymentRequest( paymentRequest );
 
         // Send Go request
-        // TODO: externalize scheme, host and path definitions!
-        return httpClient.doPost( "https", "sandbox-voucher.tsiapi.com", "context", tsiGoRequest.buildBody() );
+        ConfigEnvironment env = paymentRequest.getPaylineEnvironment().isSandbox() ? ConfigEnvironment.TEST : ConfigEnvironment.PROD;
+        String scheme = ConfigProperties.get( "tsi.scheme", env );
+        String host = ConfigProperties.get( "tsi.host", env );
+        String path = ConfigProperties.get( "tsi.go.path", env );
+        return httpClient.doPost( scheme, host, path, tsiGoRequest.buildBody() );
     }
 
     @Override

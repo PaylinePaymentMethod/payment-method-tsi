@@ -1,7 +1,8 @@
 package com.payline.payment.tsi.service;
 
 import com.payline.payment.tsi.exception.InvalidRequestException;
-import com.payline.payment.tsi.utils.JsonHttpClient;
+import com.payline.payment.tsi.utils.config.ConfigProperties;
+import com.payline.payment.tsi.utils.http.JsonHttpClient;
 import com.payline.pmapi.bean.common.FailureCause;
 import com.payline.pmapi.bean.payment.request.PaymentRequest;
 import com.payline.pmapi.bean.payment.response.PaymentResponse;
@@ -25,8 +26,10 @@ public abstract class AbstractPaymentHttpService<T extends PaymentRequest> {
     protected JsonHttpClient httpClient;
 
     protected AbstractPaymentHttpService(){
-        // TODO: make these values editable through a config file
-        this.httpClient = new JsonHttpClient( 5, 10, 15 );
+        int connectTimeout = Integer.parseInt( ConfigProperties.get("http.connectTimeout") );
+        int writeTimeout = Integer.parseInt( ConfigProperties.get("http.writeTimeout") );
+        int readTimeout = Integer.parseInt( ConfigProperties.get("http.readTimeout") );
+        this.httpClient = new JsonHttpClient( connectTimeout, writeTimeout, readTimeout );
     }
 
     /**

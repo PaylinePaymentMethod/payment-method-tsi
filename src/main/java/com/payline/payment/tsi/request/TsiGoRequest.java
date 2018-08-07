@@ -116,7 +116,8 @@ public class TsiGoRequest extends TsiSealedJsonRequest {
             );
 
             // Seal the request with HMAC algorithm
-            this.sealRequest( request );
+            // TODO: Put the key into the contract configuration properties !
+            this.sealRequest( request, "45f3bcf660df19f8364c222e887300fa" );
 
             return request;
         }

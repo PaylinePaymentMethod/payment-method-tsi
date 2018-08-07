@@ -69,9 +69,8 @@ public abstract class TsiSealedJsonRequest {
         /**
          * Seals the request using HMAC MD5 algorithm
          */
-        protected void sealRequest( TsiSealedJsonRequest request ){
-            // TODO: externalize key definition in a properties file
-            Hmac hmac = new Hmac( "45f3bcf660df19f8364c222e887300fa", HmacAlgorithm.MD5 );
+        protected void sealRequest( TsiSealedJsonRequest request, String key ){
+            Hmac hmac = new Hmac( key, HmacAlgorithm.MD5 );
             request.setMac( hmac.digest( request.buildSealMessage() ) );
         }
 

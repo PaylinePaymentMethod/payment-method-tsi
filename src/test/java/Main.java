@@ -3,7 +3,8 @@ package com.payline.payment.tsi.request;
 import com.payline.payment.tsi.response.TsiGoResponse;
 import com.payline.payment.tsi.security.Hmac;
 import com.payline.payment.tsi.security.HmacAlgorithm;
-import com.payline.payment.tsi.utils.JsonHttpClient;
+import com.payline.payment.tsi.utils.config.ConfigProperties;
+import com.payline.payment.tsi.utils.http.JsonHttpClient;
 import okhttp3.Response;
 
 import java.io.IOException;
@@ -16,7 +17,8 @@ public class Main {
 
     public static void main( String[] args ) throws IOException {
         //hmacThis( "abcdefghijklmnopkrstuvwxyz12345|806" );
-        http();
+        //http();
+        props();
     }
 
     private static void hmac(){
@@ -117,6 +119,10 @@ public class Main {
         json += "}";
 
         System.out.println( json );
+    }
+
+    private static void props() {
+        System.out.println( ConfigProperties.get( "toto" ) );
     }
 
 }

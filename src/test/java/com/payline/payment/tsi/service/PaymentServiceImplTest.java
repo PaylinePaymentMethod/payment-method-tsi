@@ -4,7 +4,7 @@ import com.payline.payment.tsi.exception.InvalidRequestException;
 import com.payline.payment.tsi.request.TsiGoRequest;
 import com.payline.payment.tsi.request.TsiGoRequestTest;
 import com.payline.payment.tsi.response.TsiGoResponseTest;
-import com.payline.payment.tsi.utils.JsonHttpClient;
+import com.payline.payment.tsi.utils.http.JsonHttpClient;
 import com.payline.pmapi.bean.payment.request.PaymentRequest;
 import com.payline.pmapi.bean.payment.response.PaymentResponse;
 import com.payline.pmapi.bean.payment.response.PaymentResponseFailure;
@@ -16,6 +16,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
+import org.mockito.Mockito;
 import org.mockito.junit.MockitoJUnitRunner;
 
 import java.io.IOException;
@@ -47,7 +48,7 @@ public class PaymentServiceImplTest {
         Response response = this.mockResponse( 200, "OK", 1, "OK", "http://redirect-url.com" );
         when( httpClient.doPost( anyString(), anyString(), anyString(), anyString() ) )
                 .thenReturn( response );
-        PaymentResponse paymentResponse = service.paymentRequest( mock( PaymentRequest.class ) );
+        PaymentResponse paymentResponse = service.paymentRequest( mock( PaymentRequest.class, Mockito.RETURNS_DEEP_STUBS ) );
 
         // then: returned object is an instance of PaymentResponseRedirect
         Assert.assertTrue( paymentResponse instanceof PaymentResponseRedirect );

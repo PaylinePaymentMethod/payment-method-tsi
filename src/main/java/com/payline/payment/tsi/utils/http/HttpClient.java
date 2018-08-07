@@ -1,4 +1,4 @@
-package com.payline.payment.tsi.utils;
+package com.payline.payment.tsi.utils.http;
 
 import okhttp3.*;
 
