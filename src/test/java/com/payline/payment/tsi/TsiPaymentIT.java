@@ -113,7 +113,9 @@ public class TsiPaymentIT extends AbstractPaymentIntegration {
      */
     @Override
     public PaymentRequest createDefaultPaymentRequest() {
-        final Amount amount = new Amount( BigInteger.valueOf( 1500 ), Currency.getInstance( "EUR" ) );
+        // Override BEGINS here ---
+        final Amount amount = new Amount( BigInteger.valueOf( 150 ), Currency.getInstance( "EUR" ) );
+        // Override ENDS here ---
         final ContractConfiguration contractConfiguration = new ContractConfiguration( "", this.generateParameterContract() );
         final Map<String, Serializable> paymentFormData = this.generatePaymentFormData();
         final PaylineEnvironment paylineEnvironment = new PaylineEnvironment( NOTIFICATION_URL, SUCCESS_URL, CANCEL_URL, true );
