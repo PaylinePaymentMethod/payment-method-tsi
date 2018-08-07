@@ -68,7 +68,7 @@ public abstract class AbstractPaymentHttpService<T extends PaymentRequest> {
                 // Mandate the child class to process the request when it's OK (which is specific to each implementation)
                 return this.processResponse( response );
             }
-            else if( response.code() != 200 ){
+            else if( response != null && response.code() != 200 ){
                 logger.error( "An HTTP error occurred while sending the request: " + response.message() );
                 return buildPaymentResponseFailure( Integer.toString( response.code() ), FailureCause.COMMUNICATION_ERROR );
             }
