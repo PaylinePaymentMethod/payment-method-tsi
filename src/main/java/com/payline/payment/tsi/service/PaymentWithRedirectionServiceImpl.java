@@ -61,7 +61,7 @@ public class PaymentWithRedirectionServiceImpl extends AbstractPaymentHttpServic
                     .withStatusCode( statusCheck.getErCode() )
                     .withTransactionIdentifier( statusCheck.getTid() )
                     // TODO: replace the fake email by another solution (waiting for another release from PM-API)
-                    // TODO: make the fake email configurable
+                    // TODO: make the fake email configurable ?
                     .withTransactionDetails( Email.EmailBuilder.anEmail().withEmail( "fake.address@tsi.fake.fr" ).build() )
                     .withTransactionAdditionalData( statusCheck.getResume() )
                     .build();

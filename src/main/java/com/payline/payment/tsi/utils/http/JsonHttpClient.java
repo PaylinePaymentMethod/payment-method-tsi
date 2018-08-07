@@ -21,7 +21,16 @@ public class JsonHttpClient extends HttpClient {
         super( connectTimeout, writeTimeout, readTimeout );
     }
 
-    // TODO: Doc !
+    /**
+     * Send a POST request, with a JSON content type.
+     *
+     * @param scheme URL scheme
+     * @param host URL host
+     * @param path URL path
+     * @param jsonContent The JSON content, as a string
+     * @return The response returned from the HTTP call
+     * @throws IOException
+     */
     public Response doPost( String scheme, String host, String path, String jsonContent ) throws IOException {
         RequestBody body = RequestBody.create( MediaType.parse( CONTENT_TYPE ), jsonContent );
         return super.doPost( scheme, host, path, body, CONTENT_TYPE );

@@ -29,7 +29,17 @@ public abstract class HttpClient {
                 .build();
     }
 
-    // TODO: Doc !
+    /**
+     * Send a POST request.
+     *
+     * @param scheme URL scheme
+     * @param host URL host
+     * @param path URL path
+     * @param body Request body
+     * @param contentType The content type of the request body
+     * @return The response returned from the HTTP call
+     * @throws IOException
+     */
     public Response doPost( String scheme, String host, String path, RequestBody body, String contentType )
             throws IOException {
         // create url

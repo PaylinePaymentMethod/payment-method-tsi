@@ -19,13 +19,10 @@ public class TsiStatusCheckResponse {
     /** Transaction's amount (format: XX,XX) */
     private String amount;
     /** Is there more than one voucher used for the transaction: 't' or 'f' */
-    // TODO: convert directly into boolean from JSON ?
     private String multi;
     /** Transaction timestamp (YYYY-MM-DD HH24:MI:SS) */
-    // TODO: convert directly into Date object from JSON ?
     private String dtime;
     /** List of ISO3 voucher's country, separated by a pipe */
-    // TODO: convert directly into List from JSON ?
     private String country;
 
     public TsiStatusCheckResponse( String authId, String tid, String status, String erCode, String message,

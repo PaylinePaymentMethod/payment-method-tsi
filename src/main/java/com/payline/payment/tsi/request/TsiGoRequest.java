@@ -112,7 +112,7 @@ public class TsiGoRequest extends TsiSealedJsonRequest {
                     paymentRequest.getPaylineEnvironment().getNotificationURL(),
                     "N",
                     paymentRequest.getPaylineEnvironment().isSandbox() ? "Y" : "N",
-                    null // TODO: put something inside ?
+                    null
             );
 
             // Seal the request with HMAC algorithm
