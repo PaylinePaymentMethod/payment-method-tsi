@@ -5,6 +5,7 @@ import com.payline.payment.tsi.request.TsiGoRequest;
 import com.payline.payment.tsi.request.TsiGoRequestTest;
 import com.payline.payment.tsi.response.TsiGoResponseTest;
 import com.payline.payment.tsi.utils.http.JsonHttpClient;
+import com.payline.pmapi.bean.common.FailureCause;
 import com.payline.pmapi.bean.payment.request.PaymentRequest;
 import com.payline.pmapi.bean.payment.response.PaymentResponse;
 import com.payline.pmapi.bean.payment.response.PaymentResponseFailure;
@@ -59,10 +60,11 @@ public class PaymentServiceImplTest {
         // when: the PaymentRequest is invalid, i.e. the builder throws an exception
         when( requestBuilder.fromPaymentRequest( any( PaymentRequest.class ) ) )
                 .thenThrow( InvalidRequestException.class );
-        PaymentResponse paymentResponse = service.paymentRequest( mock( PaymentRequest.class ) );
+        PaymentResponse paymentResponse = service.paymentRequest( mock( PaymentRequest.class, Mockito.RETURNS_DEEP_STUBS ) );
 
-        // then: returned object is an instance of PaymentResponseFailure
+        // then: returned object is an instance of PaymentResponseFailure with the right failure cause
         Assert.assertTrue( paymentResponse instanceof PaymentResponseFailure );
+        Assert.assertEquals( FailureCause.INVALID_DATA, ((PaymentResponseFailure) paymentResponse).getFailureCause() );
     }
 
     @Test
@@ -71,10 +73,11 @@ public class PaymentServiceImplTest {
         Response response = this.mockResponse( 200, "OK", 15, "WRONG HMAC", null );
         when( httpClient.doPost( anyString(), anyString(), anyString(), anyString() ) )
                 .thenReturn( response );
-        PaymentResponse paymentResponse = service.paymentRequest( mock( PaymentRequest.class ) );
+        PaymentResponse paymentResponse = service.paymentRequest( mock( PaymentRequest.class, Mockito.RETURNS_DEEP_STUBS ) );
 
-        // then: returned object is an instance of PaymentResponseFailure
+        // then: returned object is an instance of PaymentResponseFailure with the right failure cause
         Assert.assertTrue( paymentResponse instanceof PaymentResponseFailure );
+        Assert.assertEquals( FailureCause.PAYMENT_PARTNER_ERROR, ((PaymentResponseFailure) paymentResponse).getFailureCause() );
     }
 
     @Test
@@ -83,10 +86,11 @@ public class PaymentServiceImplTest {
         Response response = this.mockResponse( 200, "OK", null, null, null );
         when( httpClient.doPost( anyString(), anyString(), anyString(), anyString() ) )
                 .thenReturn( response );
-        PaymentResponse paymentResponse = service.paymentRequest( mock( PaymentRequest.class ) );
+        PaymentResponse paymentResponse = service.paymentRequest( mock( PaymentRequest.class, Mockito.RETURNS_DEEP_STUBS ) );
 
-        // then: returned object is an instance of PaymentResponseFailure
+        // then: returned object is an instance of PaymentResponseFailure with the right failure cause
         Assert.assertTrue( paymentResponse instanceof PaymentResponseFailure );
+        Assert.assertEquals( FailureCause.INTERNAL_ERROR, ((PaymentResponseFailure) paymentResponse).getFailureCause() );
     }
 
     @Test
@@ -95,10 +99,11 @@ public class PaymentServiceImplTest {
         Response response = this.mockResponse( 503, "Service Unavailable", null, null, null );
         when( httpClient.doPost( anyString(), anyString(), anyString(), anyString() ) )
                 .thenReturn( response );
-        PaymentResponse paymentResponse = service.paymentRequest( mock( PaymentRequest.class ) );
+        PaymentResponse paymentResponse = service.paymentRequest( mock( PaymentRequest.class, Mockito.RETURNS_DEEP_STUBS ) );
 
-        // then: returned object is an instance of PaymentResponseFailure
+        // then: returned object is an instance of PaymentResponseFailure with the right failure cause
         Assert.assertTrue( paymentResponse instanceof PaymentResponseFailure );
+        Assert.assertEquals( FailureCause.COMMUNICATION_ERROR, ((PaymentResponseFailure) paymentResponse).getFailureCause() );
     }
 
     @Test
@@ -106,10 +111,11 @@ public class PaymentServiceImplTest {
         // when: the HTTP call throws an exception
         when( httpClient.doPost( anyString(), anyString(), anyString(), anyString() ) )
                 .thenThrow( IOException.class );
-        PaymentResponse paymentResponse = service.paymentRequest( mock( PaymentRequest.class ) );
+        PaymentResponse paymentResponse = service.paymentRequest( mock( PaymentRequest.class, Mockito.RETURNS_DEEP_STUBS ) );
 
-        // then: returned object is an instance of PaymentResponseFailure
+        // then: returned object is an instance of PaymentResponseFailure with the right failure cause
         Assert.assertTrue( paymentResponse instanceof PaymentResponseFailure );
+        Assert.assertEquals( FailureCause.COMMUNICATION_ERROR, ((PaymentResponseFailure) paymentResponse).getFailureCause() );
     }
 
     private Response mockResponse( int httpCode, String httpMessage, Integer bodyStatus, String bodyMessage, String bodyUrl ){
