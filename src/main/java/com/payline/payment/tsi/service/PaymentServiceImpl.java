@@ -60,6 +60,7 @@ public class PaymentServiceImpl extends AbstractPaymentHttpService<PaymentReques
                     .build();
         }
         else {
+            // TODO: integrate here the mapping given by Monext between TSI error codes and Payline error codes
             logger.error( "TSI Go request returned an error: " + tsiGoResponse.getMessage() + "(" + Integer.toString( tsiGoResponse.getStatus() ) + ")" );
             return buildPaymentResponseFailure( tsiGoResponse.getMessage(), FailureCause.PAYMENT_PARTNER_ERROR );
         }
