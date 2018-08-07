@@ -45,7 +45,16 @@ public class ConfigurationServiceImpl implements ConfigurationService {
         parameters.add( keyId );
 
         // Product description
-        // TODO !
+        final ListBoxParameter productDescription = new ListBoxParameter();
+        Map<String, String> elements = new HashMap<>();
+        elements.put( "Ticket Premium", "Ticket Premium" );
+        productDescription.setList( elements );
+        productDescription.setKey( TsiConstants.CONTRACT_PRODUCT_DESCRIPTION );
+        productDescription.setLabel( "Product description" ); // TODO: internationalize
+        productDescription.setDescription( "Product description" ); // TODO: internationalize
+        productDescription.setRequired( true );
+
+        parameters.add( productDescription );
 
         return parameters;
     }

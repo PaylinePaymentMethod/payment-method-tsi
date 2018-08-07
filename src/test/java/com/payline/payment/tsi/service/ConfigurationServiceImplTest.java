@@ -32,7 +32,7 @@ public class ConfigurationServiceImplTest {
         List<AbstractParameter> parameters = service.getParameters( Locale.FRANCE );
 
         // then: exactly 2 parameters are returned
-        Assert.assertEquals( 3, parameters.size() );
+        Assert.assertEquals( 4, parameters.size() );
     }
 
     @Test
@@ -42,6 +42,7 @@ public class ConfigurationServiceImplTest {
         parameters.put( TsiConstants.CONTRACT_MERCHANT_ID, "abc" );
         parameters.put( TsiConstants.CONTRACT_KEY_VALUE, "secret" );
         parameters.put( TsiConstants.CONTRACT_KEY_ID, "123" );
+        parameters.put( TsiConstants.CONTRACT_PRODUCT_DESCRIPTION, "Ticket Premium" );
         ContractParametersCheckRequest checkRequest = this.setupCheckRequest( parameters );
 
         // when: checking configuration fields values
@@ -58,6 +59,7 @@ public class ConfigurationServiceImplTest {
         parameters.put( TsiConstants.CONTRACT_MERCHANT_ID, "1234" );
         parameters.put( TsiConstants.CONTRACT_KEY_VALUE, "secret" );
         parameters.put( TsiConstants.CONTRACT_KEY_ID, "ABC" );
+        parameters.put( TsiConstants.CONTRACT_PRODUCT_DESCRIPTION, "Ticket Premium" );
         ContractParametersCheckRequest checkRequest = this.setupCheckRequest( parameters );
 
         // when: checking configuration fields values
