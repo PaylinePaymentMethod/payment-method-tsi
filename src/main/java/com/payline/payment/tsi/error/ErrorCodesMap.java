@@ -13,6 +13,10 @@ public class ErrorCodesMap {
 
     private static Map<Integer, FailureCause> map;
 
+    /* This class has only static methods: no need to instantiate it */
+    private ErrorCodesMap(){
+    }
+
     /**
      * Initializes the static map.
      */

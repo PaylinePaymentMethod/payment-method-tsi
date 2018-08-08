@@ -1,7 +1,7 @@
 package com.payline.payment.tsi.service;
 
 import com.payline.payment.tsi.TsiConstants;
-import com.payline.payment.tsi.utils.i18n.i18nService;
+import com.payline.payment.tsi.utils.i18n.I18nService;
 import com.payline.pmapi.bean.configuration.*;
 import com.payline.pmapi.service.ConfigurationService;
 
@@ -14,7 +14,7 @@ public class ConfigurationServiceImpl implements ConfigurationService {
     // TODO: check PM-API doc for this format (and add it if necessary)
     private static final String RELEASE_DATE_FORMAT = "dd/MM/yyyy";
 
-    private i18nService i18n = i18nService.getInstance();
+    private I18nService i18n = I18nService.getInstance();
 
     @Override
     public List<AbstractParameter> getParameters( Locale locale ){

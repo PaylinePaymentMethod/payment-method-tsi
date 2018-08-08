@@ -7,16 +7,16 @@ import java.util.Locale;
 import java.util.MissingResourceException;
 import java.util.ResourceBundle;
 
-public class i18nService {
+public class I18nService {
 
-    private static final Logger logger = LogManager.getLogger( i18nService.class );
+    private static final Logger logger = LogManager.getLogger( I18nService.class );
 
     private static final String RESOURCE_BUNDLE_BASE_NAME = "messages";
 
     /**
      * Private constructor
      */
-    private i18nService(){
+    private I18nService(){
         Locale.setDefault( new Locale( "en" ) );
     }
 
@@ -27,13 +27,13 @@ public class i18nService {
         /**
          * Unique instance, not preinitializes
          */
-        private final static i18nService instance = new i18nService();
+        private static final I18nService instance = new I18nService();
     }
 
     /**
      * Unique access point for the singleton instance
      */
-    public static i18nService getInstance() {
+    public static I18nService getInstance() {
         return SingletonHolder.instance;
     }
 

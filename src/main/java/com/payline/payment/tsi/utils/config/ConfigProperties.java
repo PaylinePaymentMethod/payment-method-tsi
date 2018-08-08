@@ -17,6 +17,10 @@ public class ConfigProperties {
 
     private static Properties properties;
 
+    /* This class has only static methods: no need to instantiate it */
+    private ConfigProperties() {
+    }
+
     /**
      * Get a config property by its name.
      * Warning, if the property is environment-dependent, use {@link ConfigProperties#get(String, ConfigEnvironment)} instead.

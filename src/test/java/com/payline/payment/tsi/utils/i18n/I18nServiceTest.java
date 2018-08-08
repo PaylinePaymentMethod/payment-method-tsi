@@ -6,13 +6,13 @@ import org.junit.Test;
 
 import java.util.Locale;
 
-public class i18nServiceTest {
+public class I18nServiceTest {
 
-    private i18nService service;
+    private I18nService service;
 
     @Before
     public void setup(){
-        this.service = i18nService.getInstance();
+        this.service = I18nService.getInstance();
     }
 
     @Test
