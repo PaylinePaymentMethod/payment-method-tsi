@@ -90,7 +90,7 @@ public class TsiPaymentIT extends AbstractPaymentIntegration {
             driver.findElement( By.name( "SEND" ) ).click();
 
             // Wait for redirection to success or cancel url
-            WebDriverWait wait = new WebDriverWait( driver, 30 );
+            WebDriverWait wait = new WebDriverWait( driver, 60 );
             wait.until( ExpectedConditions.or( ExpectedConditions.urlToBe( SUCCESS_URL ), ExpectedConditions.urlToBe( CANCEL_URL ) ) );
             finalUrl = driver.getCurrentUrl();
 

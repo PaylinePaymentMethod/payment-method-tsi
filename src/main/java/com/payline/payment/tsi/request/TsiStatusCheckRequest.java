@@ -64,9 +64,11 @@ public class TsiStatusCheckRequest extends TsiSealedJsonRequest {
             if( redirectionPaymentRequest == null ){
                 throw new InvalidRequestException( "Request must not be null" );
             }
+            /*
             if( redirectionPaymentRequest.getPaylineEnvironment() == null ){
                 throw new InvalidRequestException( "PaylineEnvironment request property must not be null" );
             }
+            */
 
             if( redirectionPaymentRequest.getContractConfiguration() == null
                     || redirectionPaymentRequest.getContractConfiguration().getContractProperties() == null  ){

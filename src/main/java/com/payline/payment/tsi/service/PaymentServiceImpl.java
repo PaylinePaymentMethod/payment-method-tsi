@@ -43,7 +43,7 @@ public class PaymentServiceImpl extends AbstractPaymentHttpService<PaymentReques
         TsiGoRequest tsiGoRequest = requestBuilder.fromPaymentRequest( paymentRequest );
 
         // Send Go request
-        ConfigEnvironment env = paymentRequest.getPaylineEnvironment().isSandbox() ? ConfigEnvironment.TEST : ConfigEnvironment.PROD;
+        ConfigEnvironment env = Boolean.FALSE.equals( paymentRequest.getPaylineEnvironment().isSandbox() ) ? ConfigEnvironment.PROD : ConfigEnvironment.TEST;
         String scheme = ConfigProperties.get( "tsi.scheme", env );
         String host = ConfigProperties.get( "tsi.host", env );
         String path = ConfigProperties.get( "tsi.go.path", env );

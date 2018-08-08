@@ -111,7 +111,7 @@ public class TsiGoRequest extends TsiSealedJsonRequest {
                     paymentRequest.getPaylineEnvironment().getRedirectionCancelURL(),
                     paymentRequest.getPaylineEnvironment().getNotificationURL(),
                     "N",
-                    paymentRequest.getPaylineEnvironment().isSandbox() ? "Y" : "N",
+                    Boolean.FALSE.equals( paymentRequest.getPaylineEnvironment().isSandbox() ) ? "N" : "Y",
                     null
             );
 
