@@ -18,9 +18,9 @@ public class i18nServiceTest {
     @Test
     public void testGetMessage_default(){
         // when: recovering the same message in FR, EN and a likely-not-implemented language (co: Corsican)
-        String coMessage = service.getMessage( "test", new Locale( "co" ) );
-        String enMessage = service.getMessage( "test", new Locale( "en" ) );
-        String frMessage = service.getMessage( "test", new Locale( "fr" ) );
+        String coMessage = service.getMessage( "contractConfiguration.keyId.error", new Locale( "co" ) );
+        String enMessage = service.getMessage( "contractConfiguration.keyId.error", new Locale( "en" ) );
+        String frMessage = service.getMessage( "contractConfiguration.keyId.error", new Locale( "fr" ) );
 
         // then: all 3 messages are not null, FR is different then EN, CO equals EN.
         Assert.assertNotNull( coMessage );

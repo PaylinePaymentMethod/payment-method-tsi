@@ -1,6 +1,7 @@
 package com.payline.payment.tsi.service;
 
 import com.payline.payment.tsi.TsiConstants;
+import com.payline.payment.tsi.utils.i18n.i18nService;
 import com.payline.pmapi.bean.configuration.*;
 import com.payline.pmapi.service.ConfigurationService;
 
@@ -13,6 +14,8 @@ public class ConfigurationServiceImpl implements ConfigurationService {
     // TODO: check PM-API doc for this format (and add it if necessary)
     private static final String RELEASE_DATE_FORMAT = "dd/MM/yyyy";
 
+    private i18nService i18n = i18nService.getInstance();
+
     @Override
     public List<AbstractParameter> getParameters( Locale locale ){
         List<AbstractParameter> parameters = new ArrayList<>();
@@ -20,8 +23,8 @@ public class ConfigurationServiceImpl implements ConfigurationService {
         // Merchant ID
         final InputParameter merchantId = new InputParameter();
         merchantId.setKey( TsiConstants.CONTRACT_MERCHANT_ID );
-        merchantId.setLabel( "merchant id" ); // TODO: internationalize
-        merchantId.setDescription( "Merchant identifier" ); // TODO: internationalize
+        merchantId.setLabel( i18n.getMessage( "contractConfiguration.merchantId.label", locale ) );
+        merchantId.setDescription( i18n.getMessage( "contractConfiguration.merchantId.description", locale ) );
         merchantId.setRequired( true );
 
         parameters.add( merchantId );
@@ -29,8 +32,8 @@ public class ConfigurationServiceImpl implements ConfigurationService {
         // Key value
         final InputParameter keyValue = new InputParameter();
         keyValue.setKey( TsiConstants.CONTRACT_KEY_VALUE );
-        keyValue.setLabel( "secret key" ); // TODO: internationalize
-        keyValue.setDescription( "The secret key provided by TSI" ); // TODO: internationalize
+        keyValue.setLabel( i18n.getMessage( "contractConfiguration.keyValue.label", locale ) );
+        keyValue.setDescription( i18n.getMessage( "contractConfiguration.keyValue.description", locale ) );
         keyValue.setRequired( true );
 
         parameters.add( keyValue );
@@ -38,8 +41,8 @@ public class ConfigurationServiceImpl implements ConfigurationService {
         // Key ID
         final InputParameter keyId = new InputParameter();
         keyId.setKey( TsiConstants.CONTRACT_KEY_ID );
-        keyId.setLabel( "key id" ); // TODO: internationalize
-        keyId.setDescription( "Identifier of the key" ); // TODO: internationalize
+        keyId.setLabel( i18n.getMessage( "contractConfiguration.keyId.label", locale ) );
+        keyId.setDescription( i18n.getMessage( "contractConfiguration.keyId.description", locale ) );
         keyId.setRequired( true );
 
         parameters.add( keyId );
@@ -50,8 +53,8 @@ public class ConfigurationServiceImpl implements ConfigurationService {
         elements.put( "Ticket Premium", "Ticket Premium" );
         productDescription.setList( elements );
         productDescription.setKey( TsiConstants.CONTRACT_PRODUCT_DESCRIPTION );
-        productDescription.setLabel( "Product description" ); // TODO: internationalize
-        productDescription.setDescription( "Product description" ); // TODO: internationalize
+        productDescription.setLabel( i18n.getMessage( "contractConfiguration.productDescription.label", locale ) );
+        productDescription.setDescription( i18n.getMessage( "contractConfiguration.productDescription.description", locale ) );
         productDescription.setRequired( true );
 
         parameters.add( productDescription );
@@ -61,20 +64,20 @@ public class ConfigurationServiceImpl implements ConfigurationService {
 
     @Override
     public Map<String, String> check( ContractParametersCheckRequest contractParametersCheckRequest ){
-        //Locale locale = contractParametersCheckRequest.getLocale();
+        Locale locale = contractParametersCheckRequest.getLocale();
         Map<String, String> errors = new HashMap<>();
         final Map<String, String> accountInfo = contractParametersCheckRequest.getAccountInfo();
 
         // Merchant id
         final String merchantId = accountInfo.get( TsiConstants.CONTRACT_MERCHANT_ID );
         if( !isInteger( merchantId ) ){
-            errors.put( TsiConstants.CONTRACT_MERCHANT_ID, "merchant identifier must be an integer" ); // TODO: internationalize
+            errors.put( TsiConstants.CONTRACT_MERCHANT_ID, i18n.getMessage( "contractConfiguration.merchantId.error", locale ) );
         }
 
         // Key id
         final String keyId = accountInfo.get( TsiConstants.CONTRACT_KEY_ID );
         if( !isInteger( keyId ) ){
-            errors.put( TsiConstants.CONTRACT_KEY_ID, "key identifier must be an integer" ); // TODO: internationalize
+            errors.put( TsiConstants.CONTRACT_KEY_ID, i18n.getMessage( "contractConfiguration.keyId.error", locale ) );
         }
 
         // TODO: is the secret key always 32-characters-long ?
@@ -97,8 +100,7 @@ public class ConfigurationServiceImpl implements ConfigurationService {
 
     @Override
     public String getName( Locale locale ){
-        // TODO: use locale to determine name
-        return "TSI";
+        return i18n.getMessage( "paymentMethod.name", locale );
     }
 
     /**
