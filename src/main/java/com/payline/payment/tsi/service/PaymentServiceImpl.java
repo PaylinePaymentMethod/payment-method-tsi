@@ -1,5 +1,6 @@
 package com.payline.payment.tsi.service;
 
+import com.payline.payment.tsi.error.ErrorCodesMap;
 import com.payline.payment.tsi.exception.InvalidRequestException;
 import com.payline.payment.tsi.request.TsiGoRequest;
 import com.payline.payment.tsi.response.TsiGoResponse;
@@ -66,9 +67,8 @@ public class PaymentServiceImpl extends AbstractPaymentHttpService<PaymentReques
                     .build();
         }
         else {
-            // TODO: integrate here the mapping given by Monext between TSI error codes and Payline error codes
             logger.error( "TSI Go request returned an error: " + tsiGoResponse.getMessage() + "(" + Integer.toString( tsiGoResponse.getStatus() ) + ")" );
-            return buildPaymentResponseFailure( tsiGoResponse.getMessage(), FailureCause.PAYMENT_PARTNER_ERROR );
+            return buildPaymentResponseFailure( tsiGoResponse.getMessage(), ErrorCodesMap.getFailureCause( tsiGoResponse.getStatus() ) );
         }
     }
 }
