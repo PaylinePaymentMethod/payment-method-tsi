@@ -28,7 +28,11 @@ public class PaymentRequestMock {
         reset();
     }
 
-    // TODO: Doc
+    /**
+     * Instanciate a {@link PaymentRequest} object with the values from this instance of the mocker.
+     *
+     * @return A {@link PaymentRequest} instance.
+     */
     public PaymentRequest mock(){
         return PaymentRequest.builder()
                 .withAmount( new Amount( this.amount, this.currency ) )
@@ -41,7 +45,11 @@ public class PaymentRequestMock {
                 .build();
     }
 
-    // TODO: Doc
+    /**
+     * Reinitialize this mocker instance with default values.
+     *
+     * @return the mocker instance, to allow chained calls.
+     */
     public PaymentRequestMock reset(){
         this.amount = BigInteger.TEN;
         this.currency = Currency.getInstance( "EUR" );
