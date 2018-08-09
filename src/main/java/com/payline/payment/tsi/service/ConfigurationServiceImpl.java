@@ -1,17 +1,24 @@
 package com.payline.payment.tsi.service;
 
 import com.payline.payment.tsi.TsiConstants;
+import com.payline.payment.tsi.utils.config.ConfigProperties;
 import com.payline.payment.tsi.utils.i18n.I18nService;
 import com.payline.pmapi.bean.configuration.*;
 import com.payline.pmapi.service.ConfigurationService;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
+import java.io.IOException;
+import java.io.InputStream;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
 
 public class ConfigurationServiceImpl implements ConfigurationService {
 
-    // TODO: check PM-API doc for this format (and add it if necessary)
+    private static final Logger logger = LogManager.getLogger( ConfigurationServiceImpl.class );
+
+    /** The release date format */
     private static final String RELEASE_DATE_FORMAT = "dd/MM/yyyy";
 
     private I18nService i18n = I18nService.getInstance();
@@ -89,12 +96,19 @@ public class ConfigurationServiceImpl implements ConfigurationService {
 
     @Override
     public ReleaseInformation getReleaseInformation(){
-        // TODO: recover release version from build.gradle ?
-        // TODO: insert release date during publish gradle task ?
-        LocalDate date = LocalDate.parse( "26/09/2018", DateTimeFormatter.ofPattern( RELEASE_DATE_FORMAT ) );
+        Properties props = new Properties();
+        try {
+            props.load( ConfigurationServiceImpl.class.getClassLoader().getResourceAsStream( "release.properties" ) );
+        } catch( IOException e ){
+            logger.error("An error occurred reading the file: release.properties" );
+            props.setProperty( "release.version", "unknown" );
+            props.setProperty( "release.date", "01/01/1900" );
+        }
+
+        LocalDate date = LocalDate.parse( props.getProperty( "release.date" ), DateTimeFormatter.ofPattern( RELEASE_DATE_FORMAT ) );
         return ReleaseInformation.ReleaseBuilder.aRelease()
                 .withDate( date )
-                .withVersion( "1.0.0-SNAPSHOT" )
+                .withVersion( props.getProperty( "release.version" ) )
                 .build();
     }
 

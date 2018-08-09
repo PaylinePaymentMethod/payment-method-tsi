@@ -69,14 +69,15 @@ public class ConfigurationServiceImplTest {
         Assert.assertEquals( 1, errors.size() );
     }
 
-    // TODO: Improve this test case ! Testing the result is not null is not enough.
     @Test
-    public void testGetReleaseInformation_notNull(){
+    public void testGetReleaseInformation_ok(){
         // when: getReleaseInformation method is called
         ReleaseInformation releaseInformation = service.getReleaseInformation();
 
         // then: result is not null
         Assert.assertNotNull( releaseInformation );
+        Assert.assertNotEquals( "unknown", releaseInformation.getVersion() );
+        Assert.assertNotEquals( 1900, releaseInformation.getDate().getYear() );
     }
 
     // TODO: Improve this test case ! Testing the result is not empty is not enough.

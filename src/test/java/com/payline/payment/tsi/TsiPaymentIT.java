@@ -40,7 +40,7 @@ public class TsiPaymentIT extends AbstractPaymentIntegration {
         paymentWithRedirectionService = new PaymentWithRedirectionServiceImpl();
 
         testConfig = new Properties();
-        testConfig.load( ConfigProperties.class.getClassLoader().getResourceAsStream( "testConfig.properties" ) );
+        testConfig.load( TsiPaymentIT.class.getClassLoader().getResourceAsStream( "testConfig.properties" ) );
     }
 
     @Test
