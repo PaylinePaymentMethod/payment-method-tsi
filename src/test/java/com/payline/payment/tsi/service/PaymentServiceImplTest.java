@@ -1,5 +1,6 @@
 package com.payline.payment.tsi.service;
 
+import com.payline.payment.tsi.error.ErrorCodesMap;
 import com.payline.payment.tsi.exception.InvalidRequestException;
 import com.payline.payment.tsi.request.TsiGoRequest;
 import com.payline.payment.tsi.request.TsiGoRequestTest;
@@ -77,7 +78,7 @@ public class PaymentServiceImplTest {
 
         // then: returned object is an instance of PaymentResponseFailure with the right failure cause
         Assert.assertTrue( paymentResponse instanceof PaymentResponseFailure );
-        Assert.assertEquals( FailureCause.PAYMENT_PARTNER_ERROR, ((PaymentResponseFailure) paymentResponse).getFailureCause() );
+        Assert.assertEquals( ErrorCodesMap.getFailureCause( 15 ), ((PaymentResponseFailure) paymentResponse).getFailureCause() );
     }
 
     @Test

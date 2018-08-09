@@ -23,6 +23,8 @@ public abstract class AbstractPaymentHttpService<T extends PaymentRequest> {
 
     private static final Logger logger = LogManager.getLogger( AbstractPaymentHttpService.class );
 
+    private static final String DEFAULT_ERROR_CODE = "no code transmitted";
+
     protected JsonHttpClient httpClient;
 
     protected AbstractPaymentHttpService(){
@@ -74,20 +76,20 @@ public abstract class AbstractPaymentHttpService<T extends PaymentRequest> {
             }
             else {
                 logger.error( "The HTTP response or its body is null and should not be" );
-                return buildPaymentResponseFailure( "no code transmitted", FailureCause.INTERNAL_ERROR );
+                return buildPaymentResponseFailure( DEFAULT_ERROR_CODE, FailureCause.INTERNAL_ERROR );
             }
         }
         catch( InvalidRequestException e ){
             logger.error( "The input payment request is invalid: " + e.getMessage() );
-            return buildPaymentResponseFailure( "no code transmitted", FailureCause.INVALID_DATA );
+            return buildPaymentResponseFailure( DEFAULT_ERROR_CODE, FailureCause.INVALID_DATA );
         }
         catch( IOException e ){
             logger.error( "An IOException occurred while sending the HTTP request or receiving the response: " + e.getMessage() );
-            return buildPaymentResponseFailure( "no code transmitted", FailureCause.COMMUNICATION_ERROR );
+            return buildPaymentResponseFailure( DEFAULT_ERROR_CODE, FailureCause.COMMUNICATION_ERROR );
         }
         catch( Exception e ){
             logger.error( "An unexpected error occurred: ", e );
-            return buildPaymentResponseFailure( "no code transmitted", FailureCause.INTERNAL_ERROR );
+            return buildPaymentResponseFailure( DEFAULT_ERROR_CODE, FailureCause.INTERNAL_ERROR );
         }
     }
 

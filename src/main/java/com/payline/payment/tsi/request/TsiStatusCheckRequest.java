@@ -3,14 +3,7 @@ package com.payline.payment.tsi.request;
 import com.google.gson.annotations.SerializedName;
 import com.payline.payment.tsi.TsiConstants;
 import com.payline.payment.tsi.exception.InvalidRequestException;
-import com.payline.payment.tsi.security.Hmac;
-import com.payline.payment.tsi.security.HmacAlgorithm;
-import com.payline.pmapi.bean.payment.ContractProperty;
-import com.payline.pmapi.bean.payment.request.PaymentRequest;
 import com.payline.pmapi.bean.payment.request.RedirectionPaymentRequest;
-
-import java.security.NoSuchAlgorithmException;
-import java.util.Map;
 
 public class TsiStatusCheckRequest extends TsiSealedJsonRequest {
 

@@ -3,13 +3,10 @@ package com.payline.payment.tsi.request;
 import com.google.gson.annotations.SerializedName;
 import com.payline.payment.tsi.TsiConstants;
 import com.payline.payment.tsi.exception.InvalidRequestException;
-import com.payline.payment.tsi.security.Hmac;
-import com.payline.payment.tsi.security.HmacAlgorithm;
 import com.payline.pmapi.bean.payment.ContractProperty;
 import com.payline.pmapi.bean.payment.request.PaymentRequest;
 
 import java.math.BigInteger;
-import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.Map;
 
@@ -106,7 +103,7 @@ public class TsiGoRequest extends TsiSealedJsonRequest {
                     this.formatAmount( paymentRequest.getAmount().getAmountInSmallestUnit() ),
                     paymentRequest.getAmount().getCurrency().getCurrencyCode(),
                     Integer.parseInt( paymentRequest.getContractConfiguration().getContractProperties().get( TsiConstants.CONTRACT_KEY_ID ).getValue() ),
-                    "Ticket Premium", // TODO: ajouter une propriété de ContractConfiguration pour ça !
+                    paymentRequest.getContractConfiguration().getContractProperties().get( TsiConstants.CONTRACT_PRODUCT_DESCRIPTION ).getValue(),
                     paymentRequest.getPaylineEnvironment().getRedirectionReturnURL(),
                     paymentRequest.getPaylineEnvironment().getRedirectionCancelURL(),
                     paymentRequest.getPaylineEnvironment().getNotificationURL(),
@@ -146,6 +143,9 @@ public class TsiGoRequest extends TsiSealedJsonRequest {
             }
             if( contractProperties.get( TsiConstants.CONTRACT_KEY_ID ) == null ){
                 throw new InvalidRequestException( "Missing contract configuration property: key id" );
+            }
+            if( contractProperties.get( TsiConstants.CONTRACT_PRODUCT_DESCRIPTION ) == null ){
+                throw new InvalidRequestException( "Missing contract configuration property: product description" );
             }
 
             if( paymentRequest.getTransactionId() == null || paymentRequest.getTransactionId().isEmpty() ){
