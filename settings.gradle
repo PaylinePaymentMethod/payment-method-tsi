@@ -1,4 +1,4 @@
-rootProject.name = 'payment-method-giropay'
+rootProject.name = 'payment-method-tsi'
 
 if (file('../payline-payment-method-api').exists()) {
     includeBuild '../payline-payment-method-api'
