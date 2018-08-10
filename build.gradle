@@ -24,13 +24,11 @@ ext{
 }
 sourceCompatibility = 1.8
 
-/*
 task printVersion {
     doLast {
         println version
     }
 }
-*/
 
 sonarqube {
     properties {
@@ -62,7 +60,6 @@ shadowJar {
 publishing {
     repositories {
         mavenLocal()
-        /*
         maven {
             if (project.version.endsWith('-SNAPSHOT')) {
                 url "https://nexus.intra.monext.fr:10130/nexus/content/repositories/jindus-repo-pay-pay-snapshot/"
@@ -74,7 +71,6 @@ publishing {
                 password mavenPassword
             }
         }
-        */
     }
     publications {
         shadow(MavenPublication) { publication ->
@@ -86,7 +82,6 @@ publishing {
 repositories {
     mavenLocal()
     mavenCentral()
-    /*
     maven {
         url "https://nexus.intra.monext.fr:10130/nexus/content/repositories/jindus-repo-pay-pay-public/"
         credentials {
@@ -108,7 +103,6 @@ repositories {
             password mavenPassword
         }
     }
-    */
 }
 
 
