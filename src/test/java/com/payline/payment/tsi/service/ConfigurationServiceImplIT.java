@@ -14,6 +14,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
 
+// TODO: Mock httpClient response to integrate these tests to ConfigurationServiceImplTest
 /**
  * THIS TEST NEEDS AN INTERNET CONNECTION TO PASS.
  */

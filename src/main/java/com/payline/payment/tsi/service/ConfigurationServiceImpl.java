@@ -139,15 +139,21 @@ public class ConfigurationServiceImpl implements ConfigurationService {
                     errors.put( TsiConstants.CONTRACT_KEY_VALUE, i18n.getMessage( "contractConfiguration.validation.error.keyValue", locale ) );
                 }
                 else if( tsiGoResponse.getStatus() != 1 ){
-                    errors.put( TsiConstants.CONTRACT_KEY_VALUE, i18n.getMessage( "contractConfiguration.validation.error.unexpected", locale ) );
+                    throw new Exception( "TSI server response is: [" + tsiGoResponse.getStatus() + "] " + tsiGoResponse.getMessage() );
                 }
             }
             else {
-                errors.put( TsiConstants.CONTRACT_KEY_VALUE, i18n.getMessage( "contractConfiguration.validation.error.unexpected", locale ) );
+                String message = "Can't read a correct response from TSI server.";
+                if( response != null ){
+                    message += " HTTP status: " + response.code();
+                }
+                throw new Exception( message );
             }
         }
         catch( Exception e ){
             logger.error( "An error occurred sending the validation request to the TSI server: " + e.getMessage() );
+            errors.put( TsiConstants.CONTRACT_MERCHANT_ID, i18n.getMessage( "contractConfiguration.validation.error.unexpected", locale ) );
+            errors.put( TsiConstants.CONTRACT_KEY_ID, i18n.getMessage( "contractConfiguration.validation.error.unexpected", locale ) );
             errors.put( TsiConstants.CONTRACT_KEY_VALUE, i18n.getMessage( "contractConfiguration.validation.error.unexpected", locale ) );
         }
 
