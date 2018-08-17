@@ -27,6 +27,7 @@ public class ConfigurationServiceImpl implements ConfigurationService {
     private static final String RELEASE_DATE_FORMAT = "dd/MM/yyyy";
 
     private I18nService i18n = I18nService.getInstance();
+    private JsonHttpClient httpClient =  new JsonHttpClient();
 
 
     @Override
@@ -120,7 +121,6 @@ public class ConfigurationServiceImpl implements ConfigurationService {
         request.seal( secretKey );
 
         // Send the validation request
-        JsonHttpClient httpClient = new JsonHttpClient( 10, 10, 15 );
         String scheme = ConfigProperties.get( "tsi.scheme", ConfigEnvironment.TEST );
         String host = ConfigProperties.get( "tsi.host", ConfigEnvironment.TEST );
         String path = ConfigProperties.get( "tsi.go.path", ConfigEnvironment.TEST );
