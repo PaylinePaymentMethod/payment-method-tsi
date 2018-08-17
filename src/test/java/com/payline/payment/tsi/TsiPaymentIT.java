@@ -2,7 +2,6 @@ package com.payline.payment.tsi;
 
 import com.payline.payment.tsi.service.PaymentServiceImpl;
 import com.payline.payment.tsi.service.PaymentWithRedirectionServiceImpl;
-import com.payline.payment.tsi.utils.config.ConfigProperties;
 import com.payline.pmapi.bean.common.Amount;
 import com.payline.pmapi.bean.payment.*;
 import com.payline.pmapi.bean.payment.request.PaymentRequest;
@@ -40,7 +39,7 @@ public class TsiPaymentIT extends AbstractPaymentIntegration {
         paymentWithRedirectionService = new PaymentWithRedirectionServiceImpl();
 
         testConfig = new Properties();
-        testConfig.load( ConfigProperties.class.getClassLoader().getResourceAsStream( "testConfig.properties" ) );
+        testConfig.load( TsiPaymentIT.class.getClassLoader().getResourceAsStream( "testConfig.properties" ) );
     }
 
     @Test

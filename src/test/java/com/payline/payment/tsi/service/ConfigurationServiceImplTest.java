@@ -7,7 +7,6 @@ import com.payline.pmapi.bean.configuration.ReleaseInformation;
 import com.payline.pmapi.bean.payment.ContractConfiguration;
 import com.payline.pmapi.bean.payment.PaylineEnvironment;
 import org.junit.Assert;
-import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
@@ -17,8 +16,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
-
-import static org.mockito.Mockito.mock;
 
 @RunWith( MockitoJUnitRunner.class )
 public class ConfigurationServiceImplTest {
@@ -43,7 +40,7 @@ public class ConfigurationServiceImplTest {
         parameters.put( TsiConstants.CONTRACT_KEY_VALUE, "secret" );
         parameters.put( TsiConstants.CONTRACT_KEY_ID, "123" );
         parameters.put( TsiConstants.CONTRACT_PRODUCT_DESCRIPTION, "Ticket Premium" );
-        ContractParametersCheckRequest checkRequest = this.setupCheckRequest( parameters );
+        ContractParametersCheckRequest checkRequest = setupCheckRequest( parameters );
 
         // when: checking configuration fields values
         Map<String, String> errors = service.check( checkRequest );
@@ -60,7 +57,7 @@ public class ConfigurationServiceImplTest {
         parameters.put( TsiConstants.CONTRACT_KEY_VALUE, "secret" );
         parameters.put( TsiConstants.CONTRACT_KEY_ID, "ABC" );
         parameters.put( TsiConstants.CONTRACT_PRODUCT_DESCRIPTION, "Ticket Premium" );
-        ContractParametersCheckRequest checkRequest = this.setupCheckRequest( parameters );
+        ContractParametersCheckRequest checkRequest = setupCheckRequest( parameters );
 
         // when: checking configuration fields values
         Map<String, String> errors = service.check( checkRequest );
@@ -69,14 +66,25 @@ public class ConfigurationServiceImplTest {
         Assert.assertEquals( 1, errors.size() );
     }
 
-    // TODO: Improve this test case ! Testing the result is not null is not enough.
     @Test
-    public void testGetReleaseInformation_notNull(){
+    public void testGetReleaseInformation_ok(){
         // when: getReleaseInformation method is called
         ReleaseInformation releaseInformation = service.getReleaseInformation();
 
         // then: result is not null
         Assert.assertNotNull( releaseInformation );
+        Assert.assertNotEquals( "unknown", releaseInformation.getVersion() );
+        Assert.assertNotEquals( 1900, releaseInformation.getDate().getYear() );
+    }
+
+    @Test
+    public void testGetReleaseInformation_versionFormat(){
+        // when: getReleaseInformation method is called
+        ReleaseInformation releaseInformation = service.getReleaseInformation();
+
+        // then: the version has a valid format
+        Assert.assertNotNull( releaseInformation );
+        Assert.assertTrue( releaseInformation.getVersion().matches( "^\\d\\.\\d(\\.\\d)?$" ) );
     }
 
     // TODO: Improve this test case ! Testing the result is not empty is not enough.
@@ -116,7 +124,7 @@ public class ConfigurationServiceImplTest {
     }
 
 
-    private ContractParametersCheckRequest setupCheckRequest( Map<String, String> accountInfo ){
+    static ContractParametersCheckRequest setupCheckRequest( Map<String, String> accountInfo ){
         return ContractParametersCheckRequest.CheckRequestBuilder.aCheckRequest()
                 .withAccountInfo( accountInfo )
                 .withContractConfiguration( new ContractConfiguration( null, null ) )

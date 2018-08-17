@@ -3,7 +3,6 @@ package com.payline.payment.tsi.request;
 import com.payline.payment.tsi.response.TsiGoResponse;
 import com.payline.payment.tsi.security.Hmac;
 import com.payline.payment.tsi.security.HmacAlgorithm;
-import com.payline.payment.tsi.utils.config.ConfigProperties;
 import com.payline.payment.tsi.utils.http.JsonHttpClient;
 import okhttp3.Response;
 
@@ -12,22 +11,31 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Properties;
 
 public class Main {
 
+    public static Properties config;
+    public static Properties testConfig;
+
     public static void main( String[] args ) throws IOException {
+        config = new Properties();
+        config.load( Main.class.getClassLoader().getResourceAsStream( "config.properties" ) );
+
+        testConfig = new Properties();
+        testConfig.load( Main.class.getClassLoader().getResourceAsStream( "testConfig.properties" ) );
+
         //hmacThis( "abcdefghijklmnopkrstuvwxyz12345|806" );
         http();
-        //props();
     }
 
     private static void hmac(){
         TsiGoRequest request = new TsiGoRequest(
-                806,
+                Integer.parseInt( testConfig.getProperty( "contractConfiguration.merchantId" ) ),
                 "abcdefghijklmnopkrstuvwxyz12346J",
                 "1.02",
                 "EUR",
-                806,
+                Integer.parseInt( testConfig.getProperty( "contractConfiguration.keyId" ) ),
                 "Ticket Premium",
                 "http://boutique.com/returnOK.php",
                 "http://boutique.com/returnNOK.php",
@@ -36,7 +44,7 @@ public class Main {
                 "Y",
                 null
         );
-        String key = "45f3bcf660df19f8364c222e887300fa";
+        String key = testConfig.getProperty( "contractConfiguration.keyValue" );
 
         String message = request.buildSealMessage();
         System.out.println( "message: " + message );
@@ -46,7 +54,7 @@ public class Main {
     }
 
     private static void hmacThis( String message ){
-        String key = "45f3bcf660df19f8364c222e887300fa";
+        String key = testConfig.getProperty( "contractConfiguration.keyValue" );
         Hmac hmac = new Hmac( key, HmacAlgorithm.MD5 );
         System.out.println( hmac.digest( message ) );
     }
@@ -58,11 +66,11 @@ public class Main {
         Map<String, Object> custom = new HashMap<>();
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern( "000000000000000000yyyyMMddHHmmss" );
         TsiGoRequest request = new TsiGoRequest(
-                806,
+                Integer.parseInt( testConfig.getProperty( "contractConfiguration.merchantId" ) ),
                 LocalDateTime.now().format( formatter ),
                 "1.02",
                 "EUR",
-                806,
+                Integer.parseInt( testConfig.getProperty( "contractConfiguration.keyId" ) ),
                 "Ticket Premium",
                 "http://boutique.com/returnOK.php",
                 "http://boutique.com/returnNOK.php",
@@ -73,14 +81,18 @@ public class Main {
         );
 
         // Seal request
-        Hmac hmac = new Hmac( "45f3bcf660df19f8364c222e887300fa", HmacAlgorithm.MD5 );
-        request.setMac( hmac.digest( request.buildSealMessage() ) );
+        request.seal( testConfig.getProperty( "contractConfiguration.keyValue" ) );
 
         // Build request body
         System.out.println( request.buildBody() );
 
         // Send request
-        Response response = httpClient.doPost( "https", "sandbox-voucher.tsiapi.com", "context", request.buildBody() );
+        Response response = httpClient.doPost(
+                config.getProperty( "test.tsi.scheme" ),
+                config.getProperty( "test.tsi.host" ),
+                config.getProperty( "test.tsi.go.path" ),
+                request.buildBody()
+        );
         System.out.println( response );
 
         // Parse the response
@@ -93,36 +105,9 @@ public class Main {
                 ", keyId=" + tsiGoResponse.getKeyId() +
                 "]" );
 
+        Hmac hmac = new Hmac( testConfig.getProperty( "contractConfiguration.keyValue" ), HmacAlgorithm.MD5 );
         String statusCheckMac = hmac.digest( tsiGoResponse.getTid() + "|" + tsiGoResponse.getKeyId() );
         System.out.println( "Status Check mac: " + statusCheckMac );
-    }
-
-    private static void json(){
-        int status = 15;
-        String message = "WRONG HMAC";
-        String url = "http://www.google.fr";
-        String tid = "1234567890";
-        String keyId = "806";
-
-        String json = "{"
-                + "\"status\":" + status
-                + ",\"message\":\"" + message + "\"";
-        if( url != null ){
-            json += ",\"url\":\"" + url + "\"";
-        }
-        if( tid != null ){
-            json += ",\"tid\":\"" + tid + "\"";
-        }
-        if( keyId != null ){
-            json += ",\"keyid\":\"" + keyId + "\"";
-        }
-        json += "}";
-
-        System.out.println( json );
-    }
-
-    private static void props() {
-        System.out.println( ConfigProperties.get( "toto" ) );
     }
 
 }
