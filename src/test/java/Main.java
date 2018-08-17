@@ -81,8 +81,7 @@ public class Main {
         );
 
         // Seal request
-        Hmac hmac = new Hmac( testConfig.getProperty( "contractConfiguration.keyValue" ), HmacAlgorithm.MD5 );
-        request.setMac( hmac.digest( request.buildSealMessage() ) );
+        request.seal( testConfig.getProperty( "contractConfiguration.keyValue" ) );
 
         // Build request body
         System.out.println( request.buildBody() );
@@ -106,6 +105,7 @@ public class Main {
                 ", keyId=" + tsiGoResponse.getKeyId() +
                 "]" );
 
+        Hmac hmac = new Hmac( testConfig.getProperty( "contractConfiguration.keyValue" ), HmacAlgorithm.MD5 );
         String statusCheckMac = hmac.digest( tsiGoResponse.getTid() + "|" + tsiGoResponse.getKeyId() );
         System.out.println( "Status Check mac: " + statusCheckMac );
     }

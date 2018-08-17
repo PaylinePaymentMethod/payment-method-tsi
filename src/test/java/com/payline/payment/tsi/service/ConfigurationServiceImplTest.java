@@ -7,7 +7,6 @@ import com.payline.pmapi.bean.configuration.ReleaseInformation;
 import com.payline.pmapi.bean.payment.ContractConfiguration;
 import com.payline.pmapi.bean.payment.PaylineEnvironment;
 import org.junit.Assert;
-import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
@@ -17,8 +16,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
-
-import static org.mockito.Mockito.mock;
 
 @RunWith( MockitoJUnitRunner.class )
 public class ConfigurationServiceImplTest {
@@ -43,7 +40,7 @@ public class ConfigurationServiceImplTest {
         parameters.put( TsiConstants.CONTRACT_KEY_VALUE, "secret" );
         parameters.put( TsiConstants.CONTRACT_KEY_ID, "123" );
         parameters.put( TsiConstants.CONTRACT_PRODUCT_DESCRIPTION, "Ticket Premium" );
-        ContractParametersCheckRequest checkRequest = this.setupCheckRequest( parameters );
+        ContractParametersCheckRequest checkRequest = setupCheckRequest( parameters );
 
         // when: checking configuration fields values
         Map<String, String> errors = service.check( checkRequest );
@@ -60,7 +57,7 @@ public class ConfigurationServiceImplTest {
         parameters.put( TsiConstants.CONTRACT_KEY_VALUE, "secret" );
         parameters.put( TsiConstants.CONTRACT_KEY_ID, "ABC" );
         parameters.put( TsiConstants.CONTRACT_PRODUCT_DESCRIPTION, "Ticket Premium" );
-        ContractParametersCheckRequest checkRequest = this.setupCheckRequest( parameters );
+        ContractParametersCheckRequest checkRequest = setupCheckRequest( parameters );
 
         // when: checking configuration fields values
         Map<String, String> errors = service.check( checkRequest );
@@ -127,7 +124,7 @@ public class ConfigurationServiceImplTest {
     }
 
 
-    private ContractParametersCheckRequest setupCheckRequest( Map<String, String> accountInfo ){
+    static ContractParametersCheckRequest setupCheckRequest( Map<String, String> accountInfo ){
         return ContractParametersCheckRequest.CheckRequestBuilder.aCheckRequest()
                 .withAccountInfo( accountInfo )
                 .withContractConfiguration( new ContractConfiguration( null, null ) )

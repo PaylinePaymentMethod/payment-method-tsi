@@ -48,7 +48,7 @@ public class TsiGoRequest extends TsiSealedJsonRequest {
     @SerializedName( "custom" )
     private Map<String, Object> s2sRequestParameters;
 
-    protected TsiGoRequest( int merchantId, String transactionId, String amount, String currency, int keyId,
+    public TsiGoRequest( int merchantId, String transactionId, String amount, String currency, int keyId,
                          String productDescription, String urlOk, String urlNok, String urlS2s, String debitAll,
                          String th, Map<String, Object> s2sRequestParameters ){
         this.merchantId = merchantId;
@@ -114,7 +114,7 @@ public class TsiGoRequest extends TsiSealedJsonRequest {
 
             // Seal the request with HMAC algorithm
             String secretKey = paymentRequest.getContractConfiguration().getContractProperties().get( TsiConstants.CONTRACT_KEY_VALUE ).getValue();
-            this.sealRequest( request, secretKey );
+            request.seal( secretKey );
 
             return request;
         }
