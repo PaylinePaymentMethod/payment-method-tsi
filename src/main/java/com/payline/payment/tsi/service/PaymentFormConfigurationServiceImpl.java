@@ -9,8 +9,6 @@ import com.payline.pmapi.bean.paymentform.response.configuration.PaymentFormConf
 import com.payline.pmapi.bean.paymentform.response.logo.PaymentFormLogoResponse;
 import com.payline.pmapi.bean.paymentform.response.logo.PaymentFormLogoResponseFile;
 import com.payline.pmapi.service.PaymentFormConfigurationService;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
