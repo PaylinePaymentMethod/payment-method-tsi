@@ -11,6 +11,13 @@ public class JsonHttpClient extends HttpClient {
     private static final String CONTENT_TYPE = "application/json";
 
     /**
+     * Instantiate a HTTP client with default values.
+     */
+    public JsonHttpClient(){
+        super( 10, 10, 15 );
+    }
+
+    /**
      * Instantiate a HTTP client.
      *
      * @param connectTimeout Default connect timeout (in seconds) for new connections. A value of 0 means no timeout.

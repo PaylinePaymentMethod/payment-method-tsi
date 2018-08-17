@@ -1,30 +1,53 @@
 package com.payline.payment.tsi.service;
 
 import com.payline.payment.tsi.TsiConstants;
+import com.payline.payment.tsi.response.TsiGoResponseTest;
+import com.payline.payment.tsi.utils.http.JsonHttpClient;
+import com.payline.payment.tsi.utils.http.ResponseMocker;
 import com.payline.pmapi.bean.configuration.AbstractParameter;
 import com.payline.pmapi.bean.configuration.ContractParametersCheckRequest;
 import com.payline.pmapi.bean.configuration.ReleaseInformation;
 import com.payline.pmapi.bean.payment.ContractConfiguration;
 import com.payline.pmapi.bean.payment.PaylineEnvironment;
+import okhttp3.Response;
+import okhttp3.ResponseBody;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.Mockito;
 import org.mockito.junit.MockitoJUnitRunner;
 
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 
-import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.*;
 
 @RunWith( MockitoJUnitRunner.class )
 public class ConfigurationServiceImplTest {
 
+    @Mock
+    private JsonHttpClient httpClient;
+
     @InjectMocks
     private ConfigurationServiceImpl service;
+
+    private Map<String, String> parameters;
+
+    @Before
+    public void setup(){
+        // Initialize default format-valid parameters
+        parameters = new HashMap<>();
+        parameters.put( TsiConstants.CONTRACT_MERCHANT_ID, "123" );
+        parameters.put( TsiConstants.CONTRACT_KEY_VALUE, "secret" );
+        parameters.put( TsiConstants.CONTRACT_KEY_ID, "123" );
+        parameters.put( TsiConstants.CONTRACT_PRODUCT_DESCRIPTION, "Ticket Premium" );
+    }
 
     @Test
     public void testGetParameters(){
@@ -36,14 +59,57 @@ public class ConfigurationServiceImplTest {
     }
 
     @Test
-    public void testCheck_wrongMerchantId(){
+    public void testCheck_ok() throws IOException {
+        // given: valid contract properties (TSI should then respond with a status=1)
+        ContractParametersCheckRequest checkRequest = ConfigurationServiceImplTest.setupCheckRequest( parameters );
+        String responseBody = TsiGoResponseTest.mockJson( 1, "OK", "http://redirect-url.com", null, null );
+        Response response = ResponseMocker.mock( 200, "OK", responseBody );
+        when( httpClient.doPost( anyString(), anyString(), anyString(), anyString() ) )
+                .thenReturn( response );
+
+        // when: checking configuration fields values
+        Map<String, String> errors = service.check( checkRequest );
+
+        // then: result contains no error
+        Assert.assertEquals( 0, errors.size() );
+    }
+
+    @Test
+    public void testCheck_wrongAccountData() throws IOException {
+        // given: contract properties with the right format but not valid (TSI should then respond with a status != 1)
+        ContractParametersCheckRequest checkRequest = ConfigurationServiceImplTest.setupCheckRequest( parameters );
+        String responseBody = TsiGoResponseTest.mockJson( 15, "WRONG MAC", null, null, null );
+        Response response = ResponseMocker.mock( 200, "OK", responseBody );
+        when( httpClient.doPost( anyString(), anyString(), anyString(), anyString() ) )
+                .thenReturn( response );
+
+        // when: checking configuration fields values
+        Map<String, String> errors = service.check( checkRequest );
+
+        // then: result contains 1 error
+        Assert.assertEquals( 1, errors.size() );
+    }
+
+    @Test
+    public void testCheck_unknownError() throws IOException {
+        // given: contract properties validation encounter an unexpected error (Server unavailable for example)
+        ContractParametersCheckRequest checkRequest = ConfigurationServiceImplTest.setupCheckRequest( parameters );
+        Response response = ResponseMocker.mock( 503, "Server Unavailable", null );
+        when( httpClient.doPost( anyString(), anyString(), anyString(), anyString() ) )
+                .thenReturn( response );
+
+        // when: checking configuration fields values
+        Map<String, String> errors = service.check( checkRequest );
+
+        // then: result contains 3 errors, one for each non-validated field
+        Assert.assertEquals( 3, errors.size() );
+    }
+
+    @Test
+    public void testCheck_incorrectMerchantId(){
         // given: a non-integer merchant id
-        HashMap<String, String> parameters = new HashMap<>();
         parameters.put( TsiConstants.CONTRACT_MERCHANT_ID, "abc" );
-        parameters.put( TsiConstants.CONTRACT_KEY_VALUE, "secret" );
-        parameters.put( TsiConstants.CONTRACT_KEY_ID, "123" );
-        parameters.put( TsiConstants.CONTRACT_PRODUCT_DESCRIPTION, "Ticket Premium" );
-        ContractParametersCheckRequest checkRequest = this.setupCheckRequest( parameters );
+        ContractParametersCheckRequest checkRequest = setupCheckRequest( parameters );
 
         // when: checking configuration fields values
         Map<String, String> errors = service.check( checkRequest );
@@ -53,14 +119,10 @@ public class ConfigurationServiceImplTest {
     }
 
     @Test
-    public void testCheck_wrongKeyId(){
+    public void testCheck_incorrectKeyId(){
         // given: a non-integer key id
-        HashMap<String, String> parameters = new HashMap<>();
-        parameters.put( TsiConstants.CONTRACT_MERCHANT_ID, "1234" );
-        parameters.put( TsiConstants.CONTRACT_KEY_VALUE, "secret" );
         parameters.put( TsiConstants.CONTRACT_KEY_ID, "ABC" );
-        parameters.put( TsiConstants.CONTRACT_PRODUCT_DESCRIPTION, "Ticket Premium" );
-        ContractParametersCheckRequest checkRequest = this.setupCheckRequest( parameters );
+        ContractParametersCheckRequest checkRequest = setupCheckRequest( parameters );
 
         // when: checking configuration fields values
         Map<String, String> errors = service.check( checkRequest );
@@ -69,14 +131,25 @@ public class ConfigurationServiceImplTest {
         Assert.assertEquals( 1, errors.size() );
     }
 
-    // TODO: Improve this test case ! Testing the result is not null is not enough.
     @Test
-    public void testGetReleaseInformation_notNull(){
+    public void testGetReleaseInformation_ok(){
         // when: getReleaseInformation method is called
         ReleaseInformation releaseInformation = service.getReleaseInformation();
 
         // then: result is not null
         Assert.assertNotNull( releaseInformation );
+        Assert.assertNotEquals( "unknown", releaseInformation.getVersion() );
+        Assert.assertNotEquals( 1900, releaseInformation.getDate().getYear() );
+    }
+
+    @Test
+    public void testGetReleaseInformation_versionFormat(){
+        // when: getReleaseInformation method is called
+        ReleaseInformation releaseInformation = service.getReleaseInformation();
+
+        // then: the version has a valid format
+        Assert.assertNotNull( releaseInformation );
+        Assert.assertTrue( releaseInformation.getVersion().matches( "^\\d\\.\\d(\\.\\d)?$" ) );
     }
 
     // TODO: Improve this test case ! Testing the result is not empty is not enough.
@@ -116,7 +189,7 @@ public class ConfigurationServiceImplTest {
     }
 
 
-    private ContractParametersCheckRequest setupCheckRequest( Map<String, String> accountInfo ){
+    static ContractParametersCheckRequest setupCheckRequest( Map<String, String> accountInfo ){
         return ContractParametersCheckRequest.CheckRequestBuilder.aCheckRequest()
                 .withAccountInfo( accountInfo )
                 .withContractConfiguration( new ContractConfiguration( null, null ) )

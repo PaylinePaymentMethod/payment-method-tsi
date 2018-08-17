@@ -31,13 +31,13 @@ public abstract class TsiSealedJsonRequest {
      */
     public abstract String buildSealMessage();
 
-
     protected String getMac(){
         return mac;
     }
 
-    protected void setMac( String mac ){
-        this.mac = mac;
+    public void seal( String secretKey ){
+        Hmac hmac = new Hmac( secretKey, HmacAlgorithm.MD5 );
+        this.mac = hmac.digest( this.buildSealMessage() );
     }
 
     public static class Builder {
@@ -64,14 +64,6 @@ public abstract class TsiSealedJsonRequest {
             }
 
             return hash.toString();
-        }
-
-        /**
-         * Seals the request using HMAC MD5 algorithm
-         */
-        protected void sealRequest( TsiSealedJsonRequest request, String key ){
-            Hmac hmac = new Hmac( key, HmacAlgorithm.MD5 );
-            request.setMac( hmac.digest( request.buildSealMessage() ) );
         }
 
     }

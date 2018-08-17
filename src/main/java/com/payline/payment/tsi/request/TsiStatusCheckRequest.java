@@ -40,7 +40,7 @@ public class TsiStatusCheckRequest extends TsiSealedJsonRequest {
 
             // Seal the request with HMAC algorithm
             String secretKey = redirectionPaymentRequest.getContractConfiguration().getContractProperties().get( TsiConstants.CONTRACT_KEY_VALUE ).getValue();
-            this.sealRequest( request, secretKey );
+            request.seal( secretKey );
 
             return request;
         }

@@ -6,6 +6,7 @@ import com.payline.payment.tsi.request.TsiGoRequest;
 import com.payline.payment.tsi.request.TsiGoRequestTest;
 import com.payline.payment.tsi.response.TsiGoResponseTest;
 import com.payline.payment.tsi.utils.http.JsonHttpClient;
+import com.payline.payment.tsi.utils.http.ResponseMocker;
 import com.payline.pmapi.bean.common.FailureCause;
 import com.payline.pmapi.bean.payment.request.PaymentRequest;
 import com.payline.pmapi.bean.payment.response.PaymentResponse;
@@ -29,8 +30,6 @@ import static org.mockito.Mockito.*;
 @RunWith( MockitoJUnitRunner.class )
 public class PaymentServiceImplTest {
 
-    private static final Protocol TEST_HTTP_PROTOCOL = Protocol.HTTP_1_1;
-
     @Mock private TsiGoRequest.Builder requestBuilder;
     @Mock private JsonHttpClient httpClient;
 
@@ -47,7 +46,8 @@ public class PaymentServiceImplTest {
     @Test
     public void testPaymentRequest_ok() throws IOException {
         // when: the HTTP call is a success
-        Response response = this.mockResponse( 200, "OK", 1, "OK", "http://redirect-url.com" );
+        String content = TsiGoResponseTest.mockJson( 1, "OK", "http://redirect-url.com", null, null );
+        Response response = ResponseMocker.mock( 200, "OK", content );
         when( httpClient.doPost( anyString(), anyString(), anyString(), anyString() ) )
                 .thenReturn( response );
         PaymentResponse paymentResponse = service.paymentRequest( mock( PaymentRequest.class, Mockito.RETURNS_DEEP_STUBS ) );
@@ -71,7 +71,8 @@ public class PaymentServiceImplTest {
     @Test
     public void testPaymentRequest_businessError() throws IOException {
         // when: the HTTP call returns a business error (wrong HMAC for example)
-        Response response = this.mockResponse( 200, "OK", 15, "WRONG HMAC", null );
+        String content = TsiGoResponseTest.mockJson( 15, "WRONG HMAC", null, null, null );
+        Response response = ResponseMocker.mock( 200, "OK", content );
         when( httpClient.doPost( anyString(), anyString(), anyString(), anyString() ) )
                 .thenReturn( response );
         PaymentResponse paymentResponse = service.paymentRequest( mock( PaymentRequest.class, Mockito.RETURNS_DEEP_STUBS ) );
@@ -84,7 +85,7 @@ public class PaymentServiceImplTest {
     @Test
     public void testPaymentRequest_noResponseBody() throws IOException {
         // when: the HTTP call returns a response without body
-        Response response = this.mockResponse( 200, "OK", null, null, null );
+        Response response = ResponseMocker.mock( 200, "OK", null );
         when( httpClient.doPost( anyString(), anyString(), anyString(), anyString() ) )
                 .thenReturn( response );
         PaymentResponse paymentResponse = service.paymentRequest( mock( PaymentRequest.class, Mockito.RETURNS_DEEP_STUBS ) );
@@ -97,7 +98,7 @@ public class PaymentServiceImplTest {
     @Test
     public void testPaymentRequest_httpError() throws IOException {
         // when: the HTTP call returns a HTTP error (503 Service Unavailable par example)
-        Response response = this.mockResponse( 503, "Service Unavailable", null, null, null );
+        Response response = ResponseMocker.mock( 503, "Service Unavailable", null );
         when( httpClient.doPost( anyString(), anyString(), anyString(), anyString() ) )
                 .thenReturn( response );
         PaymentResponse paymentResponse = service.paymentRequest( mock( PaymentRequest.class, Mockito.RETURNS_DEEP_STUBS ) );
@@ -119,18 +120,6 @@ public class PaymentServiceImplTest {
         Assert.assertEquals( FailureCause.COMMUNICATION_ERROR, ((PaymentResponseFailure) paymentResponse).getFailureCause() );
     }
 
-    private Response mockResponse( int httpCode, String httpMessage, Integer bodyStatus, String bodyMessage, String bodyUrl ){
-        String jsonBody = null;
-        if( bodyStatus != null && bodyMessage != null ){
-            jsonBody = TsiGoResponseTest.mockJson( bodyStatus, bodyMessage, bodyUrl, null, null );
-        }
-        return ( new Response.Builder() )
-                .code( httpCode )
-                .message( httpMessage )
-                .body( jsonBody == null ? null : ResponseBody.create( MediaType.parse( "application/json" ), jsonBody ) )
-                .request( (new Request.Builder()).url("http://fake.fr").build() )
-                .protocol( TEST_HTTP_PROTOCOL )
-                .build();
-    }
+
 
 }
