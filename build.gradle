@@ -20,7 +20,7 @@ configurations.all {
     resolutionStrategy.cacheChangingModulesFor 0, 'seconds'
 }
 
-ext{
+ext {
     paymentMethodApiVersion = '0.11.THALES-20180816.150849-2'
     paymentMethodIntegrationVersion = '0.11.THALES-20180816.150946-2'
     mockitoVersion = '2.19.0'
@@ -149,7 +149,7 @@ jar {
 /* Replace tokens in resources files after compilation */
 processResources {
     filter ReplaceTokens, tokens: [
-            "version": project.version,
+            "version": project.version.replace("-SNAPSHOT", ""),
             "date": new Date().format("dd/MM/yyyy")
     ]
 }

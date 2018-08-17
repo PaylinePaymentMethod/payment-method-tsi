@@ -80,6 +80,16 @@ public class ConfigurationServiceImplTest {
         Assert.assertNotEquals( 1900, releaseInformation.getDate().getYear() );
     }
 
+    @Test
+    public void testGetReleaseInformation_versionFormat(){
+        // when: getReleaseInformation method is called
+        ReleaseInformation releaseInformation = service.getReleaseInformation();
+
+        // then: the version has a valid format
+        Assert.assertNotNull( releaseInformation );
+        Assert.assertTrue( releaseInformation.getVersion().matches( "^\\d\\.\\d(\\.\\d)?$" ) );
+    }
+
     // TODO: Improve this test case ! Testing the result is not empty is not enough.
     @Test
     public void testGetName_notNull(){
