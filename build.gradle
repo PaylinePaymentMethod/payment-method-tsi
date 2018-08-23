@@ -22,7 +22,7 @@ configurations.all {
 
 ext {
     paymentMethodApiVersion = '0.11.THALES-20180816.150849-2'
-    paymentMethodIntegrationVersion = '0.11.THALES-20180816.150946-2'
+    paymentMethodIntegrationVersion = '0.11.THALES-20180823.125208-3'
     mockitoVersion = '2.19.0'
 }
 sourceCompatibility = 1.8
