@@ -1,4 +1,4 @@
 .gradle/
 build/
+gradle*
 out/
-src/test/java/com/payline/pmapi/
