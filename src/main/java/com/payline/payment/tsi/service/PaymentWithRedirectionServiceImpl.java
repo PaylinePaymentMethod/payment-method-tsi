@@ -42,9 +42,7 @@ public class PaymentWithRedirectionServiceImpl extends AbstractPaymentHttpServic
         TsiStatusCheckRequest statusCheckRequest = requestBuilder.fromRedirectionPaymentRequest( redirectionPaymentRequest );
 
         // Call StatusCheck to recover transaction info
-        //ConfigEnvironment env = Boolean.FALSE.equals( paymentRequest.getPaylineEnvironment().isSandbox() ) ? ConfigEnvironment.PROD : ConfigEnvironment.TEST;
-        // Currently, RedirectionPaymentRequest doesn't contain a PaylineEnvironment object. So, for now, env is always "TEST".
-        ConfigEnvironment env = ConfigEnvironment.TEST;
+        ConfigEnvironment env = Boolean.FALSE.equals( redirectionPaymentRequest.getPaylineEnvironment().isSandbox() ) ? ConfigEnvironment.PROD : ConfigEnvironment.TEST;
         String scheme = ConfigProperties.get( "tsi.scheme", env );
         String host = ConfigProperties.get( "tsi.host", env );
         String path = ConfigProperties.get( "tsi.statusCheck.path", env );
