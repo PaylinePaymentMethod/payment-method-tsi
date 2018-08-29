@@ -12,6 +12,7 @@ import com.payline.pmapi.bean.payment.request.TransactionStatusRequest;
 import com.payline.pmapi.bean.payment.response.PaymentResponse;
 import com.payline.pmapi.bean.payment.response.PaymentResponseSuccess;
 import com.payline.pmapi.bean.payment.response.buyerpaymentidentifier.impl.Email;
+import com.payline.pmapi.bean.payment.response.buyerpaymentidentifier.impl.EmptyTransactionDetails;
 import com.payline.pmapi.service.PaymentWithRedirectionService;
 import okhttp3.Response;
 import org.apache.logging.log4j.LogManager;
@@ -60,9 +61,7 @@ public class PaymentWithRedirectionServiceImpl extends AbstractPaymentHttpServic
                     .withMessage( new Message( Message.MessageType.SUCCESS, statusCheck.getMessage() ) )
                     .withStatusCode( statusCheck.getErCode() )
                     .withTransactionIdentifier( statusCheck.getTid() )
-                    // TODO: replace the fake email by another solution (waiting for another release from PM-API)
-                    // TODO: make the fake email configurable ?
-                    .withTransactionDetails( Email.EmailBuilder.anEmail().withEmail( "fake.address@tsi.fake.fr" ).build() )
+                    .withTransactionDetails( new EmptyTransactionDetails() )
                     .withTransactionAdditionalData( statusCheck.getResume() )
                     .build();
         }
