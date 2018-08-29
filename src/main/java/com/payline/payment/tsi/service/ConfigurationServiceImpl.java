@@ -44,7 +44,7 @@ public class ConfigurationServiceImpl implements ConfigurationService {
         parameters.add( merchantId );
 
         // Key value
-        final InputParameter keyValue = new InputParameter();
+        final PasswordParameter keyValue = new PasswordParameter();
         keyValue.setKey( TsiConstants.CONTRACT_KEY_VALUE );
         keyValue.setLabel( i18n.getMessage( "contractConfiguration.keyValue.label", locale ) );
         keyValue.setDescription( i18n.getMessage( "contractConfiguration.keyValue.description", locale ) );

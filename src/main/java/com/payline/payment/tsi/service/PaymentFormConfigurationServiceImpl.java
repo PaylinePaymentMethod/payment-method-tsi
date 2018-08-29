@@ -2,10 +2,12 @@ package com.payline.payment.tsi.service;
 
 import com.payline.payment.tsi.utils.i18n.I18nService;
 import com.payline.pmapi.bean.paymentform.bean.PaymentFormLogo;
+import com.payline.pmapi.bean.paymentform.bean.form.NoFieldForm;
 import com.payline.pmapi.bean.paymentform.request.PaymentFormConfigurationRequest;
 import com.payline.pmapi.bean.paymentform.request.PaymentFormLogoRequest;
 import com.payline.pmapi.bean.paymentform.response.configuration.PaymentFormConfigurationResponse;
 import com.payline.pmapi.bean.paymentform.response.configuration.PaymentFormConfigurationResponseProvided;
+import com.payline.pmapi.bean.paymentform.response.configuration.PaymentFormConfigurationResponseSpecific;
 import com.payline.pmapi.bean.paymentform.response.logo.PaymentFormLogoResponse;
 import com.payline.pmapi.bean.paymentform.response.logo.PaymentFormLogoResponseFile;
 import com.payline.pmapi.service.PaymentFormConfigurationService;
@@ -13,21 +15,30 @@ import com.payline.pmapi.service.PaymentFormConfigurationService;
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
 import java.io.ByteArrayOutputStream;
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.URL;
+import java.nio.file.Files;
 import java.util.HashMap;
 import java.util.Locale;
 
 public class PaymentFormConfigurationServiceImpl implements PaymentFormConfigurationService {
 
-    private static final String LOGO_CONTENT_TYPE = "image/jpeg";
-    private static final int LOGO_HEIGHT = 92;
-    private static final int LOGO_WIDTH = 390;
+    private static final String LOGO_CONTENT_TYPE = "image/png";
+    private static final int LOGO_HEIGHT = 25;
+    private static final int LOGO_WIDTH = 88;
+
+    private I18nService i18n = I18nService.getInstance();
 
     @Override
     public PaymentFormConfigurationResponse getPaymentFormConfiguration( PaymentFormConfigurationRequest paymentFormConfigurationRequest ) {
-        return PaymentFormConfigurationResponseProvided.PaymentFormConfigurationResponseBuilder.aPaymentFormConfigurationResponse()
-                .withContextPaymentForm(new HashMap<>())
+        return PaymentFormConfigurationResponseSpecific.PaymentFormConfigurationResponseSpecificBuilder.aPaymentFormConfigurationResponseSpecific()
+                .withPaymentForm(NoFieldForm.NoFieldFormBuilder.aNoFieldForm()
+                        .withButtonText(i18n.getMessage( "form.buttonText", paymentFormConfigurationRequest.getLocale() ))
+                        .withDescription(i18n.getMessage( "form.description", paymentFormConfigurationRequest.getLocale() ))
+                        .withDisplayButton(true)
+                        .build())
                 .build();
     }
 
@@ -47,16 +58,17 @@ public class PaymentFormConfigurationServiceImpl implements PaymentFormConfigura
     @Override
     public PaymentFormLogo getLogo( Locale locale ) throws IOException {
         // Read logo file
-        InputStream input = PaymentFormConfigurationServiceImpl.class.getClassLoader().getResourceAsStream( "ticketpremium-logo.jpg" );
+        InputStream input = PaymentFormConfigurationServiceImpl.class.getClassLoader().getResourceAsStream( "ticketpremium-logo.png" );
         BufferedImage logo = ImageIO.read( input );
 
         // Recover byte array from image
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
-        ImageIO.write( logo, "jpg", baos );
+        ImageIO.write( logo, "png", baos );
 
         return PaymentFormLogo.PaymentFormLogoBuilder.aPaymentFormLogo()
                 .withFile( baos.toByteArray() )
                 .withContentType( LOGO_CONTENT_TYPE )
                 .build();
     }
+
 }
