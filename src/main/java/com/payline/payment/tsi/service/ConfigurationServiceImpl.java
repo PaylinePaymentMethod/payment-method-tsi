@@ -8,6 +8,11 @@ import com.payline.payment.tsi.utils.config.ConfigProperties;
 import com.payline.payment.tsi.utils.http.JsonHttpClient;
 import com.payline.payment.tsi.utils.i18n.I18nService;
 import com.payline.pmapi.bean.configuration.*;
+import com.payline.pmapi.bean.configuration.parameter.AbstractParameter;
+import com.payline.pmapi.bean.configuration.parameter.impl.InputParameter;
+import com.payline.pmapi.bean.configuration.parameter.impl.ListBoxParameter;
+import com.payline.pmapi.bean.configuration.parameter.impl.PasswordParameter;
+import com.payline.pmapi.bean.configuration.request.ContractParametersCheckRequest;
 import com.payline.pmapi.service.ConfigurationService;
 import okhttp3.Response;
 import org.apache.logging.log4j.LogManager;
@@ -36,7 +41,7 @@ public class ConfigurationServiceImpl implements ConfigurationService {
 
 
     @Override
-    public List<AbstractParameter> getParameters( Locale locale ){
+    public List<AbstractParameter> getParameters(Locale locale ){
         List<AbstractParameter> parameters = new ArrayList<>();
 
         // Merchant ID

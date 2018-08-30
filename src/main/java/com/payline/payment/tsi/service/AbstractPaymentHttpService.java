@@ -6,7 +6,7 @@ import com.payline.payment.tsi.utils.http.JsonHttpClient;
 import com.payline.pmapi.bean.common.FailureCause;
 import com.payline.pmapi.bean.payment.request.PaymentRequest;
 import com.payline.pmapi.bean.payment.response.PaymentResponse;
-import com.payline.pmapi.bean.payment.response.PaymentResponseFailure;
+import com.payline.pmapi.bean.payment.response.impl.PaymentResponseFailure;
 import okhttp3.Response;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -101,7 +101,7 @@ public abstract class AbstractPaymentHttpService<T extends PaymentRequest> {
      * @param failureCause The failure cause
      * @return The instantiated object
      */
-    protected PaymentResponseFailure buildPaymentResponseFailure( String errorCode, FailureCause failureCause ){
+    protected PaymentResponseFailure buildPaymentResponseFailure(String errorCode, FailureCause failureCause ){
         return PaymentResponseFailure.PaymentResponseFailureBuilder.aPaymentResponseFailure()
                 .withFailureCause( failureCause )
                 .withErrorCode( errorCode )

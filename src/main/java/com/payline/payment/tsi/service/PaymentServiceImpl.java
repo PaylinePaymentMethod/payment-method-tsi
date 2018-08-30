@@ -8,7 +8,7 @@ import com.payline.payment.tsi.utils.config.ConfigEnvironment;
 import com.payline.payment.tsi.utils.config.ConfigProperties;
 import com.payline.pmapi.bean.payment.request.PaymentRequest;
 import com.payline.pmapi.bean.payment.response.PaymentResponse;
-import com.payline.pmapi.bean.payment.response.PaymentResponseRedirect;
+import com.payline.pmapi.bean.payment.response.impl.PaymentResponseRedirect;
 import com.payline.pmapi.service.PaymentService;
 import okhttp3.Response;
 import org.apache.logging.log4j.LogManager;
@@ -18,8 +18,6 @@ import java.io.IOException;
 import java.net.URL;
 import java.security.GeneralSecurityException;
 import java.security.NoSuchAlgorithmException;
-
-import static com.payline.pmapi.bean.payment.response.PaymentResponseRedirect.RedirectionRequest;
 
 public class PaymentServiceImpl extends AbstractPaymentHttpService<PaymentRequest> implements PaymentService {
 
@@ -59,7 +57,7 @@ public class PaymentServiceImpl extends AbstractPaymentHttpService<PaymentReques
         if( tsiGoResponse.getStatus() == 1 ){
             String redirectUrl = tsiGoResponse.getUrl();
 
-            RedirectionRequest redirectionRequest = new RedirectionRequest( new URL( redirectUrl ) );
+            PaymentResponseRedirect.RedirectionRequest redirectionRequest = new PaymentResponseRedirect.RedirectionRequest( new URL( redirectUrl ) );
             return PaymentResponseRedirect.PaymentResponseRedirectBuilder.aPaymentResponseRedirect()
                     .withRedirectionRequest( redirectionRequest )
                     .withTransactionIdentifier( tsiGoResponse.getTid() )

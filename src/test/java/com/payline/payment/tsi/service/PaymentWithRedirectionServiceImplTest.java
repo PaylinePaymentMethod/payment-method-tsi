@@ -9,8 +9,8 @@ import com.payline.pmapi.bean.common.FailureCause;
 import com.payline.pmapi.bean.payment.request.RedirectionPaymentRequest;
 import com.payline.pmapi.bean.payment.request.TransactionStatusRequest;
 import com.payline.pmapi.bean.payment.response.PaymentResponse;
-import com.payline.pmapi.bean.payment.response.PaymentResponseFailure;
-import com.payline.pmapi.bean.payment.response.PaymentResponseSuccess;
+import com.payline.pmapi.bean.payment.response.impl.PaymentResponseFailure;
+import com.payline.pmapi.bean.payment.response.impl.PaymentResponseSuccess;
 import okhttp3.*;
 import org.junit.Assert;
 import org.junit.Before;
@@ -52,7 +52,7 @@ public class PaymentWithRedirectionServiceImplTest {
         PaymentResponse paymentResponse = service.finalizeRedirectionPayment( mock( RedirectionPaymentRequest.class, Mockito.RETURNS_DEEP_STUBS ) );
 
         // then: returned object is an instance of PaymentResponseSuccess
-        Assert.assertTrue( paymentResponse instanceof PaymentResponseSuccess );
+        Assert.assertTrue( paymentResponse instanceof PaymentResponseSuccess);
     }
 
     @Test
@@ -63,7 +63,7 @@ public class PaymentWithRedirectionServiceImplTest {
         PaymentResponse paymentResponse = service.finalizeRedirectionPayment( mock( RedirectionPaymentRequest.class, Mockito.RETURNS_DEEP_STUBS ) );
 
         // then: returned object is an instance of PaymentResponseFailure with the right failure cause
-        Assert.assertTrue( paymentResponse instanceof PaymentResponseFailure );
+        Assert.assertTrue( paymentResponse instanceof PaymentResponseFailure);
         Assert.assertEquals( FailureCause.INVALID_DATA, ((PaymentResponseFailure) paymentResponse).getFailureCause() );
     }
 

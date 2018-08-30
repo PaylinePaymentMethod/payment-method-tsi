@@ -4,9 +4,9 @@ import com.payline.pmapi.bean.paymentform.bean.PaymentFormLogo;
 import com.payline.pmapi.bean.paymentform.request.PaymentFormConfigurationRequest;
 import com.payline.pmapi.bean.paymentform.request.PaymentFormLogoRequest;
 import com.payline.pmapi.bean.paymentform.response.configuration.PaymentFormConfigurationResponse;
-import com.payline.pmapi.bean.paymentform.response.configuration.PaymentFormConfigurationResponseSpecific;
+import com.payline.pmapi.bean.paymentform.response.configuration.impl.PaymentFormConfigurationResponseSpecific;
 import com.payline.pmapi.bean.paymentform.response.logo.PaymentFormLogoResponse;
-import com.payline.pmapi.bean.paymentform.response.logo.PaymentFormLogoResponseFile;
+import com.payline.pmapi.bean.paymentform.response.logo.impl.PaymentFormLogoResponseFile;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -67,7 +67,7 @@ public class PaymentFormConfigurationServiceImplTest {
         PaymentFormLogoResponse paymentFormLogoResponse = service.getPaymentFormLogo( request );
 
         // then: returned elements match the image file data
-        Assert.assertTrue( paymentFormLogoResponse instanceof PaymentFormLogoResponseFile );
+        Assert.assertTrue( paymentFormLogoResponse instanceof PaymentFormLogoResponseFile);
         PaymentFormLogoResponseFile casted = (PaymentFormLogoResponseFile) paymentFormLogoResponse;
         Assert.assertEquals( guessedContentType, casted.getContentType() );
         Assert.assertEquals( image.getHeight(), casted.getHeight() );

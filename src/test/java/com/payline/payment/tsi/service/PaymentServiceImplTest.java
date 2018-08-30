@@ -10,8 +10,8 @@ import com.payline.payment.tsi.utils.http.ResponseMocker;
 import com.payline.pmapi.bean.common.FailureCause;
 import com.payline.pmapi.bean.payment.request.PaymentRequest;
 import com.payline.pmapi.bean.payment.response.PaymentResponse;
-import com.payline.pmapi.bean.payment.response.PaymentResponseFailure;
-import com.payline.pmapi.bean.payment.response.PaymentResponseRedirect;
+import com.payline.pmapi.bean.payment.response.impl.PaymentResponseFailure;
+import com.payline.pmapi.bean.payment.response.impl.PaymentResponseRedirect;
 import okhttp3.*;
 import org.junit.Assert;
 import org.junit.Before;
@@ -53,7 +53,7 @@ public class PaymentServiceImplTest {
         PaymentResponse paymentResponse = service.paymentRequest( mock( PaymentRequest.class, Mockito.RETURNS_DEEP_STUBS ) );
 
         // then: returned object is an instance of PaymentResponseRedirect
-        Assert.assertTrue( paymentResponse instanceof PaymentResponseRedirect );
+        Assert.assertTrue( paymentResponse instanceof PaymentResponseRedirect);
     }
 
     @Test
@@ -64,7 +64,7 @@ public class PaymentServiceImplTest {
         PaymentResponse paymentResponse = service.paymentRequest( mock( PaymentRequest.class, Mockito.RETURNS_DEEP_STUBS ) );
 
         // then: returned object is an instance of PaymentResponseFailure with the right failure cause
-        Assert.assertTrue( paymentResponse instanceof PaymentResponseFailure );
+        Assert.assertTrue( paymentResponse instanceof PaymentResponseFailure);
         Assert.assertEquals( FailureCause.INVALID_DATA, ((PaymentResponseFailure) paymentResponse).getFailureCause() );
     }
 
