@@ -4,13 +4,14 @@ import com.payline.pmapi.bean.paymentform.bean.PaymentFormLogo;
 import com.payline.pmapi.bean.paymentform.request.PaymentFormConfigurationRequest;
 import com.payline.pmapi.bean.paymentform.request.PaymentFormLogoRequest;
 import com.payline.pmapi.bean.paymentform.response.configuration.PaymentFormConfigurationResponse;
-import com.payline.pmapi.bean.paymentform.response.configuration.PaymentFormConfigurationResponseProvided;
+import com.payline.pmapi.bean.paymentform.response.configuration.PaymentFormConfigurationResponseSpecific;
 import com.payline.pmapi.bean.paymentform.response.logo.PaymentFormLogoResponse;
 import com.payline.pmapi.bean.paymentform.response.logo.PaymentFormLogoResponseFile;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
+import org.mockito.Mockito;
 import org.mockito.junit.MockitoJUnitRunner;
 
 import javax.imageio.ImageIO;
@@ -18,11 +19,9 @@ import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
-import java.net.URLConnection;
 import java.nio.file.Files;
 import java.util.Locale;
 
-import static org.mockito.Mockito.RETURNS_DEEP_STUBS;
 import static org.mockito.Mockito.mock;
 
 @RunWith( MockitoJUnitRunner.class )
@@ -34,10 +33,12 @@ public class PaymentFormConfigurationServiceImplTest {
     @Test
     public void testGetPaymentFormConfiguration(){
         // when: getPaymentFormConfiguration is called
-        PaymentFormConfigurationResponse response = service.getPaymentFormConfiguration( mock( PaymentFormConfigurationRequest.class ) );
+        final PaymentFormConfigurationRequest mock = mock(PaymentFormConfigurationRequest.class);
+        Mockito.when(mock.getLocale()).thenReturn(Locale.FRANCE);
+        PaymentFormConfigurationResponse response = service.getPaymentFormConfiguration(mock);
 
         // then: returned object is an instance of PaymentFormConfigurationResponseProvided
-        Assert.assertTrue( response instanceof PaymentFormConfigurationResponseProvided );
+        Assert.assertTrue( response instanceof PaymentFormConfigurationResponseSpecific);
     }
 
     @Test
@@ -54,7 +55,7 @@ public class PaymentFormConfigurationServiceImplTest {
     @Test
     public void testGetPaymentFormLogo() throws IOException {
         // given: the logo image read from resources
-        String filename = "ticketpremium-logo.jpg";
+        String filename = "ticketpremium-logo.png";
         InputStream input = PaymentFormConfigurationServiceImpl.class.getClassLoader().getResourceAsStream( filename );
         BufferedImage image = ImageIO.read( input );
         String guessedContentType = Files.probeContentType( new File( filename ).toPath() );

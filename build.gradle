@@ -1,4 +1,4 @@
-//import org.apache.tools.ant.filters.*
+import org.apache.tools.ant.filters.*
 
 plugins {
     id "com.github.johnrengelman.shadow" version "2.0.1"
@@ -144,12 +144,13 @@ jar {
 }
 
 /* Replace tokens in resources files after compilation */
-/*
 processResources {
-    filter ReplaceTokens, tokens: [
-            "version": project.version.replace("-SNAPSHOT", ""),
-            "date": new Date().format("dd/MM/yyyy")
-    ]
+    filesMatching('release.properties') {
+        filter( ReplaceTokens, tokens:[
+                'version': project.version.replace("-SNAPSHOT", ""),
+                'date': new Date().format("dd/MM/yyyy")
+        ])
+    }
 }
-*/
+
 test.exclude '**/*IT.class'
