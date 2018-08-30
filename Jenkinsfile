@@ -17,7 +17,7 @@ pipeline {
     stages {
         stage('Assemble') {
             steps {
-                gitlabCommitStatus("Assemble") {
+                gitlabCommitStatus(name: "Assemble") {
                     sh './gradlew clean assemble'
                 }
             }
@@ -34,7 +34,7 @@ pipeline {
 
         stage('Test') {
             steps {
-                gitlabCommitStatus("Test") {
+                gitlabCommitStatus(name: "Test") {
                     sh './gradlew test --continue'
                 }
             }
@@ -66,7 +66,7 @@ pipeline {
                         anyOf { branch 'master'; branch 'develop'; branch "release/*" }
                     }
                     steps {
-                        gitlabCommitStatus('Publication sur Nexus') {
+                        gitlabCommitStatus(name: "Publication sur Nexus") {
                             sh './gradlew publish'
                         }
                     }
