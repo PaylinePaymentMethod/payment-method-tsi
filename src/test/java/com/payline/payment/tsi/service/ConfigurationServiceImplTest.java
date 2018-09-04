@@ -149,7 +149,7 @@ public class ConfigurationServiceImplTest {
 
         // then: the version has a valid format
         Assert.assertNotNull( releaseInformation );
-        System.out.println(releaseInformation);
+        System.out.println(releaseInformation.getVersion());
         Assert.assertTrue( releaseInformation.getVersion().matches( "^\\d\\.\\d(\\.\\d)?$" ) );
     }
 
