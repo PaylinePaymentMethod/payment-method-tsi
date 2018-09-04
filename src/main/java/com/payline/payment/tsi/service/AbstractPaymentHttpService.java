@@ -12,6 +12,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import java.io.IOException;
+import java.security.GeneralSecurityException;
 import java.security.NoSuchAlgorithmException;
 
 /**
@@ -27,7 +28,7 @@ public abstract class AbstractPaymentHttpService<T extends PaymentRequest> {
 
     protected JsonHttpClient httpClient;
 
-    protected AbstractPaymentHttpService(){
+    protected AbstractPaymentHttpService() throws GeneralSecurityException {
         int connectTimeout = Integer.parseInt( ConfigProperties.get("http.connectTimeout") );
         int writeTimeout = Integer.parseInt( ConfigProperties.get("http.writeTimeout") );
         int readTimeout = Integer.parseInt( ConfigProperties.get("http.readTimeout") );

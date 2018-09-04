@@ -19,6 +19,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import java.io.IOException;
+import java.security.GeneralSecurityException;
 
 public class PaymentWithRedirectionServiceImpl extends AbstractPaymentHttpService<RedirectionPaymentRequest> implements PaymentWithRedirectionService {
 
@@ -26,7 +27,7 @@ public class PaymentWithRedirectionServiceImpl extends AbstractPaymentHttpServic
 
     private TsiStatusCheckRequest.Builder requestBuilder;
 
-    public PaymentWithRedirectionServiceImpl(){
+    public PaymentWithRedirectionServiceImpl() throws GeneralSecurityException {
         super();
         this.requestBuilder = new TsiStatusCheckRequest.Builder();
     }

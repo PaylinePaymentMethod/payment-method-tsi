@@ -5,6 +5,7 @@ import okhttp3.RequestBody;
 import okhttp3.Response;
 
 import java.io.IOException;
+import java.security.GeneralSecurityException;
 
 public class JsonHttpClient extends HttpClient {
 
@@ -13,7 +14,7 @@ public class JsonHttpClient extends HttpClient {
     /**
      * Instantiate a HTTP client with default values.
      */
-    public JsonHttpClient(){
+    public JsonHttpClient() throws GeneralSecurityException {
         super( 10, 10, 15 );
     }
 
@@ -24,7 +25,7 @@ public class JsonHttpClient extends HttpClient {
      * @param writeTimeout   Default write timeout (in seconds) for new connections. A value of 0 means no timeout.
      * @param readTimeout    Default read timeout (in seconds) for new connections. A value of 0 means no timeout.
      */
-    public JsonHttpClient( int connectTimeout, int writeTimeout, int readTimeout ) {
+    public JsonHttpClient( int connectTimeout, int writeTimeout, int readTimeout ) throws GeneralSecurityException {
         super( connectTimeout, writeTimeout, readTimeout );
     }
 
