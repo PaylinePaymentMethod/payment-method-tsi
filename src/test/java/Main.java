@@ -7,6 +7,7 @@ import com.payline.payment.tsi.utils.http.JsonHttpClient;
 import okhttp3.Response;
 
 import java.io.IOException;
+import java.security.GeneralSecurityException;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.HashMap;
@@ -18,7 +19,7 @@ public class Main {
     public static Properties config;
     public static Properties testConfig;
 
-    public static void main( String[] args ) throws IOException {
+    public static void main( String[] args ) throws IOException, GeneralSecurityException {
         config = new Properties();
         config.load( Main.class.getClassLoader().getResourceAsStream( "config.properties" ) );
 
@@ -59,7 +60,7 @@ public class Main {
         System.out.println( hmac.digest( message ) );
     }
 
-    private static void http() throws IOException {
+    private static void http() throws IOException, GeneralSecurityException {
         JsonHttpClient httpClient = new JsonHttpClient( 5, 10, 15 );
 
         // Build request
