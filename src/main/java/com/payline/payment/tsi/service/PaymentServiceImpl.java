@@ -16,6 +16,7 @@ import org.apache.logging.log4j.Logger;
 
 import java.io.IOException;
 import java.net.URL;
+import java.security.GeneralSecurityException;
 import java.security.NoSuchAlgorithmException;
 
 import static com.payline.pmapi.bean.payment.response.PaymentResponseRedirect.RedirectionRequest;
@@ -26,7 +27,7 @@ public class PaymentServiceImpl extends AbstractPaymentHttpService<PaymentReques
 
     private TsiGoRequest.Builder requestBuilder;
 
-    public PaymentServiceImpl(){
+    public PaymentServiceImpl() throws GeneralSecurityException {
         super();
         this.requestBuilder = new TsiGoRequest.Builder();
     }
