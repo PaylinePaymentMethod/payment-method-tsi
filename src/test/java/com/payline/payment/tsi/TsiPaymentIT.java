@@ -18,6 +18,7 @@ import org.openqa.selenium.support.ui.WebDriverWait;
 import java.io.IOException;
 import java.io.Serializable;
 import java.math.BigInteger;
+import java.security.GeneralSecurityException;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
@@ -34,7 +35,7 @@ public class TsiPaymentIT extends AbstractPaymentIntegration {
     private Properties testConfig;
 
     @Before
-    public void setup() throws IOException {
+    public void setup() throws IOException, GeneralSecurityException {
         paymentService = new PaymentServiceImpl();
         paymentWithRedirectionService = new PaymentWithRedirectionServiceImpl();
 
