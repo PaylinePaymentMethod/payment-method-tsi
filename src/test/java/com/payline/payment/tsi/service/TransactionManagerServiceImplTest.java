@@ -10,8 +10,15 @@ public class TransactionManagerServiceImplTest {
     @Test
     public void readAdditionalData() {
         final TransactionManagerServiceImpl tmsi = new TransactionManagerServiceImpl();
-        final Map<String, String> addData = tmsi.readAdditionalData("authId: 9289086, tid: 239c72ad88693a1c395023d337830a24, multi: f, dtime: 2018-09-03 15:14:57, country: FRA", "1.0");
-        Assert.assertEquals("239c72ad88693a1c395023d337830a24", addData.get("tid"));
-        Assert.assertEquals("9289086", addData.get("authId"));
+        final Map<String, String> addData = tmsi.readAdditionalData("{\"authId\":\"9289145\",\"tid\":\"9bc267fba6ccad33fc46a9b74411ad2b\",\"status\":\"OK\",\"ercode\":\"0\",\"message\":\"SUCCESSFUL TRANSACTION FOUND\",\"amount\":\"0,01\",\"multi\":\"f\",\"dtime\":\"2018-09-06 14:24:14\",\"country\":\"FRA\"}", "1.0");
+        Assert.assertEquals("9bc267fba6ccad33fc46a9b74411ad2b", addData.get("tid"));
+        Assert.assertEquals("9289145", addData.get("authId"));
+    }
+
+    @Test
+    public void readAdditionalDataNull() {
+        final TransactionManagerServiceImpl tmsi = new TransactionManagerServiceImpl();
+        final Map<String, String> addData = tmsi.readAdditionalData(null, null);
+        Assert.assertTrue(addData.isEmpty());
     }
 }

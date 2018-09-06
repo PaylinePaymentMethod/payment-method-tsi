@@ -1,6 +1,7 @@
 package com.payline.payment.tsi.response;
 
 import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import com.google.gson.annotations.SerializedName;
 
 public class TsiStatusCheckResponse {
@@ -79,11 +80,7 @@ public class TsiStatusCheckResponse {
     }
 
     public String getResume(){
-        return "authId: " + this.authId
-                + ", tid: " + this.tid
-                + ", multi: " + this.multi
-                + ", dtime: " + this.dtime
-                + ", country: " + this.country;
+        return new GsonBuilder().create().toJson(this);
     }
 
     /**
