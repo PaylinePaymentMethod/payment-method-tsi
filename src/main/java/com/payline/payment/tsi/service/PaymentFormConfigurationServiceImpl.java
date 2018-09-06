@@ -21,8 +21,8 @@ import java.util.Locale;
 public class PaymentFormConfigurationServiceImpl implements PaymentFormConfigurationService {
 
     private static final String LOGO_CONTENT_TYPE = "image/png";
-    private static final int LOGO_HEIGHT = 25;
-    private static final int LOGO_WIDTH = 88;
+    private static final int LOGO_HEIGHT = 28;
+    private static final int LOGO_WIDTH = 60;
 
     private I18nService i18n = I18nService.getInstance();
 
