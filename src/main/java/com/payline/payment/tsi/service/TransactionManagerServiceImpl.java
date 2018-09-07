@@ -13,7 +13,6 @@ public class TransactionManagerServiceImpl implements TransactionManagerService 
         final Map<String, String> addData = new HashMap<>();
         if (null != data) {
             final TsiStatusCheckResponse statusCheck = new TsiStatusCheckResponse.Builder().fromJson(data);
-            addData.put("tid", statusCheck.getTid());
             addData.put("authId", statusCheck.getAuthId());
         }
         return addData;
