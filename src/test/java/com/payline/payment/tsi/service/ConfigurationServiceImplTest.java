@@ -9,7 +9,7 @@ import com.payline.pmapi.bean.configuration.parameter.AbstractParameter;
 import com.payline.pmapi.bean.configuration.request.ContractParametersCheckRequest;
 import com.payline.pmapi.bean.payment.ContractConfiguration;
 import com.payline.pmapi.bean.payment.PaylineEnvironment;
-import okhttp3.Response;
+import org.apache.http.HttpResponse;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -19,12 +19,14 @@ import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 
 import java.io.IOException;
+import java.net.URISyntaxException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.anyString;
+import static org.mockito.Mockito.when;
 
 @RunWith( MockitoJUnitRunner.class )
 public class ConfigurationServiceImplTest {
@@ -57,11 +59,11 @@ public class ConfigurationServiceImplTest {
     }
 
     @Test
-    public void testCheck_ok() throws IOException {
+    public void testCheck_ok() throws IOException, URISyntaxException {
         // given: valid contract properties (TSI should then respond with a status=1)
         ContractParametersCheckRequest checkRequest = ConfigurationServiceImplTest.setupCheckRequest( parameters );
         String responseBody = TsiGoResponseTest.mockJson( 1, "OK", "http://redirect-url.com", null, null );
-        Response response = ResponseMocker.mock( 200, "OK", responseBody );
+        HttpResponse response = ResponseMocker.mock( 200, "OK", responseBody );
         when( httpClient.doPost( anyString(), anyString(), anyString(), anyString() ) )
                 .thenReturn( response );
 
@@ -73,11 +75,11 @@ public class ConfigurationServiceImplTest {
     }
 
     @Test
-    public void testCheck_wrongAccountData() throws IOException {
+    public void testCheck_wrongAccountData() throws IOException, URISyntaxException {
         // given: contract properties with the right format but not valid (TSI should then respond with a status != 1)
         ContractParametersCheckRequest checkRequest = ConfigurationServiceImplTest.setupCheckRequest( parameters );
         String responseBody = TsiGoResponseTest.mockJson( 15, "WRONG MAC", null, null, null );
-        Response response = ResponseMocker.mock( 200, "OK", responseBody );
+        HttpResponse response = ResponseMocker.mock( 200, "OK", responseBody );
         when( httpClient.doPost( anyString(), anyString(), anyString(), anyString() ) )
                 .thenReturn( response );
 
@@ -89,10 +91,10 @@ public class ConfigurationServiceImplTest {
     }
 
     @Test
-    public void testCheck_unknownError() throws IOException {
+    public void testCheck_unknownError() throws IOException, URISyntaxException {
         // given: contract properties validation encounter an unexpected error (Server unavailable for example)
         ContractParametersCheckRequest checkRequest = ConfigurationServiceImplTest.setupCheckRequest( parameters );
-        Response response = ResponseMocker.mock( 503, "Server Unavailable", null );
+        HttpResponse response = ResponseMocker.mock( 503, "Server Unavailable", null );
         when( httpClient.doPost( anyString(), anyString(), anyString(), anyString() ) )
                 .thenReturn( response );
 

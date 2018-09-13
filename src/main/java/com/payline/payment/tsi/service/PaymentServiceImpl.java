@@ -6,15 +6,17 @@ import com.payline.payment.tsi.request.TsiGoRequest;
 import com.payline.payment.tsi.response.TsiGoResponse;
 import com.payline.payment.tsi.utils.config.ConfigEnvironment;
 import com.payline.payment.tsi.utils.config.ConfigProperties;
+import com.payline.payment.tsi.utils.http.HttpUtil;
 import com.payline.pmapi.bean.payment.request.PaymentRequest;
 import com.payline.pmapi.bean.payment.response.PaymentResponse;
 import com.payline.pmapi.bean.payment.response.impl.PaymentResponseRedirect;
 import com.payline.pmapi.service.PaymentService;
-import okhttp3.Response;
+import org.apache.http.HttpResponse;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import java.io.IOException;
+import java.net.URISyntaxException;
 import java.net.URL;
 import java.security.GeneralSecurityException;
 import java.security.NoSuchAlgorithmException;
@@ -36,7 +38,7 @@ public class PaymentServiceImpl extends AbstractPaymentHttpService<PaymentReques
     }
 
     @Override
-    public Response createSendRequest( PaymentRequest paymentRequest ) throws IOException, InvalidRequestException, NoSuchAlgorithmException {
+    public HttpResponse createSendRequest(PaymentRequest paymentRequest ) throws IOException, InvalidRequestException, NoSuchAlgorithmException, URISyntaxException {
         // Create Go request from Payline request
         TsiGoRequest tsiGoRequest = requestBuilder.fromPaymentRequest( paymentRequest );
 
@@ -49,9 +51,9 @@ public class PaymentServiceImpl extends AbstractPaymentHttpService<PaymentReques
     }
 
     @Override
-    public PaymentResponse processResponse( Response response ) throws IOException {
+    public PaymentResponse processResponse(final HttpResponse response) throws IOException {
         // Parse response
-        TsiGoResponse tsiGoResponse = (new TsiGoResponse.Builder()).fromJson( response.body().string() );
+        TsiGoResponse tsiGoResponse = (new TsiGoResponse.Builder()).fromJson(HttpUtil.inputStreamToString(response.getEntity().getContent()));
 
         // If status == 1, proceed with the redirection
         if( tsiGoResponse.getStatus() == 1 ){

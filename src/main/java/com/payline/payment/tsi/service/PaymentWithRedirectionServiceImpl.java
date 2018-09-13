@@ -5,6 +5,7 @@ import com.payline.payment.tsi.request.TsiStatusCheckRequest;
 import com.payline.payment.tsi.response.TsiStatusCheckResponse;
 import com.payline.payment.tsi.utils.config.ConfigEnvironment;
 import com.payline.payment.tsi.utils.config.ConfigProperties;
+import com.payline.payment.tsi.utils.http.HttpUtil;
 import com.payline.pmapi.bean.common.FailureCause;
 import com.payline.pmapi.bean.common.Message;
 import com.payline.pmapi.bean.payment.request.RedirectionPaymentRequest;
@@ -13,11 +14,12 @@ import com.payline.pmapi.bean.payment.response.PaymentResponse;
 import com.payline.pmapi.bean.payment.response.buyerpaymentidentifier.impl.EmptyTransactionDetails;
 import com.payline.pmapi.bean.payment.response.impl.PaymentResponseSuccess;
 import com.payline.pmapi.service.PaymentWithRedirectionService;
-import okhttp3.Response;
+import org.apache.http.HttpResponse;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import java.io.IOException;
+import java.net.URISyntaxException;
 import java.security.GeneralSecurityException;
 
 public class PaymentWithRedirectionServiceImpl extends AbstractPaymentHttpService<RedirectionPaymentRequest> implements PaymentWithRedirectionService {
@@ -37,8 +39,8 @@ public class PaymentWithRedirectionServiceImpl extends AbstractPaymentHttpServic
     }
 
     @Override
-    public Response createSendRequest( RedirectionPaymentRequest redirectionPaymentRequest )
-            throws IOException, InvalidRequestException {
+    public HttpResponse createSendRequest( RedirectionPaymentRequest redirectionPaymentRequest )
+            throws IOException, InvalidRequestException, URISyntaxException {
         // Create StatusCheck request from Payline input
         TsiStatusCheckRequest statusCheckRequest = requestBuilder.fromRedirectionPaymentRequest( redirectionPaymentRequest );
 
@@ -51,9 +53,9 @@ public class PaymentWithRedirectionServiceImpl extends AbstractPaymentHttpServic
     }
 
     @Override
-    public PaymentResponse processResponse( Response response ) throws IOException {
+    public PaymentResponse processResponse( HttpResponse response ) throws IOException {
         // Parse response
-        TsiStatusCheckResponse statusCheck = (new TsiStatusCheckResponse.Builder()).fromJson( response.body().string() );
+        final TsiStatusCheckResponse statusCheck = (new TsiStatusCheckResponse.Builder()).fromJson(HttpUtil.inputStreamToString(response.getEntity().getContent()));
 
         // Status = "OK" and no error : transaction is a success
         if( "OK".equals( statusCheck.getStatus() ) && !statusCheck.isError() ){

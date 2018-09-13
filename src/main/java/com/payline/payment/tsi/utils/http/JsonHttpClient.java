@@ -1,15 +1,13 @@
 package com.payline.payment.tsi.utils.http;
 
-import okhttp3.MediaType;
-import okhttp3.RequestBody;
-import okhttp3.Response;
+import org.apache.http.HttpResponse;
+import org.apache.http.entity.ContentType;
 
 import java.io.IOException;
+import java.net.URISyntaxException;
 import java.security.GeneralSecurityException;
 
 public class JsonHttpClient extends HttpClient {
-
-    private static final String CONTENT_TYPE = "application/json";
 
     /**
      * Instantiate a HTTP client with default values.
@@ -24,6 +22,7 @@ public class JsonHttpClient extends HttpClient {
      * @param connectTimeout Default connect timeout (in seconds) for new connections. A value of 0 means no timeout.
      * @param writeTimeout   Default write timeout (in seconds) for new connections. A value of 0 means no timeout.
      * @param readTimeout    Default read timeout (in seconds) for new connections. A value of 0 means no timeout.
+     * @throws GeneralSecurityException
      */
     public JsonHttpClient( int connectTimeout, int writeTimeout, int readTimeout ) throws GeneralSecurityException {
         super( connectTimeout, writeTimeout, readTimeout );
@@ -38,9 +37,9 @@ public class JsonHttpClient extends HttpClient {
      * @param jsonContent The JSON content, as a string
      * @return The response returned from the HTTP call
      * @throws IOException
+     * @throws URISyntaxException
      */
-    public Response doPost( String scheme, String host, String path, String jsonContent ) throws IOException {
-        RequestBody body = RequestBody.create( MediaType.parse( CONTENT_TYPE ), jsonContent );
-        return super.doPost( scheme, host, path, body, CONTENT_TYPE );
+     public HttpResponse doPost(String scheme, String host, String path, String jsonContent ) throws IOException, URISyntaxException {
+        return super.doPost( scheme, host, path, jsonContent, ContentType.APPLICATION_JSON.toString() );
     }
 }

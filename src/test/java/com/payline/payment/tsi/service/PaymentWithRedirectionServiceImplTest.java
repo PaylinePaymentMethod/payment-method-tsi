@@ -5,13 +5,19 @@ import com.payline.payment.tsi.request.TsiStatusCheckRequest;
 import com.payline.payment.tsi.request.TsiStatusCheckRequestTest;
 import com.payline.payment.tsi.response.TsiStatusCheckResponseTest;
 import com.payline.payment.tsi.utils.http.JsonHttpClient;
+import com.payline.payment.tsi.utils.http.ResponseMocker;
 import com.payline.pmapi.bean.common.FailureCause;
 import com.payline.pmapi.bean.payment.request.RedirectionPaymentRequest;
 import com.payline.pmapi.bean.payment.request.TransactionStatusRequest;
 import com.payline.pmapi.bean.payment.response.PaymentResponse;
 import com.payline.pmapi.bean.payment.response.impl.PaymentResponseFailure;
 import com.payline.pmapi.bean.payment.response.impl.PaymentResponseSuccess;
-import okhttp3.*;
+import okhttp3.MediaType;
+import okhttp3.Protocol;
+import okhttp3.Request;
+import okhttp3.Response;
+import okhttp3.ResponseBody;
+import org.apache.http.HttpResponse;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -22,8 +28,13 @@ import org.mockito.Mockito;
 import org.mockito.junit.MockitoJUnitRunner;
 
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
+import java.net.URISyntaxException;
 
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.any;
+import static org.mockito.Mockito.anyString;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 @RunWith( MockitoJUnitRunner.class )
 public class PaymentWithRedirectionServiceImplTest {
@@ -44,9 +55,9 @@ public class PaymentWithRedirectionServiceImplTest {
     }
 
     @Test
-    public void testFinalizeRedirectionPayment_ok() throws IOException {
+    public void testFinalizeRedirectionPayment_ok() throws IOException, URISyntaxException {
         // when: the HTTP call is a success
-        Response response = this.mockResponse( 200, "OK", "OK", 0, "SUCCESSFUL TRANSACTION FOUND" );
+        HttpResponse response = this.mockResponse( 200, "OK", "OK", 0, "SUCCESSFUL TRANSACTION FOUND" );
         when( httpClient.doPost( anyString(), anyString(), anyString(), anyString() ) )
                 .thenReturn( response );
         PaymentResponse paymentResponse = service.finalizeRedirectionPayment( mock( RedirectionPaymentRequest.class, Mockito.RETURNS_DEEP_STUBS ) );
@@ -68,9 +79,9 @@ public class PaymentWithRedirectionServiceImplTest {
     }
 
     @Test
-    public void testFinalizeRedirectionPayment_notFound() throws IOException {
+    public void testFinalizeRedirectionPayment_notFound() throws IOException, URISyntaxException {
         // when: the HTTP call returns a business error ("transaction not found" for example)
-        Response response = this.mockResponse( 200, "OK", "NOK", 1, "NO SUCCESSFUL TRANSACTIONS FOUND WITHIN 6 MONTHS" );
+        HttpResponse response = this.mockResponse( 200, "OK", "NOK", 1, "NO SUCCESSFUL TRANSACTIONS FOUND WITHIN 6 MONTHS" );
         when( httpClient.doPost( anyString(), anyString(), anyString(), anyString() ) )
                 .thenReturn( response );
         PaymentResponse paymentResponse = service.finalizeRedirectionPayment( mock( RedirectionPaymentRequest.class, Mockito.RETURNS_DEEP_STUBS ) );
@@ -81,9 +92,9 @@ public class PaymentWithRedirectionServiceImplTest {
     }
 
     @Test
-    public void testFinalizeRedirectionPayment_businessError() throws IOException {
+    public void testFinalizeRedirectionPayment_businessError() throws IOException, URISyntaxException {
         // when: an error happened on the partner side during the HTTP call
-        Response response = this.mockResponse( 200, "OK", "ER", 106, "MISSING MAC" );
+        HttpResponse response = this.mockResponse( 200, "OK", "ER", 106, "MISSING MAC" );
         when( httpClient.doPost( anyString(), anyString(), anyString(), anyString() ) )
                 .thenReturn( response );
         PaymentResponse paymentResponse = service.finalizeRedirectionPayment( mock( RedirectionPaymentRequest.class, Mockito.RETURNS_DEEP_STUBS ) );
@@ -95,9 +106,9 @@ public class PaymentWithRedirectionServiceImplTest {
 
 
     @Test
-    public void testFinalizeRedirectionPayment_noResponseBody() throws IOException {
+    public void testFinalizeRedirectionPayment_noResponseBody() throws IOException, URISyntaxException {
         // when: the HTTP call returns a response without a body
-        Response response = this.mockResponse( 200, "OK", null, null, null );
+        HttpResponse response = this.mockResponse( 200, "OK", null, null, null );
         when( httpClient.doPost( anyString(), anyString(), anyString(), anyString() ) )
                 .thenReturn( response );
         PaymentResponse paymentResponse = service.finalizeRedirectionPayment( mock( RedirectionPaymentRequest.class, Mockito.RETURNS_DEEP_STUBS ) );
@@ -108,9 +119,9 @@ public class PaymentWithRedirectionServiceImplTest {
     }
 
     @Test
-    public void testFinalizeRedirectionPayment_httpError() throws IOException {
+    public void testFinalizeRedirectionPayment_httpError() throws IOException, URISyntaxException {
         // when: the HTTP call an error (503 Service Unavailable for example)
-        Response response = this.mockResponse( 503, "Service Unavailable", null, null, null );
+        HttpResponse response = this.mockResponse( 503, "Service Unavailable", null, null, null );
         when( httpClient.doPost( anyString(), anyString(), anyString(), anyString() ) )
                 .thenReturn( response );
         PaymentResponse paymentResponse = service.finalizeRedirectionPayment( mock( RedirectionPaymentRequest.class, Mockito.RETURNS_DEEP_STUBS ) );
@@ -121,7 +132,7 @@ public class PaymentWithRedirectionServiceImplTest {
     }
 
     @Test
-    public void testFinalizeRedirectionPayment_ioException() throws IOException {
+    public void testFinalizeRedirectionPayment_ioException() throws IOException, URISyntaxException {
         // when: the HTTP call throws an exception
         when( httpClient.doPost( anyString(), anyString(), anyString(), anyString() ) )
                 .thenThrow( IOException.class );
@@ -144,7 +155,7 @@ public class PaymentWithRedirectionServiceImplTest {
         Assert.assertNotNull( response );
     }
 
-    private Response mockResponse( int httpCode, String httpMessage, String status, Integer erCode, String message ){
+    private HttpResponse mockResponse( int httpCode, String httpMessage, String status, Integer erCode, String message ) throws UnsupportedEncodingException {
         String jsonBody = null;
         String tid = "abcdefghijklmnopqrstuvwxyz123456";
         if( status == "OK" && erCode == 0 ){
@@ -154,15 +165,10 @@ public class PaymentWithRedirectionServiceImplTest {
         else if( status != null && erCode != null ){
             jsonBody = TsiStatusCheckResponseTest.mockJson( null, tid, status, erCode.toString(),
                     message, null, null, null, null );
+        } else {
+            jsonBody = "ERROR!";
         }
-
-        return ( new Response.Builder() )
-                .code( httpCode )
-                .message( httpMessage )
-                .body( jsonBody == null ? null : ResponseBody.create( MediaType.parse( "application/json" ), jsonBody ) )
-                .request( (new Request.Builder()).url("http://fake.fr").build() )
-                .protocol( TEST_HTTP_PROTOCOL )
-                .build();
+        return ResponseMocker.mock(httpCode, httpMessage, jsonBody);
     }
 
 }

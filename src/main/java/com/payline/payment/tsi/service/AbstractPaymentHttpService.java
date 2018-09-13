@@ -2,16 +2,18 @@ package com.payline.payment.tsi.service;
 
 import com.payline.payment.tsi.exception.InvalidRequestException;
 import com.payline.payment.tsi.utils.config.ConfigProperties;
+import com.payline.payment.tsi.utils.http.HttpUtil;
 import com.payline.payment.tsi.utils.http.JsonHttpClient;
 import com.payline.pmapi.bean.common.FailureCause;
 import com.payline.pmapi.bean.payment.request.PaymentRequest;
 import com.payline.pmapi.bean.payment.response.PaymentResponse;
 import com.payline.pmapi.bean.payment.response.impl.PaymentResponseFailure;
-import okhttp3.Response;
+import org.apache.http.HttpResponse;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import java.io.IOException;
+import java.net.URISyntaxException;
 import java.security.GeneralSecurityException;
 import java.security.NoSuchAlgorithmException;
 
@@ -39,22 +41,22 @@ public abstract class AbstractPaymentHttpService<T extends PaymentRequest> {
      * Builds the request, sends it through HTTP using the httpClient and recovers the response.
      *
      * @param paymentRequest The input request provided by Payline
-     * @return The {@link Response} from the HTTP call
+     * @return The {@link HttpResponse} from the HTTP call
      * @throws IOException Can be thrown while sending the HTTP request
      * @throws InvalidRequestException Thrown if the input request in not valid
      * @throws NoSuchAlgorithmException Thrown if the HMAC algorithm is not available
      */
-    public abstract Response createSendRequest( T paymentRequest ) throws IOException, InvalidRequestException, NoSuchAlgorithmException;
+    public abstract HttpResponse createSendRequest(T paymentRequest ) throws IOException, InvalidRequestException, NoSuchAlgorithmException, URISyntaxException;
 
     /**
      * Process the response from the HTTP call.
      * It focuses on business aspect of the processing : the technical part has already been done by {@link #processRequest(PaymentRequest)} .
      *
-     * @param response The {@link Response} from the HTTP call, which HTTP code is 200 and which body is not null.
+     * @param response The {@link HttpResponse} from the HTTP call, which HTTP code is 200 and which body is not null.
      * @return The {@link PaymentResponse}
      * @throws IOException Can be thrown while reading the response body
      */
-    public abstract PaymentResponse processResponse( Response response ) throws IOException;
+    public abstract PaymentResponse processResponse( HttpResponse response ) throws IOException;
 
     /**
      * Process a {@link PaymentRequest} (or subclass), handling all the generic error cases
@@ -65,15 +67,16 @@ public abstract class AbstractPaymentHttpService<T extends PaymentRequest> {
     protected PaymentResponse processRequest( T paymentRequest ){
         try {
             // Mandate the child class to create and send the request (which is specific to each implementation)
-            Response response = this.createSendRequest( paymentRequest );
+            final HttpResponse response = this.createSendRequest( paymentRequest );
 
-            if( response != null && response.code() == 200 && response.body() != null ){
+            if( response != null && response.getStatusLine().getStatusCode() == 200 && response.getEntity() != null ){
                 // Mandate the child class to process the request when it's OK (which is specific to each implementation)
                 return this.processResponse( response );
             }
-            else if( response != null && response.code() != 200 ){
-                logger.error( "An HTTP error occurred while sending the request: " + response.message() );
-                return buildPaymentResponseFailure( Integer.toString( response.code() ), FailureCause.COMMUNICATION_ERROR );
+            else if( response != null && response.getStatusLine().getStatusCode() != 200 && response.getEntity() != null ){
+                final String strResp = HttpUtil.inputStreamToString(response.getEntity().getContent());
+                logger.error( "An HTTP error occurred while sending the request: " + strResp );
+                return buildPaymentResponseFailure( Integer.toString(response.getStatusLine().getStatusCode()), FailureCause.COMMUNICATION_ERROR );
             }
             else {
                 logger.error( "The HTTP response or its body is null and should not be" );
@@ -107,5 +110,4 @@ public abstract class AbstractPaymentHttpService<T extends PaymentRequest> {
                 .withErrorCode( errorCode )
                 .build();
     }
-
 }

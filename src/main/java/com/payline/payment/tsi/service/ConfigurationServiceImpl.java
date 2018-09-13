@@ -5,16 +5,17 @@ import com.payline.payment.tsi.request.TsiGoRequest;
 import com.payline.payment.tsi.response.TsiGoResponse;
 import com.payline.payment.tsi.utils.config.ConfigEnvironment;
 import com.payline.payment.tsi.utils.config.ConfigProperties;
+import com.payline.payment.tsi.utils.http.HttpUtil;
 import com.payline.payment.tsi.utils.http.JsonHttpClient;
 import com.payline.payment.tsi.utils.i18n.I18nService;
-import com.payline.pmapi.bean.configuration.*;
+import com.payline.pmapi.bean.configuration.ReleaseInformation;
 import com.payline.pmapi.bean.configuration.parameter.AbstractParameter;
 import com.payline.pmapi.bean.configuration.parameter.impl.InputParameter;
 import com.payline.pmapi.bean.configuration.parameter.impl.ListBoxParameter;
 import com.payline.pmapi.bean.configuration.parameter.impl.PasswordParameter;
 import com.payline.pmapi.bean.configuration.request.ContractParametersCheckRequest;
 import com.payline.pmapi.service.ConfigurationService;
-import okhttp3.Response;
+import org.apache.http.HttpResponse;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -23,7 +24,12 @@ import java.security.GeneralSecurityException;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Locale;
+import java.util.Map;
+import java.util.Properties;
 
 public class ConfigurationServiceImpl implements ConfigurationService {
 
@@ -135,10 +141,10 @@ public class ConfigurationServiceImpl implements ConfigurationService {
         String host = ConfigProperties.get( "tsi.host", ConfigEnvironment.TEST );
         String path = ConfigProperties.get( "tsi.go.path", ConfigEnvironment.TEST );
         try {
-            Response response = httpClient.doPost( scheme, host, path, request.buildBody() );
+            final HttpResponse response = httpClient.doPost( scheme, host, path, request.buildBody() );
 
-            if( response != null && response.code() == 200 && response.body() != null ){
-                TsiGoResponse tsiGoResponse = (new TsiGoResponse.Builder()).fromJson( response.body().string() );
+            if( response != null && response.getStatusLine().getStatusCode() == 200 && response.getEntity() != null ){
+                final TsiGoResponse tsiGoResponse = (new TsiGoResponse.Builder()).fromJson(HttpUtil.inputStreamToString(response.getEntity().getContent()));
                 if( tsiGoResponse.getStatus() == 14 ){
                     errors.put( TsiConstants.CONTRACT_MERCHANT_ID, i18n.getMessage( "contractConfiguration.validation.error.merchantId", locale ) );
                 }
@@ -155,7 +161,7 @@ public class ConfigurationServiceImpl implements ConfigurationService {
             else {
                 String message = "Can't read a correct response from TSI server.";
                 if( response != null ){
-                    message += " HTTP status: " + response.code();
+                    message += " HTTP status: " + response == null? response: response.getStatusLine().getStatusCode();
                 }
                 throw new Exception( message );
             }
