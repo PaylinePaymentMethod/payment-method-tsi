@@ -1,63 +1,57 @@
 package com.payline.payment.tsi.utils.http;
 
-import okhttp3.*;
+import org.apache.http.HttpHeaders;
+import org.apache.http.HttpResponse;
+import org.apache.http.client.config.RequestConfig;
+import org.apache.http.client.methods.HttpPost;
+import org.apache.http.client.utils.URIBuilder;
+import org.apache.http.conn.ssl.SSLConnectionSocketFactory;
+import org.apache.http.entity.StringEntity;
+import org.apache.http.impl.client.BasicCredentialsProvider;
+import org.apache.http.impl.client.HttpClientBuilder;
 
 import javax.net.ssl.HttpsURLConnection;
-import javax.net.ssl.SSLContext;
-import javax.net.ssl.SSLSocketFactory;
-import javax.net.ssl.TrustManager;
-import javax.net.ssl.TrustManagerFactory;
-import javax.net.ssl.X509TrustManager;
+import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.Reader;
+import java.io.StringWriter;
+import java.io.Writer;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.security.GeneralSecurityException;
-import java.security.KeyStore;
-import java.security.KeyStoreException;
-import java.security.NoSuchAlgorithmException;
-import java.util.Arrays;
-import java.util.concurrent.TimeUnit;
 
 /**
  * This utility class provides a basic HTTP client to send requests, using OkHttp library.
- * Refactored from {@link com.payline.payment.p24.utils.HttpClient}.
+ * Refactored from p24 HttpClient
  * It must be extended to match each payment method needs.
  */
 public abstract class HttpClient {
 
-    private OkHttpClient client;
+    protected org.apache.http.client.HttpClient client;
 
     /**
      *  Instantiate a HTTP client.
      *
-     * @param connectTimeout Default connect timeout (in seconds) for new connections. A value of 0 means no timeout.
-     * @param writeTimeout Default write timeout (in seconds) for new connections. A value of 0 means no timeout.
-     * @param readTimeout Default read timeout (in seconds) for new connections. A value of 0 means no timeout.
+     * @param connectTimeout Determines the timeout in milliseconds until a connection is established
+     * @param requestTimeout The timeout in milliseconds used when requesting a connection from the connection manager
+     * @param socketTimeout Defines the socket timeout (SO_TIMEOUT) in milliseconds, which is the timeout for waiting for data or, put differently, a maximum period inactivity between two consecutive data packets)
+     * @throws GeneralSecurityException
      */
-    public HttpClient( int connectTimeout, int writeTimeout, int readTimeout ) throws GeneralSecurityException {
-        this.client = new OkHttpClient.Builder()
-                .connectTimeout( connectTimeout, TimeUnit.SECONDS )
-                .writeTimeout( writeTimeout, TimeUnit.SECONDS )
-                .readTimeout( readTimeout, TimeUnit.SECONDS )
-                .sslSocketFactory(HttpsURLConnection.getDefaultSSLSocketFactory(), getX509TrustManager())
-                .build();
-    }
+    public HttpClient( int connectTimeout, int requestTimeout, int socketTimeout ) throws GeneralSecurityException {
 
-    /**
-     * From example in {@link okhttp3.OkHttpClient.Builder#sslSocketFactory(SSLSocketFactory sslSocketFactory, X509TrustManager trustManager)}
-     *
-     * @return the default X509TrustManager
-     * @throws NoSuchAlgorithmException
-     * @throws KeyStoreException
-     */
-    public X509TrustManager getX509TrustManager() throws NoSuchAlgorithmException, KeyStoreException {
-        final TrustManagerFactory trustManagerFactory = TrustManagerFactory.getInstance(TrustManagerFactory.getDefaultAlgorithm());
-        trustManagerFactory.init((KeyStore) null);
-        final TrustManager[] trustManagers = trustManagerFactory.getTrustManagers();
-        if (trustManagers.length != 1 || !(trustManagers[0] instanceof X509TrustManager)) {
-            throw new IllegalStateException("Unexpected default trust managers:"
-                    + Arrays.toString(trustManagers));
-        }
-        final X509TrustManager trustManager = (X509TrustManager) trustManagers[0];
-        return trustManager;
+        final RequestConfig requestConfig = RequestConfig.custom()
+            .setConnectTimeout(connectTimeout * 1000)
+            .setConnectionRequestTimeout(requestTimeout * 1000)
+            .setSocketTimeout(socketTimeout * 1000).build();
+
+        final HttpClientBuilder builder = HttpClientBuilder.create();
+        builder.useSystemProperties()
+                .setDefaultRequestConfig(requestConfig)
+                .setDefaultCredentialsProvider(new BasicCredentialsProvider())
+                .setSSLSocketFactory(new SSLConnectionSocketFactory(HttpsURLConnection.getDefaultSSLSocketFactory(), SSLConnectionSocketFactory.getDefaultHostnameVerifier()));
+        this.client = builder.build();
     }
 
     /**
@@ -70,24 +64,21 @@ public abstract class HttpClient {
      * @param contentType The content type of the request body
      * @return The response returned from the HTTP call
      * @throws IOException
+     * @throws URISyntaxException
      */
-    public Response doPost( String scheme, String host, String path, RequestBody body, String contentType )
-            throws IOException {
-        // create url
-        HttpUrl url = new HttpUrl.Builder()
-                .scheme( scheme )
-                .host( host )
-                .addPathSegment( path )
+    public HttpResponse doPost(String scheme, String host, String path, String body, String contentType )
+            throws IOException, URISyntaxException {
+
+        final URI uri = new URIBuilder()
+                .setScheme(scheme)
+                .setHost(host)
+                .setPath(path)
                 .build();
 
-        // create request
-        Request request = new Request.Builder()
-                .url( url )
-                .post( body )
-                .addHeader( "Content-Type", contentType )
-                .build();
-
-        // do the request
-        return this.client.newCall( request ).execute();
+        final HttpPost httpPostRequest = new HttpPost(uri);
+        httpPostRequest.setEntity(new StringEntity(body));
+        httpPostRequest.setHeader(HttpHeaders.CONTENT_TYPE, contentType);
+        final HttpResponse httpResp = this.client.execute(httpPostRequest);
+        return httpResp;
     }
 }

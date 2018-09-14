@@ -3,10 +3,12 @@ package com.payline.payment.tsi.request;
 import com.payline.payment.tsi.response.TsiGoResponse;
 import com.payline.payment.tsi.security.Hmac;
 import com.payline.payment.tsi.security.HmacAlgorithm;
+import com.payline.payment.tsi.utils.http.HttpUtil;
 import com.payline.payment.tsi.utils.http.JsonHttpClient;
-import okhttp3.Response;
+import org.apache.http.HttpResponse;
 
 import java.io.IOException;
+import java.net.URISyntaxException;
 import java.security.GeneralSecurityException;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
@@ -19,7 +21,7 @@ public class Main {
     public static Properties config;
     public static Properties testConfig;
 
-    public static void main( String[] args ) throws IOException, GeneralSecurityException {
+    public static void main( String[] args ) throws IOException, GeneralSecurityException, URISyntaxException {
         config = new Properties();
         config.load( Main.class.getClassLoader().getResourceAsStream( "config.properties" ) );
 
@@ -60,7 +62,7 @@ public class Main {
         System.out.println( hmac.digest( message ) );
     }
 
-    private static void http() throws IOException, GeneralSecurityException {
+    private static void http() throws IOException, GeneralSecurityException, URISyntaxException {
         JsonHttpClient httpClient = new JsonHttpClient( 5, 10, 15 );
 
         // Build request
@@ -88,7 +90,7 @@ public class Main {
         System.out.println( request.buildBody() );
 
         // Send request
-        Response response = httpClient.doPost(
+        HttpResponse response = httpClient.doPost(
                 config.getProperty( "test.tsi.scheme" ),
                 config.getProperty( "test.tsi.host" ),
                 config.getProperty( "test.tsi.go.path" ),
@@ -97,7 +99,7 @@ public class Main {
         System.out.println( response );
 
         // Parse the response
-        TsiGoResponse tsiGoResponse = (new TsiGoResponse.Builder()).fromJson( response.body().string() );
+        TsiGoResponse tsiGoResponse = (new TsiGoResponse.Builder()).fromJson(HttpUtil.inputStreamToString(response.getEntity().getContent()));
         System.out.println( "TsiGoResponse[" +
                 "status=" + tsiGoResponse.getStatus() +
                 ", message=\"" + tsiGoResponse.getMessage() + "\"" +

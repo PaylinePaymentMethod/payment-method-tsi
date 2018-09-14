@@ -12,7 +12,7 @@ import com.payline.pmapi.bean.payment.request.PaymentRequest;
 import com.payline.pmapi.bean.payment.response.PaymentResponse;
 import com.payline.pmapi.bean.payment.response.impl.PaymentResponseFailure;
 import com.payline.pmapi.bean.payment.response.impl.PaymentResponseRedirect;
-import okhttp3.*;
+import org.apache.http.HttpResponse;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -23,9 +23,13 @@ import org.mockito.Mockito;
 import org.mockito.junit.MockitoJUnitRunner;
 
 import java.io.IOException;
+import java.net.URISyntaxException;
 import java.security.NoSuchAlgorithmException;
 
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.any;
+import static org.mockito.Mockito.anyString;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 @RunWith( MockitoJUnitRunner.class )
 public class PaymentServiceImplTest {
@@ -44,10 +48,10 @@ public class PaymentServiceImplTest {
     }
 
     @Test
-    public void testPaymentRequest_ok() throws IOException {
+    public void testPaymentRequest_ok() throws IOException, URISyntaxException {
         // when: the HTTP call is a success
         String content = TsiGoResponseTest.mockJson( 1, "OK", "http://redirect-url.com", null, null );
-        Response response = ResponseMocker.mock( 200, "OK", content );
+        HttpResponse response = ResponseMocker.mock( 200, "OK", content );
         when( httpClient.doPost( anyString(), anyString(), anyString(), anyString() ) )
                 .thenReturn( response );
         PaymentResponse paymentResponse = service.paymentRequest( mock( PaymentRequest.class, Mockito.RETURNS_DEEP_STUBS ) );
@@ -69,10 +73,10 @@ public class PaymentServiceImplTest {
     }
 
     @Test
-    public void testPaymentRequest_businessError() throws IOException {
+    public void testPaymentRequest_businessError() throws IOException, URISyntaxException {
         // when: the HTTP call returns a business error (wrong HMAC for example)
         String content = TsiGoResponseTest.mockJson( 15, "WRONG HMAC", null, null, null );
-        Response response = ResponseMocker.mock( 200, "OK", content );
+        HttpResponse response = ResponseMocker.mock( 200, "OK", content );
         when( httpClient.doPost( anyString(), anyString(), anyString(), anyString() ) )
                 .thenReturn( response );
         PaymentResponse paymentResponse = service.paymentRequest( mock( PaymentRequest.class, Mockito.RETURNS_DEEP_STUBS ) );
@@ -83,9 +87,9 @@ public class PaymentServiceImplTest {
     }
 
     @Test
-    public void testPaymentRequest_noResponseBody() throws IOException {
+    public void testPaymentRequest_noResponseBody() throws IOException, URISyntaxException {
         // when: the HTTP call returns a response without body
-        Response response = ResponseMocker.mock( 200, "OK", null );
+        HttpResponse response = ResponseMocker.mock( 200, "OK", null );
         when( httpClient.doPost( anyString(), anyString(), anyString(), anyString() ) )
                 .thenReturn( response );
         PaymentResponse paymentResponse = service.paymentRequest( mock( PaymentRequest.class, Mockito.RETURNS_DEEP_STUBS ) );
@@ -96,9 +100,9 @@ public class PaymentServiceImplTest {
     }
 
     @Test
-    public void testPaymentRequest_httpError() throws IOException {
+    public void testPaymentRequest_httpError() throws IOException, URISyntaxException {
         // when: the HTTP call returns a HTTP error (503 Service Unavailable par example)
-        Response response = ResponseMocker.mock( 503, "Service Unavailable", null );
+        HttpResponse response = ResponseMocker.mock( 503, "Service Unavailable", "ERROR!" );
         when( httpClient.doPost( anyString(), anyString(), anyString(), anyString() ) )
                 .thenReturn( response );
         PaymentResponse paymentResponse = service.paymentRequest( mock( PaymentRequest.class, Mockito.RETURNS_DEEP_STUBS ) );
@@ -109,7 +113,7 @@ public class PaymentServiceImplTest {
     }
 
     @Test
-    public void testPaymentRequest_ioException() throws IOException {
+    public void testPaymentRequest_ioException() throws IOException, URISyntaxException {
         // when: the HTTP call throws an exception
         when( httpClient.doPost( anyString(), anyString(), anyString(), anyString() ) )
                 .thenThrow( IOException.class );
