@@ -12,7 +12,7 @@ apply plugin: 'maven-publish'
 apply plugin: 'jacoco'
 
 description = "payment-method-tsi"
-group = 'com.payline'
+group = 'com.payline.payment.tsi'
 version = '1.1-RC1.1-SNAPSHOT'
 
 configurations.all {
