@@ -4,6 +4,7 @@ import com.payline.payment.tsi.TsiConstants;
 import com.payline.payment.tsi.response.TsiGoResponseTest;
 import com.payline.payment.tsi.utils.http.JsonHttpClient;
 import com.payline.payment.tsi.utils.http.ResponseMocker;
+import com.payline.payment.tsi.utils.http.StringResponse;
 import com.payline.pmapi.bean.configuration.ReleaseInformation;
 import com.payline.pmapi.bean.configuration.parameter.AbstractParameter;
 import com.payline.pmapi.bean.configuration.request.ContractParametersCheckRequest;
@@ -63,7 +64,7 @@ public class ConfigurationServiceImplTest {
         // given: valid contract properties (TSI should then respond with a status=1)
         ContractParametersCheckRequest checkRequest = ConfigurationServiceImplTest.setupCheckRequest( parameters );
         String responseBody = TsiGoResponseTest.mockJson( 1, "OK", "http://redirect-url.com", null, null );
-        HttpResponse response = ResponseMocker.mock( 200, "OK", responseBody );
+        StringResponse response = ResponseMocker.mockString( 200, "OK", responseBody );
         when( httpClient.doPost( anyString(), anyString(), anyString(), anyString() ) )
                 .thenReturn( response );
 
@@ -79,7 +80,7 @@ public class ConfigurationServiceImplTest {
         // given: contract properties with the right format but not valid (TSI should then respond with a status != 1)
         ContractParametersCheckRequest checkRequest = ConfigurationServiceImplTest.setupCheckRequest( parameters );
         String responseBody = TsiGoResponseTest.mockJson( 15, "WRONG MAC", null, null, null );
-        HttpResponse response = ResponseMocker.mock( 200, "OK", responseBody );
+        StringResponse response = ResponseMocker.mockString( 200, "OK", responseBody );
         when( httpClient.doPost( anyString(), anyString(), anyString(), anyString() ) )
                 .thenReturn( response );
 
@@ -94,7 +95,7 @@ public class ConfigurationServiceImplTest {
     public void testCheck_unknownError() throws IOException, URISyntaxException {
         // given: contract properties validation encounter an unexpected error (Server unavailable for example)
         ContractParametersCheckRequest checkRequest = ConfigurationServiceImplTest.setupCheckRequest( parameters );
-        HttpResponse response = ResponseMocker.mock( 503, "Server Unavailable", null );
+        StringResponse response = ResponseMocker.mockString( 503, "Server Unavailable", null );
         when( httpClient.doPost( anyString(), anyString(), anyString(), anyString() ) )
                 .thenReturn( response );
 

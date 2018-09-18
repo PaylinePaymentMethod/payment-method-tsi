@@ -6,12 +6,11 @@ import com.payline.payment.tsi.request.TsiGoRequest;
 import com.payline.payment.tsi.response.TsiGoResponse;
 import com.payline.payment.tsi.utils.config.ConfigEnvironment;
 import com.payline.payment.tsi.utils.config.ConfigProperties;
-import com.payline.payment.tsi.utils.http.HttpUtil;
+import com.payline.payment.tsi.utils.http.StringResponse;
 import com.payline.pmapi.bean.payment.request.PaymentRequest;
 import com.payline.pmapi.bean.payment.response.PaymentResponse;
 import com.payline.pmapi.bean.payment.response.impl.PaymentResponseRedirect;
 import com.payline.pmapi.service.PaymentService;
-import org.apache.http.HttpResponse;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -19,7 +18,6 @@ import java.io.IOException;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.security.GeneralSecurityException;
-import java.security.NoSuchAlgorithmException;
 
 public class PaymentServiceImpl extends AbstractPaymentHttpService<PaymentRequest> implements PaymentService {
 
@@ -27,7 +25,7 @@ public class PaymentServiceImpl extends AbstractPaymentHttpService<PaymentReques
 
     private TsiGoRequest.Builder requestBuilder;
 
-    public PaymentServiceImpl() throws GeneralSecurityException {
+    public PaymentServiceImpl() {
         super();
         this.requestBuilder = new TsiGoRequest.Builder();
     }
@@ -38,7 +36,7 @@ public class PaymentServiceImpl extends AbstractPaymentHttpService<PaymentReques
     }
 
     @Override
-    public HttpResponse createSendRequest(PaymentRequest paymentRequest ) throws IOException, InvalidRequestException, NoSuchAlgorithmException, URISyntaxException {
+    public StringResponse createSendRequest(PaymentRequest paymentRequest ) throws IOException, InvalidRequestException, GeneralSecurityException, URISyntaxException {
         // Create Go request from Payline request
         TsiGoRequest tsiGoRequest = requestBuilder.fromPaymentRequest( paymentRequest );
 
@@ -47,13 +45,13 @@ public class PaymentServiceImpl extends AbstractPaymentHttpService<PaymentReques
         String scheme = ConfigProperties.get( "tsi.scheme", env );
         String host = ConfigProperties.get( "tsi.host", env );
         String path = ConfigProperties.get( "tsi.go.path", env );
-        return httpClient.doPost( scheme, host, path, tsiGoRequest.buildBody() );
+        return getHttpClient().doPost( scheme, host, path, tsiGoRequest.buildBody() );
     }
 
     @Override
-    public PaymentResponse processResponse(final HttpResponse response) throws IOException {
+    public PaymentResponse processResponse(final StringResponse response) throws IOException {
         // Parse response
-        TsiGoResponse tsiGoResponse = (new TsiGoResponse.Builder()).fromJson(HttpUtil.inputStreamToString(response.getEntity().getContent()));
+        final TsiGoResponse tsiGoResponse = (new TsiGoResponse.Builder()).fromJson(response.getContent());
 
         // If status == 1, proceed with the redirection
         if( tsiGoResponse.getStatus() == 1 ){

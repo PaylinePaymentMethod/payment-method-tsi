@@ -19,4 +19,11 @@ public class ResponseMocker {
         return httpResponse;
     }
 
+    public static StringResponse mockString(int httpCode, String httpMessage, String jsonBody ) throws UnsupportedEncodingException {
+        final StringResponse httpResponse = new StringResponse();
+        httpResponse.setCode(httpCode);
+        httpResponse.setMessage(httpMessage);
+        httpResponse.setContent(jsonBody);
+        return httpResponse;
+    }
 }

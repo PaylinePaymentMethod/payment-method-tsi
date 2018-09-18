@@ -3,9 +3,8 @@ package com.payline.payment.tsi.request;
 import com.payline.payment.tsi.response.TsiGoResponse;
 import com.payline.payment.tsi.security.Hmac;
 import com.payline.payment.tsi.security.HmacAlgorithm;
-import com.payline.payment.tsi.utils.http.HttpUtil;
 import com.payline.payment.tsi.utils.http.JsonHttpClient;
-import org.apache.http.HttpResponse;
+import com.payline.payment.tsi.utils.http.StringResponse;
 
 import java.io.IOException;
 import java.net.URISyntaxException;
@@ -90,7 +89,7 @@ public class Main {
         System.out.println( request.buildBody() );
 
         // Send request
-        HttpResponse response = httpClient.doPost(
+        StringResponse response = httpClient.doPost(
                 config.getProperty( "test.tsi.scheme" ),
                 config.getProperty( "test.tsi.host" ),
                 config.getProperty( "test.tsi.go.path" ),
@@ -99,7 +98,7 @@ public class Main {
         System.out.println( response );
 
         // Parse the response
-        TsiGoResponse tsiGoResponse = (new TsiGoResponse.Builder()).fromJson(HttpUtil.inputStreamToString(response.getEntity().getContent()));
+        TsiGoResponse tsiGoResponse = (new TsiGoResponse.Builder()).fromJson(response.getContent());
         System.out.println( "TsiGoResponse[" +
                 "status=" + tsiGoResponse.getStatus() +
                 ", message=\"" + tsiGoResponse.getMessage() + "\"" +

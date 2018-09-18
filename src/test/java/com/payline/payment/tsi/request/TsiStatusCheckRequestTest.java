@@ -44,7 +44,7 @@ public class TsiStatusCheckRequestTest {
         RedirectionPaymentRequest redirectionPaymentRequest = ( new TsiRedirectionPaymentRequestMock() ).mock();
 
         // when: checking the request validity,  then: no exception is thrown
-        builder.checkInputRequest( redirectionPaymentRequest );
+        builder.checkInputRequest( redirectionPaymentRequest.getContractConfiguration() );
     }
 
     /*

@@ -5,16 +5,16 @@ import com.payline.payment.tsi.request.TsiStatusCheckRequest;
 import com.payline.payment.tsi.response.TsiStatusCheckResponse;
 import com.payline.payment.tsi.utils.config.ConfigEnvironment;
 import com.payline.payment.tsi.utils.config.ConfigProperties;
-import com.payline.payment.tsi.utils.http.HttpUtil;
+import com.payline.payment.tsi.utils.http.StringResponse;
 import com.payline.pmapi.bean.common.FailureCause;
 import com.payline.pmapi.bean.common.Message;
+import com.payline.pmapi.bean.payment.PaylineEnvironment;
 import com.payline.pmapi.bean.payment.request.RedirectionPaymentRequest;
 import com.payline.pmapi.bean.payment.request.TransactionStatusRequest;
 import com.payline.pmapi.bean.payment.response.PaymentResponse;
 import com.payline.pmapi.bean.payment.response.buyerpaymentidentifier.impl.EmptyTransactionDetails;
 import com.payline.pmapi.bean.payment.response.impl.PaymentResponseSuccess;
 import com.payline.pmapi.service.PaymentWithRedirectionService;
-import org.apache.http.HttpResponse;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -28,7 +28,7 @@ public class PaymentWithRedirectionServiceImpl extends AbstractPaymentHttpServic
 
     private TsiStatusCheckRequest.Builder requestBuilder;
 
-    public PaymentWithRedirectionServiceImpl() throws GeneralSecurityException {
+    public PaymentWithRedirectionServiceImpl() {
         super();
         this.requestBuilder = new TsiStatusCheckRequest.Builder();
     }
@@ -39,23 +39,18 @@ public class PaymentWithRedirectionServiceImpl extends AbstractPaymentHttpServic
     }
 
     @Override
-    public HttpResponse createSendRequest( RedirectionPaymentRequest redirectionPaymentRequest )
-            throws IOException, InvalidRequestException, URISyntaxException {
+    public StringResponse createSendRequest(RedirectionPaymentRequest redirectionPaymentRequest )
+            throws IOException, InvalidRequestException, URISyntaxException, GeneralSecurityException {
         // Create StatusCheck request from Payline input
-        TsiStatusCheckRequest statusCheckRequest = requestBuilder.fromRedirectionPaymentRequest( redirectionPaymentRequest );
+        final TsiStatusCheckRequest statusCheckRequest = requestBuilder.fromRedirectionPaymentRequest( redirectionPaymentRequest );
 
-        // Call StatusCheck to recover transaction info
-        ConfigEnvironment env = Boolean.FALSE.equals( redirectionPaymentRequest.getPaylineEnvironment().isSandbox() ) ? ConfigEnvironment.PROD : ConfigEnvironment.TEST;
-        String scheme = ConfigProperties.get( "tsi.scheme", env );
-        String host = ConfigProperties.get( "tsi.host", env );
-        String path = ConfigProperties.get( "tsi.statusCheck.path", env );
-        return httpClient.doPost( scheme, host, path, statusCheckRequest.buildBody() );
+        return postCheckstatus(redirectionPaymentRequest.getPaylineEnvironment(), statusCheckRequest.buildBody());
     }
 
     @Override
-    public PaymentResponse processResponse( HttpResponse response ) throws IOException {
+    public PaymentResponse processResponse(StringResponse response) throws IOException {
         // Parse response
-        final TsiStatusCheckResponse statusCheck = (new TsiStatusCheckResponse.Builder()).fromJson(HttpUtil.inputStreamToString(response.getEntity().getContent()));
+        final TsiStatusCheckResponse statusCheck = (new TsiStatusCheckResponse.Builder()).fromJson(response.getContent());
 
         // Status = "OK" and no error : transaction is a success
         if( "OK".equals( statusCheck.getStatus() ) && !statusCheck.isError() ){
@@ -75,7 +70,35 @@ public class PaymentWithRedirectionServiceImpl extends AbstractPaymentHttpServic
     }
 
     @Override
-    public PaymentResponse handleSessionExpired( TransactionStatusRequest transactionStatusRequest ) {
-        return buildPaymentResponseFailure( "timeout", FailureCause.SESSION_EXPIRED );
+    public PaymentResponse handleSessionExpired(final TransactionStatusRequest transactionStatusRequest) {
+        try {
+            final TsiStatusCheckRequest statusCheckRequest = requestBuilder.fromTransactionStatusRequest(transactionStatusRequest);
+            final StringResponse response = postCheckstatus(transactionStatusRequest.getPaylineEnvironment(), statusCheckRequest.buildBody());
+            return processResponse(response);
+        } catch (InvalidRequestException e) {
+            logger.error( "TSI handleSessionExpired, the TransactionStatusRequest is invalid", e);
+            return buildPaymentResponseFailure(DEFAULT_ERROR_CODE, FailureCause.INVALID_DATA);
+        } catch (IOException | URISyntaxException e) {
+            logger.error("TSI handleSessionExpired, postCheckstatus error", e);
+            return buildPaymentResponseFailure(DEFAULT_ERROR_CODE, FailureCause.COMMUNICATION_ERROR);
+        } catch( Exception e ){
+            logger.error("An unexpected error occurred", e);
+            return buildPaymentResponseFailure(DEFAULT_ERROR_CODE, FailureCause.INTERNAL_ERROR);
+        }
+    }
+
+    /**
+     * Call StatusCheck to recover transaction info
+     *
+     * @param paylineEnvironment
+     * @return
+     */
+    private StringResponse postCheckstatus(final PaylineEnvironment paylineEnvironment, final String body) throws IOException, URISyntaxException, GeneralSecurityException {
+        final ConfigEnvironment env = Boolean.FALSE.equals(paylineEnvironment.isSandbox()) ? ConfigEnvironment.PROD : ConfigEnvironment.TEST;
+
+        final String scheme = ConfigProperties.get("tsi.scheme", env);
+        final String host = ConfigProperties.get("tsi.host", env);
+        final String path = ConfigProperties.get("tsi.statusCheck.path", env);
+        return getHttpClient().doPost(scheme, host, path, body);
     }
 }

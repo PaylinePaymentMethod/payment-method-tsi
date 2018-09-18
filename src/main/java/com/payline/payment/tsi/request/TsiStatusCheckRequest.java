@@ -3,7 +3,9 @@ package com.payline.payment.tsi.request;
 import com.google.gson.annotations.SerializedName;
 import com.payline.payment.tsi.TsiConstants;
 import com.payline.payment.tsi.exception.InvalidRequestException;
+import com.payline.pmapi.bean.payment.ContractConfiguration;
 import com.payline.pmapi.bean.payment.request.RedirectionPaymentRequest;
+import com.payline.pmapi.bean.payment.request.TransactionStatusRequest;
 
 public class TsiStatusCheckRequest extends TsiSealedJsonRequest {
 
@@ -26,21 +28,37 @@ public class TsiStatusCheckRequest extends TsiSealedJsonRequest {
 
     public static class Builder extends TsiSealedJsonRequest.Builder {
 
-        public TsiStatusCheckRequest fromRedirectionPaymentRequest( RedirectionPaymentRequest redirectionPaymentRequest )
-                throws InvalidRequestException {
+        public TsiStatusCheckRequest fromTransactionStatusRequest(final TransactionStatusRequest transactionStatusRequest) throws InvalidRequestException {
+            this.checkInputRequest(transactionStatusRequest.getContractConfiguration());
 
-            // Check the input request for NPEs and mandatory fields
-            this.checkInputRequest( redirectionPaymentRequest );
-
-            // Instantiate the TsiStatusCheckRequest from input request
-            TsiStatusCheckRequest request = new TsiStatusCheckRequest(
-                    redirectionPaymentRequest.getRedirectionContext().toString(), // Should contain the tid
-                    Integer.parseInt( redirectionPaymentRequest.getContractConfiguration().getContractProperties().get( TsiConstants.CONTRACT_KEY_ID ).getValue() )
+            final TsiStatusCheckRequest request = new TsiStatusCheckRequest(
+                    transactionStatusRequest.getTransactionIdentifier(),
+                    Integer.parseInt(transactionStatusRequest.getContractConfiguration().getContractProperties().get( TsiConstants.CONTRACT_KEY_ID ).getValue())
             );
 
+            return build(transactionStatusRequest.getContractConfiguration(), request);
+        }
+
+        public TsiStatusCheckRequest fromRedirectionPaymentRequest(final  RedirectionPaymentRequest redirectionPaymentRequest ) throws InvalidRequestException {
+            this.checkInputRequest(redirectionPaymentRequest.getContractConfiguration());
+
+            if( redirectionPaymentRequest.getRedirectionContext() == null || redirectionPaymentRequest.getRedirectionContext().toString().isEmpty() ){
+                throw new InvalidRequestException( "Redirection context (containing the tid) is required" );
+            }
+
+            final TsiStatusCheckRequest request = new TsiStatusCheckRequest(
+                    redirectionPaymentRequest.getRedirectionContext().toString(), // Should contain the tid
+                    Integer.parseInt(redirectionPaymentRequest.getContractConfiguration().getContractProperties().get( TsiConstants.CONTRACT_KEY_ID ).getValue())
+            );
+
+            return build(redirectionPaymentRequest.getContractConfiguration(), request);
+        }
+
+        private TsiStatusCheckRequest build(final ContractConfiguration contractConfiguration, final TsiStatusCheckRequest request) throws InvalidRequestException {
+
             // Seal the request with HMAC algorithm
-            String secretKey = redirectionPaymentRequest.getContractConfiguration().getContractProperties().get( TsiConstants.CONTRACT_KEY_VALUE ).getValue();
-            request.seal( secretKey );
+            final String secretKey = contractConfiguration.getContractProperties().get( TsiConstants.CONTRACT_KEY_VALUE ).getValue();
+            request.seal(secretKey);
 
             return request;
         }
@@ -48,34 +66,21 @@ public class TsiStatusCheckRequest extends TsiSealedJsonRequest {
         /**
          * Verifies that the input request contains all the required fields.
          *
-         * @param redirectionPaymentRequest The input request
+         * @param contractConfiguration
          * @throws InvalidRequestException If recovering the field value would result in a NPE or if the value is null or empty.
          */
-        protected void checkInputRequest( RedirectionPaymentRequest redirectionPaymentRequest )
+        protected void checkInputRequest(final ContractConfiguration contractConfiguration)
                 throws InvalidRequestException {
 
-            if( redirectionPaymentRequest == null ){
-                throw new InvalidRequestException( "Request must not be null" );
-            }
-            /*
-            if( redirectionPaymentRequest.getPaylineEnvironment() == null ){
-                throw new InvalidRequestException( "PaylineEnvironment request property must not be null" );
-            }
-            */
-
-            if( redirectionPaymentRequest.getContractConfiguration() == null
-                    || redirectionPaymentRequest.getContractConfiguration().getContractProperties() == null  ){
+            if( contractConfiguration == null
+                    || contractConfiguration.getContractProperties() == null  ){
                 throw new InvalidRequestException( "Contract configuration properties object must not be null" );
             }
-            if( redirectionPaymentRequest.getContractConfiguration().getContractProperties().get( TsiConstants.CONTRACT_KEY_VALUE ) == null ){
+            if( contractConfiguration.getContractProperties().get( TsiConstants.CONTRACT_KEY_VALUE ) == null ){
                 throw new InvalidRequestException( "Missing contract configuration property: secret key" );
             }
-            if( redirectionPaymentRequest.getContractConfiguration().getContractProperties().get( TsiConstants.CONTRACT_KEY_ID ) == null ){
+            if( contractConfiguration.getContractProperties().get( TsiConstants.CONTRACT_KEY_ID ) == null ){
                 throw new InvalidRequestException( "Missing contract configuration property: key id" );
-            }
-
-            if( redirectionPaymentRequest.getRedirectionContext() == null || redirectionPaymentRequest.getRedirectionContext().toString().isEmpty() ){
-                throw new InvalidRequestException( "Redirection context (containing the tid) is required" );
             }
         }
 
