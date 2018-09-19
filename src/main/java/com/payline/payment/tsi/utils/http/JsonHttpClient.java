@@ -1,6 +1,5 @@
 package com.payline.payment.tsi.utils.http;
 
-import org.apache.http.HttpResponse;
 import org.apache.http.entity.ContentType;
 
 import java.io.IOException;
@@ -39,7 +38,7 @@ public class JsonHttpClient extends HttpClient {
      * @throws IOException
      * @throws URISyntaxException
      */
-     public HttpResponse doPost(String scheme, String host, String path, String jsonContent ) throws IOException, URISyntaxException {
+     public StringResponse doPost(String scheme, String host, String path, String jsonContent ) throws IOException, URISyntaxException {
         return super.doPost( scheme, host, path, jsonContent, ContentType.APPLICATION_JSON.toString() );
     }
 }
