@@ -64,7 +64,7 @@ public class PaymentWithRedirectionServiceImpl extends AbstractPaymentHttpServic
         }
         // no valid transaction was found or an error occurred
         else {
-            logger.error( "TSI Status Check request returned an error: " + statusCheck.getMessage() + "(" + statusCheck.getErCode() + ")" );
+            logger.info( "TSI Status Check request returned an error: " + statusCheck.getMessage() + "(" + statusCheck.getErCode() + ")" );
             return buildPaymentResponseFailure( statusCheck.getMessage(), FailureCause.PAYMENT_PARTNER_ERROR );
         }
     }
