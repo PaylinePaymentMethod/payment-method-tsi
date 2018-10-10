@@ -32,7 +32,7 @@ public class TsiStatusCheckRequest extends TsiSealedJsonRequest {
             this.checkInputRequest(transactionStatusRequest.getContractConfiguration());
 
             final TsiStatusCheckRequest request = new TsiStatusCheckRequest(
-                    transactionStatusRequest.getTransactionIdentifier(),
+                    transactionStatusRequest.getTransactionId(),
                     Integer.parseInt(transactionStatusRequest.getContractConfiguration().getContractProperties().get( TsiConstants.CONTRACT_KEY_ID ).getValue())
             );
 
@@ -42,12 +42,12 @@ public class TsiStatusCheckRequest extends TsiSealedJsonRequest {
         public TsiStatusCheckRequest fromRedirectionPaymentRequest(final  RedirectionPaymentRequest redirectionPaymentRequest ) throws InvalidRequestException {
             this.checkInputRequest(redirectionPaymentRequest.getContractConfiguration());
 
-            if( redirectionPaymentRequest.getRedirectionContext() == null || redirectionPaymentRequest.getRedirectionContext().toString().isEmpty() ){
+            if( redirectionPaymentRequest.getRequestContext().getRequestData() == null || !redirectionPaymentRequest.getRequestContext().getRequestData().containsKey(TsiConstants.REQUEST_CONTEXT_KEY_TID) ){
                 throw new InvalidRequestException( "Redirection context (containing the tid) is required" );
             }
 
             final TsiStatusCheckRequest request = new TsiStatusCheckRequest(
-                    redirectionPaymentRequest.getRedirectionContext().toString(), // Should contain the tid
+                    redirectionPaymentRequest.getRequestContext().getRequestData().get(TsiConstants.REQUEST_CONTEXT_KEY_TID),
                     Integer.parseInt(redirectionPaymentRequest.getContractConfiguration().getContractProperties().get( TsiConstants.CONTRACT_KEY_ID ).getValue())
             );
 

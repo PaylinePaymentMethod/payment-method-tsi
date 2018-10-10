@@ -59,9 +59,10 @@ public class TsiPaymentIT extends AbstractPaymentIntegration {
     }
 
     @Override
-    protected Map<String, Serializable> generatePaymentFormData() {
-        // Don't know what's this for
-        return null;
+    protected PaymentFormContext generatePaymentFormContext() {
+        Map<String, String> paymentFormDataParameter = new HashMap<>();
+        return PaymentFormContext.PaymentFormContextBuilder.aPaymentFormContext()
+                .withPaymentFormParameter(paymentFormDataParameter).build();
     }
 
     @Override
@@ -121,8 +122,8 @@ public class TsiPaymentIT extends AbstractPaymentIntegration {
         final Amount amount = new Amount( BigInteger.valueOf( 150 ), Currency.getInstance( "EUR" ) );
         // Override ENDS here ---
         final ContractConfiguration contractConfiguration = new ContractConfiguration( "", this.generateParameterContract() );
-        final Map<String, Serializable> paymentFormData = this.generatePaymentFormData();
-        final PaylineEnvironment paylineEnvironment = new PaylineEnvironment( NOTIFICATION_URL, SUCCESS_URL, CANCEL_URL, true );
+        final PaymentFormContext paymentFormContext = this.generatePaymentFormContext();
+        final Environment environment = new Environment( NOTIFICATION_URL, SUCCESS_URL, CANCEL_URL, true );
         // Override BEGINS here ---
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern( "yyyyMMddHHmmss" );
         final String transactionID = "TSI" + LocalDateTime.now().format( formatter );
@@ -134,8 +135,8 @@ public class TsiPaymentIT extends AbstractPaymentIntegration {
                 .withAmount( amount )
                 .withBrowser( new Browser( "", Locale.FRANCE ) )
                 .withContractConfiguration( contractConfiguration )
-                .withPaymentFormData( paymentFormData )
-                .withPaylineEnvironment( paylineEnvironment )
+                .withPaymentFormContext(paymentFormContext)
+                .withEnvironment(environment)
                 .withOrder( order )
                 .withTransactionId( transactionID )
                 .withSoftDescriptor( softDescriptor )

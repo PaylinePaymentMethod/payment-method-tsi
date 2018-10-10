@@ -1,6 +1,8 @@
 package com.payline.payment.tsi.request.mock;
 
 import com.payline.pmapi.bean.common.Amount;
+import com.payline.pmapi.bean.common.Buyer;
+import com.payline.pmapi.bean.configuration.PartnerConfiguration;
 import com.payline.pmapi.bean.payment.*;
 import com.payline.pmapi.bean.payment.request.PaymentRequest;
 
@@ -38,10 +40,12 @@ public class PaymentRequestMock {
                 .withAmount( new Amount( this.amount, this.currency ) )
                 .withBrowser( new Browser( "", Locale.FRANCE ) )
                 .withContractConfiguration( new ContractConfiguration( "", this.contractProperties ) )
-                .withPaylineEnvironment( new PaylineEnvironment( this.notificationUrl, this.successUrl, this.cancelUrl, true ) )
+                .withEnvironment( new Environment( this.notificationUrl, this.successUrl, this.cancelUrl, true ) )
                 .withTransactionId( this.transactionId )
                 .withOrder( Order.OrderBuilder.anOrder().withReference( this.transactionId ).build() )
                 .withSoftDescriptor( this.softDescriptor )
+                .withBuyer(Buyer.BuyerBuilder.aBuyer().build())
+                .withPartnerConfiguration(new PartnerConfiguration(new HashMap<>(),new HashMap<>()))
                 .build();
     }
 
