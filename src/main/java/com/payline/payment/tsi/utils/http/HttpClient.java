@@ -10,6 +10,7 @@ import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.BasicCredentialsProvider;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClientBuilder;
+import org.apache.http.protocol.HttpContext;
 import org.apache.http.util.EntityUtils;
 
 import javax.net.ssl.HttpsURLConnection;
@@ -42,9 +43,10 @@ public abstract class HttpClient {
 
         final HttpClientBuilder builder = HttpClientBuilder.create();
         builder.useSystemProperties()
+//                .disableConnectionState()
                 .setDefaultRequestConfig(requestConfig)
-                .setDefaultCredentialsProvider(new BasicCredentialsProvider())
-                .setSSLSocketFactory(new SSLConnectionSocketFactory(HttpsURLConnection.getDefaultSSLSocketFactory(), SSLConnectionSocketFactory.getDefaultHostnameVerifier()));
+                .setDefaultCredentialsProvider(new BasicCredentialsProvider());
+//                .setSSLSocketFactory(new SSLConnectionSocketFactory(HttpsURLConnection.getDefaultSSLSocketFactory(), SSLConnectionSocketFactory.getDefaultHostnameVerifier()));
         this.client = builder.build();
     }
 
@@ -60,7 +62,7 @@ public abstract class HttpClient {
      * @throws IOException
      * @throws URISyntaxException
      */
-    public StringResponse doPost(String scheme, String host, String path, String body, String contentType )
+    public StringResponse doPost(String scheme, String host, String path, String body, String contentType/*, final HttpContext context*/)
             throws IOException, URISyntaxException {
 
         final URI uri = new URIBuilder()
@@ -72,7 +74,7 @@ public abstract class HttpClient {
         final HttpPost httpPostRequest = new HttpPost(uri);
         httpPostRequest.setEntity(new StringEntity(body));
         httpPostRequest.setHeader(HttpHeaders.CONTENT_TYPE, contentType);
-        try (CloseableHttpResponse httpResp = this.client.execute(httpPostRequest)) {
+        try (CloseableHttpResponse httpResp = this.client.execute(httpPostRequest/*, context*/)) {
 
             final StringResponse strResp = new StringResponse();
             strResp.setCode(httpResp.getStatusLine().getStatusCode());

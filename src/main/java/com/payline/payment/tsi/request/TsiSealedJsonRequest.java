@@ -49,7 +49,7 @@ public abstract class TsiSealedJsonRequest {
          * @param transactionId The input transaction id
          * @return A 32-characters-long transaction id
          */
-        protected String formatTransactionId( String transactionId ) throws NoSuchAlgorithmException {
+        public String formatTransactionId(String transactionId) throws NoSuchAlgorithmException {
             // Generate the MD5 hash
             byte[] hashBytes = MessageDigest.getInstance( "MD5" ).digest( transactionId.getBytes() );
 

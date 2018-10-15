@@ -49,7 +49,7 @@ public class PaymentServiceImpl extends AbstractPaymentHttpService<PaymentReques
     }
 
     @Override
-    public PaymentResponse processResponse(final StringResponse response) throws IOException {
+    public PaymentResponse processResponse(final StringResponse response, final String tid) throws IOException {
         // Parse response
         final TsiGoResponse tsiGoResponse = (new TsiGoResponse.Builder()).fromJson(response.getContent());
 
@@ -65,7 +65,7 @@ public class PaymentServiceImpl extends AbstractPaymentHttpService<PaymentReques
         }
         else {
             logger.error( "TSI Go request returned an error: " + tsiGoResponse.getMessage() + "(" + Integer.toString( tsiGoResponse.getStatus() ) + ")" );
-            return buildPaymentResponseFailure( tsiGoResponse.getMessage(), ErrorCodesMap.getFailureCause( tsiGoResponse.getStatus() ) );
+            return buildPaymentResponseFailure( tsiGoResponse.getMessage(), ErrorCodesMap.getFailureCause( tsiGoResponse.getStatus()), tid);
         }
     }
 }
