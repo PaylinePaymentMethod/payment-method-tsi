@@ -62,7 +62,7 @@ public class Main {
     }
 
     private static void http() throws IOException, GeneralSecurityException, URISyntaxException {
-        JsonHttpClient httpClient = new JsonHttpClient( 5, 10, 15 );
+        JsonHttpClient httpClient = JsonHttpClient.getInstance();
 
         // Build request
         Map<String, Object> custom = new HashMap<>();

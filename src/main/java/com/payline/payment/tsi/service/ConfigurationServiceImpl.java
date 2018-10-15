@@ -38,9 +38,9 @@ public class ConfigurationServiceImpl implements ConfigurationService {
     private static final String RELEASE_DATE_FORMAT = "dd/MM/yyyy";
 
     private I18nService i18n = I18nService.getInstance();
-    private JsonHttpClient httpClient =  new JsonHttpClient();
+    private JsonHttpClient httpClient =  JsonHttpClient.getInstance();
 
-    public ConfigurationServiceImpl() throws GeneralSecurityException {
+    public ConfigurationServiceImpl() {
         super();
     }
 
