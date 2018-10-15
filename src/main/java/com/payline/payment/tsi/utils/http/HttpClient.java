@@ -10,6 +10,7 @@ import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.BasicCredentialsProvider;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClientBuilder;
+import org.apache.http.protocol.HttpContext;
 import org.apache.http.util.EntityUtils;
 
 import javax.net.ssl.HttpsURLConnection;
@@ -43,7 +44,7 @@ public abstract class HttpClient {
         final HttpClientBuilder builder = HttpClientBuilder.create();
         builder.useSystemProperties()
                 .setDefaultRequestConfig(requestConfig)
-                .setDefaultCredentialsProvider(new BasicCredentialsProvider())
+                .setDefaultCredentialsProvider(new BasicCredentialsProvider());
 //                .setSSLSocketFactory(new SSLConnectionSocketFactory(HttpsURLConnection.getDefaultSSLSocketFactory(), SSLConnectionSocketFactory.getDefaultHostnameVerifier()));
         this.client = builder.build();
     }

@@ -22,7 +22,7 @@ configurations.all {
 
 ext {
     paymentMethodApiVersion = '1.0-RC1'
-    paymentMethodIntegrationVersion = '0.11'
+    paymentMethodIntegrationVersion = '1.0-RC1'
     mockitoVersion = '2.19.0'
 }
 sourceCompatibility = 1.8
