@@ -13,7 +13,7 @@ apply plugin: 'jacoco'
 
 description = "payment-method-tsi"
 group = 'com.payline.payment.tsi'
-version = '1.2-SNAPSHOT'
+version = '1.2-RC1-SNAPSHOT'
 
 configurations.all {
     // afin de récupérer la dernière snapshot à chaque fois
@@ -21,7 +21,7 @@ configurations.all {
 }
 
 ext {
-    paymentMethodApiVersion = '1.0-SNAPSHOT'
+    paymentMethodApiVersion = '1.0-RC1'
     paymentMethodIntegrationVersion = '0.11'
     mockitoVersion = '2.19.0'
 }

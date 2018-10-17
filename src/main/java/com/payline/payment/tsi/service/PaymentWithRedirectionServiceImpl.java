@@ -35,7 +35,7 @@ public class PaymentWithRedirectionServiceImpl extends AbstractPaymentHttpServic
 
     @Override
     public PaymentResponse finalizeRedirectionPayment( RedirectionPaymentRequest redirectionPaymentRequest ) {
-        return processRequest( redirectionPaymentRequest );
+        return processRequest(redirectionPaymentRequest);
     }
 
     @Override
@@ -48,7 +48,7 @@ public class PaymentWithRedirectionServiceImpl extends AbstractPaymentHttpServic
     }
 
     @Override
-    public PaymentResponse processResponse(StringResponse response) throws IOException {
+    public PaymentResponse processResponse(StringResponse response, final String tid) throws IOException {
         // Parse response
         final TsiStatusCheckResponse statusCheck = (new TsiStatusCheckResponse.Builder()).fromJson(response.getContent());
 
@@ -61,29 +61,31 @@ public class PaymentWithRedirectionServiceImpl extends AbstractPaymentHttpServic
                     .withTransactionDetails( new EmptyTransactionDetails() )
                     .withTransactionAdditionalData( statusCheck.getResume() )
                     .build();
-        }
-        // no valid transaction was found or an error occurred
-        else {
-            logger.info( "TSI Status Check request returned an error: " + statusCheck.getMessage() + "(" + statusCheck.getErCode() + ")" );
-            return buildPaymentResponseFailure( statusCheck.getMessage(), FailureCause.PAYMENT_PARTNER_ERROR );
+        } else if ("NO SUCCESSFUL TRANSACTIONS FOUND WITHIN 6 MONTHS".equals(statusCheck.getMessage())) {
+            logger.info("TSI Status Check request returned something equals to an expiration: {} ({})", statusCheck.getMessage(), statusCheck.getErCode());
+            return buildPaymentResponseFailure( statusCheck.getMessage(), FailureCause.SESSION_EXPIRED, tid);
+        } else { // no valid transaction was found or an error occurred
+            logger.info("TSI Status Check request returned an error: {} ({})", statusCheck.getMessage(), statusCheck.getErCode());
+            return buildPaymentResponseFailure( statusCheck.getMessage(), FailureCause.PAYMENT_PARTNER_ERROR, tid);
         }
     }
 
     @Override
     public PaymentResponse handleSessionExpired(final TransactionStatusRequest transactionStatusRequest) {
+        final String tid = transactionStatusRequest.getTransactionIdentifier();
         try {
             final TsiStatusCheckRequest statusCheckRequest = requestBuilder.fromTransactionStatusRequest(transactionStatusRequest);
             final StringResponse response = postCheckstatus(transactionStatusRequest.getPaylineEnvironment(), statusCheckRequest.buildBody());
-            return processResponse(response);
+            return processResponse(response, tid);
         } catch (InvalidRequestException e) {
             logger.error( "TSI handleSessionExpired, the TransactionStatusRequest is invalid", e);
-            return buildPaymentResponseFailure(DEFAULT_ERROR_CODE, FailureCause.INVALID_DATA);
+            return buildPaymentResponseFailure(DEFAULT_ERROR_CODE, FailureCause.INVALID_DATA, tid);
         } catch (IOException | URISyntaxException e) {
             logger.error("TSI handleSessionExpired, postCheckstatus error", e);
-            return buildPaymentResponseFailure(DEFAULT_ERROR_CODE, FailureCause.COMMUNICATION_ERROR);
+            return buildPaymentResponseFailure(DEFAULT_ERROR_CODE, FailureCause.COMMUNICATION_ERROR, tid);
         } catch( Exception e ){
             logger.error("An unexpected error occurred", e);
-            return buildPaymentResponseFailure(DEFAULT_ERROR_CODE, FailureCause.INTERNAL_ERROR);
+            return buildPaymentResponseFailure(DEFAULT_ERROR_CODE, FailureCause.INTERNAL_ERROR, tid);
         }
     }
 

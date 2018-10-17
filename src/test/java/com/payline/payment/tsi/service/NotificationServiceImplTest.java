@@ -2,6 +2,7 @@ package com.payline.payment.tsi.service;
 
 import com.payline.pmapi.bean.notification.request.NotificationRequest;
 import com.payline.pmapi.bean.notification.response.NotificationResponse;
+import com.payline.pmapi.bean.notification.response.impl.IgnoreNotificationResponse;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -26,6 +27,11 @@ public class NotificationServiceImplTest {
 
         // then: result is not null
         Assert.assertNotNull( response );
+
+        Assert.assertTrue(response instanceof IgnoreNotificationResponse);
+
+        Assert.assertEquals(new Integer(200), ((IgnoreNotificationResponse)response).getHttpStatus());
+        Assert.assertEquals("ACC=OK", ((IgnoreNotificationResponse)response).getHttpBody());
     }
 
 }
