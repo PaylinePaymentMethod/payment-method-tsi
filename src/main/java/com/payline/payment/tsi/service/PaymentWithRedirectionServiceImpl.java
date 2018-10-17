@@ -1,5 +1,6 @@
 package com.payline.payment.tsi.service;
 
+import com.payline.payment.tsi.exception.ExternalCommunicationException;
 import com.payline.payment.tsi.exception.InvalidRequestException;
 import com.payline.payment.tsi.request.TsiStatusCheckRequest;
 import com.payline.payment.tsi.response.TsiStatusCheckResponse;
@@ -40,7 +41,7 @@ public class PaymentWithRedirectionServiceImpl extends AbstractPaymentHttpServic
 
     @Override
     public StringResponse createSendRequest(RedirectionPaymentRequest redirectionPaymentRequest )
-            throws IOException, InvalidRequestException, URISyntaxException, GeneralSecurityException {
+            throws IOException, InvalidRequestException, URISyntaxException, ExternalCommunicationException {
         // Create StatusCheck request from Payline input
         final TsiStatusCheckRequest statusCheckRequest = requestBuilder.fromRedirectionPaymentRequest( redirectionPaymentRequest );
 
@@ -95,7 +96,7 @@ public class PaymentWithRedirectionServiceImpl extends AbstractPaymentHttpServic
      * @param paylineEnvironment
      * @return
      */
-    private StringResponse postCheckstatus(final PaylineEnvironment paylineEnvironment, final String body) throws IOException, URISyntaxException, GeneralSecurityException {
+    private StringResponse postCheckstatus(final PaylineEnvironment paylineEnvironment, final String body) throws IOException, URISyntaxException, ExternalCommunicationException {
         final ConfigEnvironment env = Boolean.FALSE.equals(paylineEnvironment.isSandbox()) ? ConfigEnvironment.PROD : ConfigEnvironment.TEST;
 
         final String scheme = ConfigProperties.get("tsi.scheme", env);

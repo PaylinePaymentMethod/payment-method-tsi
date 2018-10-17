@@ -1,8 +1,8 @@
 package com.payline.payment.tsi.service;
 
+import com.payline.payment.tsi.exception.ExternalCommunicationException;
 import com.payline.payment.tsi.exception.InvalidRequestException;
 import com.payline.payment.tsi.request.TsiSealedJsonRequest;
-import com.payline.payment.tsi.utils.config.ConfigProperties;
 import com.payline.payment.tsi.utils.http.JsonHttpClient;
 import com.payline.payment.tsi.utils.http.StringResponse;
 import com.payline.pmapi.bean.common.FailureCause;
@@ -35,14 +35,9 @@ public abstract class AbstractPaymentHttpService<T extends PaymentRequest> {
      * Late initialization of httpClient to work with batch
      *
      * @return
-     * @throws GeneralSecurityException
      */
-    protected JsonHttpClient getHttpClient() throws GeneralSecurityException {
+    protected JsonHttpClient getHttpClient() {
         if (httpClient == null) {
-            int connectTimeout = Integer.parseInt( ConfigProperties.get("http.connectTimeout") );
-            int writeTimeout = Integer.parseInt( ConfigProperties.get("http.writeTimeout") );
-            int readTimeout = Integer.parseInt( ConfigProperties.get("http.readTimeout") );
-//HHHTODO            this.httpClient = new JsonHttpClient( connectTimeout, writeTimeout, readTimeout );
             this.httpClient = JsonHttpClient.getInstance();
         }
         return httpClient;
@@ -53,11 +48,13 @@ public abstract class AbstractPaymentHttpService<T extends PaymentRequest> {
      *
      * @param paymentRequest The input request provided by Payline
      * @return The {@link HttpResponse} from the HTTP call
-     * @throws IOException Can be thrown while sending the HTTP request
-     * @throws InvalidRequestException Thrown if the input request in not valid
-     * @throws NoSuchAlgorithmException Thrown if the HMAC algorithm is not available
+     * @throws IOException
+     * @throws InvalidRequestException
+     * @throws GeneralSecurityException
+     * @throws URISyntaxException
+     * @throws ExternalCommunicationException
      */
-    public abstract StringResponse createSendRequest(T paymentRequest ) throws IOException, InvalidRequestException, GeneralSecurityException, URISyntaxException;
+    public abstract StringResponse createSendRequest(T paymentRequest ) throws IOException, InvalidRequestException, GeneralSecurityException, URISyntaxException, ExternalCommunicationException;
 
     /**
      * Process the response from the HTTP call.
@@ -104,12 +101,12 @@ public abstract class AbstractPaymentHttpService<T extends PaymentRequest> {
             logger.error( "The input payment request is invalid: ", e);
             return buildPaymentResponseFailure( DEFAULT_ERROR_CODE, FailureCause.INVALID_DATA, tid);
         }
-        catch( IOException e ){
-            logger.error( "An IOException occurred while sending the HTTP request or receiving the response: ", e);
+        catch( ExternalCommunicationException e ){
+            logger.error( "An error occurred while sending the HTTP request or receiving the response: ", e);
             return buildPaymentResponseFailure( DEFAULT_ERROR_CODE, FailureCause.COMMUNICATION_ERROR, tid);
         }
         catch( Exception e ){
-            logger.error( "An unexpected error occurred: ", e);
+            logger.error( "An unexpected error occurred: ", e );
             return buildPaymentResponseFailure( DEFAULT_ERROR_CODE, FailureCause.INTERNAL_ERROR, tid);
         }
     }
