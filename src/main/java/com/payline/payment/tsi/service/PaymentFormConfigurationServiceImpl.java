@@ -10,6 +10,8 @@ import com.payline.pmapi.bean.paymentform.response.configuration.impl.PaymentFor
 import com.payline.pmapi.bean.paymentform.response.logo.PaymentFormLogoResponse;
 import com.payline.pmapi.bean.paymentform.response.logo.impl.PaymentFormLogoResponseFile;
 import com.payline.pmapi.service.PaymentFormConfigurationService;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
@@ -23,47 +25,52 @@ public class PaymentFormConfigurationServiceImpl implements PaymentFormConfigura
     private static final String LOGO_CONTENT_TYPE = "image/png";
     private static final int LOGO_HEIGHT = 28;
     private static final int LOGO_WIDTH = 60;
+    private static final Logger logger = LogManager.getLogger(PaymentFormConfigurationServiceImpl.class);
 
     private I18nService i18n = I18nService.getInstance();
 
     @Override
-    public PaymentFormConfigurationResponse getPaymentFormConfiguration( PaymentFormConfigurationRequest paymentFormConfigurationRequest ) {
+    public PaymentFormConfigurationResponse getPaymentFormConfiguration(PaymentFormConfigurationRequest paymentFormConfigurationRequest) {
         return PaymentFormConfigurationResponseSpecific.PaymentFormConfigurationResponseSpecificBuilder.aPaymentFormConfigurationResponseSpecific()
                 .withPaymentForm(NoFieldForm.NoFieldFormBuilder.aNoFieldForm()
-                        .withButtonText(i18n.getMessage( "form.buttonText", paymentFormConfigurationRequest.getLocale() ))
-                        .withDescription(i18n.getMessage( "form.description", paymentFormConfigurationRequest.getLocale() ))
+                        .withButtonText(i18n.getMessage("form.buttonText", paymentFormConfigurationRequest.getLocale()))
+                        .withDescription(i18n.getMessage("form.description", paymentFormConfigurationRequest.getLocale()))
                         .withDisplayButton(true)
                         .build())
                 .build();
     }
 
     @Override
-    public PaymentFormLogoResponse getPaymentFormLogo( PaymentFormLogoRequest paymentFormLogoRequest ) {
+    public PaymentFormLogoResponse getPaymentFormLogo(PaymentFormLogoRequest paymentFormLogoRequest) {
         I18nService i18n = I18nService.getInstance();
 
         return PaymentFormLogoResponseFile.PaymentFormLogoResponseFileBuilder.aPaymentFormLogoResponseFile()
-                .withContentType( LOGO_CONTENT_TYPE )
-                .withHeight( LOGO_HEIGHT )
-                .withWidth( LOGO_WIDTH )
-                .withTitle( i18n.getMessage( "formConfiguration.logo.title", paymentFormLogoRequest.getLocale() ) )
-                .withAlt( i18n.getMessage( "formConfiguration.logo.alt", paymentFormLogoRequest.getLocale() ) )
+                .withHeight(LOGO_HEIGHT)
+                .withWidth(LOGO_WIDTH)
+                .withTitle(i18n.getMessage("formConfiguration.logo.title", paymentFormLogoRequest.getLocale()))
+                .withAlt(i18n.getMessage("formConfiguration.logo.alt", paymentFormLogoRequest.getLocale()))
                 .build();
     }
 
     @Override
-    public PaymentFormLogo getLogo( Locale locale ) throws IOException {
-        // Read logo file
-        InputStream input = PaymentFormConfigurationServiceImpl.class.getClassLoader().getResourceAsStream( "ticketpremium-logo.png" );
-        BufferedImage logo = ImageIO.read( input );
+    public PaymentFormLogo getLogo(final String paymentMethodIdentifier, final Locale locale) {
+        try {
+            // Read logo file
+            InputStream input = PaymentFormConfigurationServiceImpl.class.getClassLoader().getResourceAsStream("ticketpremium-logo.png");
+            BufferedImage logo = ImageIO.read(input);
 
-        // Recover byte array from image
-        ByteArrayOutputStream baos = new ByteArrayOutputStream();
-        ImageIO.write( logo, "png", baos );
+            // Recover byte array from image
+            ByteArrayOutputStream baos = new ByteArrayOutputStream();
+            ImageIO.write(logo, "png", baos);
 
-        return PaymentFormLogo.PaymentFormLogoBuilder.aPaymentFormLogo()
-                .withFile( baos.toByteArray() )
-                .withContentType( LOGO_CONTENT_TYPE )
-                .build();
+            return PaymentFormLogo.PaymentFormLogoBuilder.aPaymentFormLogo()
+                    .withFile(baos.toByteArray())
+                    .withContentType(LOGO_CONTENT_TYPE)
+                    .build();
+        } catch (IOException e) {
+            logger.error("Unable to load the logo", e);
+            throw new RuntimeException(e);
+        }
     }
 
 }
