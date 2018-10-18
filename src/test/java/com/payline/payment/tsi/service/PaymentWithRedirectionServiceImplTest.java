@@ -89,7 +89,7 @@ public class PaymentWithRedirectionServiceImplTest {
 
         // then: returned object is an instance of PaymentResponseFailure with the right failure cause
         Assert.assertTrue( paymentResponse instanceof PaymentResponseFailure );
-        Assert.assertEquals( FailureCause.PAYMENT_PARTNER_ERROR, ((PaymentResponseFailure) paymentResponse).getFailureCause() );
+        Assert.assertEquals( FailureCause.SESSION_EXPIRED, ((PaymentResponseFailure) paymentResponse).getFailureCause() );
     }
 
     @Test

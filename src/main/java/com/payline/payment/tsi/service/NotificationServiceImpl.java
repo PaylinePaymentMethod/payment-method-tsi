@@ -10,8 +10,10 @@ public class NotificationServiceImpl implements NotificationService {
 
     @Override
     public NotificationResponse parse( NotificationRequest notificationRequest ){
-        // TODO: find a way to return "ACC=OK" to TSI notification request
-        return new IgnoreNotificationResponse();
+        return IgnoreNotificationResponse.IgnoreNotificationResponseBuilder.aIgnoreNotificationResponseBuilder()
+                .withHttpBody("ACC=OK")
+                .withHttpStatus(200)
+                .build();
     }
 
     @Override
