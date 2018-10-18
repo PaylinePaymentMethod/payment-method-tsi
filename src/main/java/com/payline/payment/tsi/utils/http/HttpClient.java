@@ -44,7 +44,7 @@ public abstract class HttpClient {
         builder.useSystemProperties()
                 .setDefaultRequestConfig(requestConfig)
                 .setDefaultCredentialsProvider(new BasicCredentialsProvider())
-                .setSSLSocketFactory(new SSLConnectionSocketFactory(HttpsURLConnection.getDefaultSSLSocketFactory(), SSLConnectionSocketFactory.getDefaultHostnameVerifier()));
+//                .setSSLSocketFactory(new SSLConnectionSocketFactory(HttpsURLConnection.getDefaultSSLSocketFactory(), SSLConnectionSocketFactory.getDefaultHostnameVerifier()));
         this.client = builder.build();
     }
 
