@@ -21,8 +21,8 @@ configurations.all {
 }
 
 ext {
-    paymentMethodApiVersion = '1.0-RC1'
-    paymentMethodIntegrationVersion = '1.0-RC1'
+    paymentMethodApiVersion = '1.0-RC2-SNAPSHOT'
+    paymentMethodIntegrationVersion = '1.0-RC2-SNAPSHOT'
     mockitoVersion = '2.19.0'
 }
 sourceCompatibility = 1.8
