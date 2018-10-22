@@ -9,8 +9,8 @@ import com.payline.pmapi.bean.common.Buyer;
 import com.payline.pmapi.bean.configuration.PartnerConfiguration;
 import com.payline.pmapi.bean.payment.ContractConfiguration;
 import com.payline.pmapi.bean.payment.ContractProperty;
+import com.payline.pmapi.bean.payment.Environment;
 import com.payline.pmapi.bean.payment.Order;
-import com.payline.pmapi.bean.payment.PaylineEnvironment;
 import com.payline.pmapi.bean.payment.request.PaymentRequest;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -115,7 +115,7 @@ class PaymentServiceImplIT {
                 .withCaptureNow(false)
                 .withPartnerConfiguration(new PartnerConfiguration(partnerConfigurationMap, sensitivePartnerConfigurationMap))
                 .withContractConfiguration(new ContractConfiguration("TICKET_PREMIUM", contractProperties))
-                .withPaylineEnvironment(new PaylineEnvironment(environmentURL, environmentURL, environmentURL, true))
+                .withEnvironment(new Environment(environmentURL, environmentURL, environmentURL, true))
                 .withLocale(Locale.FRANCE)
                 .withSoftDescriptor("soft")
                 .withAmount(amount)

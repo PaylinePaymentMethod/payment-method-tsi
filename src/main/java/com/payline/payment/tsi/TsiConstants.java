@@ -11,4 +11,5 @@ public class TsiConstants {
     public static final String CONTRACT_KEY_VALUE = "secret_key";
     public static final String CONTRACT_PRODUCT_DESCRIPTION = "product_desc";
 
+    public static final String REQUEST_CONTEXT_KEY_TID = "TID";
 }

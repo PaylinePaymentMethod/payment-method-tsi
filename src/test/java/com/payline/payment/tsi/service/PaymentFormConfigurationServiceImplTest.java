@@ -2,7 +2,7 @@ package com.payline.payment.tsi.service;
 
 import com.payline.pmapi.bean.configuration.PartnerConfiguration;
 import com.payline.pmapi.bean.payment.ContractConfiguration;
-import com.payline.pmapi.bean.payment.PaylineEnvironment;
+import com.payline.pmapi.bean.payment.Environment;
 import com.payline.pmapi.bean.paymentform.bean.PaymentFormLogo;
 import com.payline.pmapi.bean.paymentform.request.PaymentFormConfigurationRequest;
 import com.payline.pmapi.bean.paymentform.request.PaymentFormLogoRequest;
@@ -48,7 +48,7 @@ public class PaymentFormConfigurationServiceImplTest {
     @Test
     public void testGetLogo() {
         // when: getLogo is called
-        PaymentFormLogo paymentFormLogo = service.getLogo(null, Locale.getDefault() );
+        PaymentFormLogo paymentFormLogo = service.getLogo(null, Locale.getDefault());
 
         // then: returned elements are not null
         Assert.assertNotNull( paymentFormLogo );
@@ -67,7 +67,7 @@ public class PaymentFormConfigurationServiceImplTest {
         // when: getPaymentFormLogo is called
         PaymentFormLogoRequest request = PaymentFormLogoRequest.PaymentFormLogoRequestBuilder.aPaymentFormLogoRequest()
                 .withLocale( Locale.getDefault() )
-                .withPaylineEnvironment(new PaylineEnvironment("", "", "", true))
+                .withEnvironment(new Environment("", "", "", true))
                 .withContractConfiguration(new ContractConfiguration(null, null))
                 .withPartnerConfiguration(new PartnerConfiguration(new HashMap<>(),new HashMap<>()))
                 .build();

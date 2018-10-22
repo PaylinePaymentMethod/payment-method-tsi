@@ -122,7 +122,7 @@ public abstract class AbstractPaymentHttpService<T extends PaymentRequest> {
         return PaymentResponseFailure.PaymentResponseFailureBuilder.aPaymentResponseFailure()
                 .withFailureCause( failureCause )
                 .withErrorCode( errorCode )
-                .withTransactionIdentifier(tid)
+                .withPartnerTransactionId(tid)
                 .build();
     }
 }

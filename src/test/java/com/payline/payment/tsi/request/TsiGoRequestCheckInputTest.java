@@ -67,10 +67,6 @@ public class TsiGoRequestCheckInputTest {
         });
 
         dataList.add( new Object[]{
-                "No transaction id",
-                mocker.reset().withTransactionId( null ).mock()
-        });
-        dataList.add( new Object[]{
                 "No amount",
                 mocker.reset().withAmount( null ).mock()
         });

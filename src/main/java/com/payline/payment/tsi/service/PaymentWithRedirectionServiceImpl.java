@@ -9,7 +9,7 @@ import com.payline.payment.tsi.utils.config.ConfigProperties;
 import com.payline.payment.tsi.utils.http.StringResponse;
 import com.payline.pmapi.bean.common.FailureCause;
 import com.payline.pmapi.bean.common.Message;
-import com.payline.pmapi.bean.payment.PaylineEnvironment;
+import com.payline.pmapi.bean.payment.Environment;
 import com.payline.pmapi.bean.payment.request.RedirectionPaymentRequest;
 import com.payline.pmapi.bean.payment.request.TransactionStatusRequest;
 import com.payline.pmapi.bean.payment.response.PaymentResponse;
@@ -21,7 +21,6 @@ import org.apache.logging.log4j.Logger;
 
 import java.io.IOException;
 import java.net.URISyntaxException;
-import java.security.GeneralSecurityException;
 
 public class PaymentWithRedirectionServiceImpl extends AbstractPaymentHttpService<RedirectionPaymentRequest> implements PaymentWithRedirectionService {
 
@@ -45,7 +44,7 @@ public class PaymentWithRedirectionServiceImpl extends AbstractPaymentHttpServic
         // Create StatusCheck request from Payline input
         final TsiStatusCheckRequest statusCheckRequest = requestBuilder.fromRedirectionPaymentRequest( redirectionPaymentRequest );
 
-        return postCheckstatus(redirectionPaymentRequest.getPaylineEnvironment(), statusCheckRequest.buildBody());
+        return postCheckstatus(redirectionPaymentRequest.getEnvironment(), statusCheckRequest.buildBody());
     }
 
     @Override
@@ -58,7 +57,7 @@ public class PaymentWithRedirectionServiceImpl extends AbstractPaymentHttpServic
             return PaymentResponseSuccess.PaymentResponseSuccessBuilder.aPaymentResponseSuccess()
                     .withMessage( new Message( Message.MessageType.SUCCESS, statusCheck.getMessage() ) )
                     .withStatusCode( statusCheck.getErCode() )
-                    .withTransactionIdentifier( statusCheck.getTid() )
+                    .withPartnerTransactionId( statusCheck.getTid() )
                     .withTransactionDetails( new EmptyTransactionDetails() )
                     .withTransactionAdditionalData( statusCheck.getResume() )
                     .build();
@@ -73,10 +72,10 @@ public class PaymentWithRedirectionServiceImpl extends AbstractPaymentHttpServic
 
     @Override
     public PaymentResponse handleSessionExpired(final TransactionStatusRequest transactionStatusRequest) {
-        final String tid = transactionStatusRequest.getTransactionIdentifier();
+        final String tid = transactionStatusRequest.getTransactionId();
         try {
             final TsiStatusCheckRequest statusCheckRequest = requestBuilder.fromTransactionStatusRequest(transactionStatusRequest);
-            final StringResponse response = postCheckstatus(transactionStatusRequest.getPaylineEnvironment(), statusCheckRequest.buildBody());
+            final StringResponse response = postCheckstatus(transactionStatusRequest.getEnvironment(), statusCheckRequest.buildBody());
             return processResponse(response, tid);
         } catch (InvalidRequestException e) {
             logger.error( "TSI handleSessionExpired, the TransactionStatusRequest is invalid", e);
@@ -93,11 +92,11 @@ public class PaymentWithRedirectionServiceImpl extends AbstractPaymentHttpServic
     /**
      * Call StatusCheck to recover transaction info
      *
-     * @param paylineEnvironment
+     * @param environment
      * @return
      */
-    private StringResponse postCheckstatus(final PaylineEnvironment paylineEnvironment, final String body) throws IOException, URISyntaxException, ExternalCommunicationException {
-        final ConfigEnvironment env = Boolean.FALSE.equals(paylineEnvironment.isSandbox()) ? ConfigEnvironment.PROD : ConfigEnvironment.TEST;
+    private StringResponse postCheckstatus(final Environment environment, final String body) throws IOException, URISyntaxException, ExternalCommunicationException {
+        final ConfigEnvironment env = Boolean.FALSE.equals(environment.isSandbox()) ? ConfigEnvironment.PROD : ConfigEnvironment.TEST;
 
         final String scheme = ConfigProperties.get("tsi.scheme", env);
         final String host = ConfigProperties.get("tsi.host", env);

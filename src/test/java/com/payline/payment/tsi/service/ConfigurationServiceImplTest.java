@@ -10,8 +10,7 @@ import com.payline.pmapi.bean.configuration.ReleaseInformation;
 import com.payline.pmapi.bean.configuration.parameter.AbstractParameter;
 import com.payline.pmapi.bean.configuration.request.ContractParametersCheckRequest;
 import com.payline.pmapi.bean.payment.ContractConfiguration;
-import com.payline.pmapi.bean.payment.PaylineEnvironment;
-import org.apache.http.HttpResponse;
+import com.payline.pmapi.bean.payment.Environment;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -195,7 +194,7 @@ public class ConfigurationServiceImplTest {
         return ContractParametersCheckRequest.CheckRequestBuilder.aCheckRequest()
                 .withAccountInfo( accountInfo )
                 .withContractConfiguration( new ContractConfiguration( null, null ) )
-                .withPaylineEnvironment( new PaylineEnvironment( "", "", "", true ) )
+                .withEnvironment( new Environment( "", "", "", true ) )
                 .withLocale( Locale.FRANCE )
                 .build();
     }
