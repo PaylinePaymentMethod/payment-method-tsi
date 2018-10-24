@@ -63,13 +63,13 @@ public class PaymentServiceImplTest {
 
         // then: returned object is an instance of PaymentResponseRedirect
         Assert.assertTrue( paymentResponse instanceof PaymentResponseRedirect);
-        PaymentResponseRedirect paymentResponseResult = (PaymentResponseRedirect) paymentResponse;
-        Assert.assertNotNull(paymentResponseResult.getRequestContext());
-        RequestContext requestContextResult = paymentResponseResult.getRequestContext();
+        PaymentResponseRedirect paymentResponseRedirect = (PaymentResponseRedirect) paymentResponse;
+        Assert.assertNotNull(paymentResponseRedirect.getRequestContext());
+        RequestContext requestContextResult = paymentResponseRedirect.getRequestContext();
         Assert.assertNotNull(requestContextResult.getRequestData());
         Assert.assertEquals(tid, requestContextResult.getRequestData().get(TsiConstants.REQUEST_CONTEXT_KEY_TID));
-        Assert.assertEquals(tid, paymentResponseResult.getPartnerTransactionId());
-        Assert.assertEquals(PaymentResponseRedirect.RedirectionRequest.RequestType.GET.toString(), paymentResponseResult.getRedirectionRequest().getRequestType().toString());
+        Assert.assertEquals(tid, paymentResponseRedirect.getPartnerTransactionId());
+        Assert.assertEquals(PaymentResponseRedirect.RedirectionRequest.RequestType.GET.toString(), paymentResponseRedirect.getRedirectionRequest().getRequestType().toString());
 
 
     }
