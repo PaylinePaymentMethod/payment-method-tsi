@@ -66,15 +66,16 @@ public class PaymentServiceImpl extends AbstractPaymentHttpService<PaymentReques
                     .withRequestType(PaymentResponseRedirect.RedirectionRequest.RequestType.GET)
                     .build();
 
-            final Map<String, String> requestContext = new HashMap<>();
-            requestContext.put(TsiConstants.REQUEST_CONTEXT_KEY_TID, tsiGoResponse.getTid());
-            final RequestContext qs = RequestContext.RequestContextBuilder.aRequestContext()
-                    .withRequestData(requestContext)
+            final Map<String, String> requestContextData = new HashMap<>();
+            requestContextData.put(TsiConstants.REQUEST_CONTEXT_KEY_TID, tsiGoResponse.getTid());
+            final RequestContext requestContext = RequestContext.RequestContextBuilder.aRequestContext()
+                    .withRequestData(requestContextData)
                     .build();
 
             return PaymentResponseRedirect.PaymentResponseRedirectBuilder.aPaymentResponseRedirect()
                     .withRedirectionRequest( redirectionRequest )
                     .withPartnerTransactionId( tsiGoResponse.getTid() )
+                    .withRequestContext(requestContext)
                     .build();
         }
         else {
