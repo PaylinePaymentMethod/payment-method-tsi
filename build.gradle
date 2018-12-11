@@ -24,7 +24,7 @@ configurations {
 }
 
 ext {
-    paymentMethodApiVersion = '1.0-RC3'
+    paymentMethodApiVersion = '1.0-RC4-SNAPSHOT'
     paymentMethodIntegrationVersion = '1.0-RC3'
     mockitoVersion = '2.19.0'
 }
