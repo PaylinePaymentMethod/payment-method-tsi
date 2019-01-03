@@ -4,6 +4,7 @@ import com.payline.payment.tsi.exception.ExternalCommunicationException;
 import com.payline.payment.tsi.exception.InvalidRequestException;
 import com.payline.payment.tsi.request.TsiStatusCheckRequest;
 import com.payline.payment.tsi.response.TsiStatusCheckResponse;
+import com.payline.payment.tsi.utils.PaymentResponseUtil;
 import com.payline.payment.tsi.utils.config.ConfigEnvironment;
 import com.payline.payment.tsi.utils.config.ConfigProperties;
 import com.payline.payment.tsi.utils.http.StringResponse;
@@ -27,10 +28,14 @@ public class PaymentWithRedirectionServiceImpl extends AbstractPaymentHttpServic
     private static final Logger logger = LogManager.getLogger( PaymentWithRedirectionServiceImpl.class );
 
     private TsiStatusCheckRequest.Builder requestBuilder;
+    private PaymentResponseUtil paymentResponseUtil;
+    private ResponseProcessor responseProcessor;
 
     public PaymentWithRedirectionServiceImpl() {
         super();
         this.requestBuilder = new TsiStatusCheckRequest.Builder();
+        this.paymentResponseUtil = PaymentResponseUtil.getInstance();
+        this.responseProcessor = ResponseProcessor.getInstance();
     }
 
     @Override
@@ -49,25 +54,7 @@ public class PaymentWithRedirectionServiceImpl extends AbstractPaymentHttpServic
 
     @Override
     public PaymentResponse processResponse(StringResponse response, final String tid) throws IOException {
-        // Parse response
-        final TsiStatusCheckResponse statusCheck = (new TsiStatusCheckResponse.Builder()).fromJson(response.getContent());
-
-        // Status = "OK" and no error : transaction is a success
-        if( "OK".equals( statusCheck.getStatus() ) && !statusCheck.isError() ){
-            return PaymentResponseSuccess.PaymentResponseSuccessBuilder.aPaymentResponseSuccess()
-                    .withMessage( new Message( Message.MessageType.SUCCESS, statusCheck.getMessage() ) )
-                    .withStatusCode( statusCheck.getErCode() )
-                    .withPartnerTransactionId( statusCheck.getTid() )
-                    .withTransactionDetails( new EmptyTransactionDetails() )
-                    .withTransactionAdditionalData( statusCheck.getResume() )
-                    .build();
-        } else if ("NO SUCCESSFUL TRANSACTIONS FOUND WITHIN 6 MONTHS".equals(statusCheck.getMessage())) {
-            logger.info("TSI Status Check request returned something equals to an expiration: {} ({})", statusCheck.getMessage(), statusCheck.getErCode());
-            return buildPaymentResponseFailure( statusCheck.getMessage(), FailureCause.SESSION_EXPIRED, tid);
-        } else { // no valid transaction was found or an error occurred
-            logger.info("TSI Status Check request returned an error: {} ({})", statusCheck.getMessage(), statusCheck.getErCode());
-            return buildPaymentResponseFailure( statusCheck.getMessage(), FailureCause.PAYMENT_PARTNER_ERROR, tid);
-        }
+        return responseProcessor.processResponseStatusCheckResponse(response);
     }
 
     @Override
@@ -79,13 +66,13 @@ public class PaymentWithRedirectionServiceImpl extends AbstractPaymentHttpServic
             return processResponse(response, tid);
         } catch (InvalidRequestException e) {
             logger.error( "TSI handleSessionExpired, the TransactionStatusRequest is invalid", e);
-            return buildPaymentResponseFailure(DEFAULT_ERROR_CODE, FailureCause.INVALID_DATA, tid);
+            return paymentResponseUtil.buildPaymentResponseFailure(DEFAULT_ERROR_CODE, FailureCause.INVALID_DATA, tid);
         } catch (IOException | URISyntaxException e) {
             logger.error("TSI handleSessionExpired, postCheckstatus error", e);
-            return buildPaymentResponseFailure(DEFAULT_ERROR_CODE, FailureCause.COMMUNICATION_ERROR, tid);
+            return paymentResponseUtil.buildPaymentResponseFailure(DEFAULT_ERROR_CODE, FailureCause.COMMUNICATION_ERROR, tid);
         } catch( Exception e ){
             logger.error("An unexpected error occurred", e);
-            return buildPaymentResponseFailure(DEFAULT_ERROR_CODE, FailureCause.INTERNAL_ERROR, tid);
+            return paymentResponseUtil.buildPaymentResponseFailure(DEFAULT_ERROR_CODE, FailureCause.INTERNAL_ERROR, tid);
         }
     }
 

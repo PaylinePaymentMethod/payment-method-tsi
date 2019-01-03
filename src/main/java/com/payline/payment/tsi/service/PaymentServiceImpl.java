@@ -6,6 +6,7 @@ import com.payline.payment.tsi.exception.ExternalCommunicationException;
 import com.payline.payment.tsi.exception.InvalidRequestException;
 import com.payline.payment.tsi.request.TsiGoRequest;
 import com.payline.payment.tsi.response.TsiGoResponse;
+import com.payline.payment.tsi.utils.PaymentResponseUtil;
 import com.payline.payment.tsi.utils.config.ConfigEnvironment;
 import com.payline.payment.tsi.utils.config.ConfigProperties;
 import com.payline.payment.tsi.utils.http.StringResponse;
@@ -29,10 +30,12 @@ public class PaymentServiceImpl extends AbstractPaymentHttpService<PaymentReques
     private static final Logger logger = LogManager.getLogger( PaymentServiceImpl.class );
 
     private TsiGoRequest.Builder requestBuilder;
+    private PaymentResponseUtil paymentResponseUtil;
 
     public PaymentServiceImpl() {
         super();
         this.requestBuilder = new TsiGoRequest.Builder();
+        this.paymentResponseUtil = PaymentResponseUtil.getInstance();
     }
 
     @Override
@@ -80,7 +83,7 @@ public class PaymentServiceImpl extends AbstractPaymentHttpService<PaymentReques
         }
         else {
             logger.error( "TSI Go request returned an error: " + tsiGoResponse.getMessage() + "(" + Integer.toString( tsiGoResponse.getStatus() ) + ")" );
-            return buildPaymentResponseFailure( tsiGoResponse.getMessage(), ErrorCodesMap.getFailureCause( tsiGoResponse.getStatus()), tid);
+            return paymentResponseUtil.buildPaymentResponseFailure( tsiGoResponse.getMessage(), ErrorCodesMap.getFailureCause( tsiGoResponse.getStatus()), tid);
         }
     }
 }
