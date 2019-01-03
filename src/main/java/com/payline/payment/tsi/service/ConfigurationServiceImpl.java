@@ -31,7 +31,7 @@ import java.util.Properties;
 
 public class ConfigurationServiceImpl implements ConfigurationService {
 
-    private static final Logger logger = LogManager.getLogger( ConfigurationServiceImpl.class );
+    private static final Logger LOGGER = LogManager.getLogger( ConfigurationServiceImpl.class );
 
     /** The release date format */
     private static final String RELEASE_DATE_FORMAT = "dd/MM/yyyy";
@@ -165,7 +165,7 @@ public class ConfigurationServiceImpl implements ConfigurationService {
             }
         }
         catch( Exception e ){
-            logger.error( "An error occurred sending the validation request to the TSI server: " + e.getMessage() );
+            LOGGER.error( "An error occurred sending the validation request to the TSI server: " + e.getMessage() );
             errors.put( TsiConstants.CONTRACT_MERCHANT_ID, i18n.getMessage( "contractConfiguration.validation.error.unexpected", locale ) );
             errors.put( TsiConstants.CONTRACT_KEY_ID, i18n.getMessage( "contractConfiguration.validation.error.unexpected", locale ) );
             errors.put( TsiConstants.CONTRACT_KEY_VALUE, i18n.getMessage( "contractConfiguration.validation.error.unexpected", locale ) );
@@ -180,9 +180,9 @@ public class ConfigurationServiceImpl implements ConfigurationService {
         try {
             props.load( ConfigurationServiceImpl.class.getClassLoader().getResourceAsStream( "release.properties" ) );
         } catch( IOException e ){
-            logger.error("An error occurred reading the file: release.properties" );
-            props.setProperty( "release.version", "unknown" );
-            props.setProperty( "release.date", "01/01/1900" );
+            final String message = "An error occurred reading the file: release.properties";
+            LOGGER.error(message);
+            throw new RuntimeException(message, e);
         }
 
         LocalDate date = LocalDate.parse( props.getProperty( "release.date" ), DateTimeFormatter.ofPattern( RELEASE_DATE_FORMAT ) );

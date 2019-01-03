@@ -133,17 +133,6 @@ public class ConfigurationServiceImplTest {
     }
 
     @Test
-    public void testGetReleaseInformation_ok(){
-        // when: getReleaseInformation method is called
-        ReleaseInformation releaseInformation = service.getReleaseInformation();
-
-        // then: result is not null
-        Assert.assertNotNull( releaseInformation );
-        Assert.assertNotEquals( "unknown", releaseInformation.getVersion() );
-        Assert.assertNotEquals( 1900, releaseInformation.getDate().getYear() );
-    }
-
-    @Test
     public void testGetReleaseInformation_versionFormat(){
         // when: getReleaseInformation method is called
         ReleaseInformation releaseInformation = service.getReleaseInformation();
