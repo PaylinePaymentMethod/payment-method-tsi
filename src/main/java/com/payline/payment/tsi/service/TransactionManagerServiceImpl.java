@@ -3,7 +3,7 @@ package com.payline.payment.tsi.service;
 import com.google.gson.JsonSyntaxException;
 import com.payline.payment.tsi.response.TsiStatusCheckResponse;
 import com.payline.pmapi.service.TransactionManagerService;
-import org.apache.logging.log4j.LogManager;
+import com.payline.pmapi.logger.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import java.util.HashMap;
