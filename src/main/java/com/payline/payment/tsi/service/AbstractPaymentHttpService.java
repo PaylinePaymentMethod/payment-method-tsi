@@ -108,7 +108,7 @@ public abstract class AbstractPaymentHttpService<T extends PaymentRequest> {
             return paymentResponseUtil.buildPaymentResponseFailure( DEFAULT_ERROR_CODE, FailureCause.COMMUNICATION_ERROR, tid);
         }
         catch( Exception e ){
-            logger.error( "An unexpected error occurred: ", e );
+            logger.error( "An unexpected error occurred: ", e);
             return paymentResponseUtil.buildPaymentResponseFailure( DEFAULT_ERROR_CODE, FailureCause.INTERNAL_ERROR, tid);
         }
     }

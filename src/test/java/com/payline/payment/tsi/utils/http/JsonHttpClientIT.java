@@ -3,6 +3,7 @@ package com.payline.payment.tsi.utils.http;
 import com.payline.payment.tsi.exception.ExternalCommunicationException;
 import org.junit.Test;
 
+import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.URISyntaxException;
 import java.text.DateFormat;
@@ -33,6 +34,8 @@ public class JsonHttpClientIT {
             } catch (UnsupportedEncodingException e) {
                 e.printStackTrace();
             } catch (URISyntaxException e) {
+                e.printStackTrace();
+            } catch (IOException e) {
                 e.printStackTrace();
             }
         }

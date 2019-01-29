@@ -1,6 +1,7 @@
 package com.payline.payment.tsi.utils.http;
 
 import com.payline.payment.tsi.exception.ExternalCommunicationException;
+import com.payline.pmapi.logger.LogManager;
 import org.apache.http.HttpHeaders;
 import org.apache.http.client.config.RequestConfig;
 import org.apache.http.client.methods.CloseableHttpResponse;
@@ -12,12 +13,10 @@ import org.apache.http.impl.client.BasicCredentialsProvider;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClientBuilder;
 import org.apache.http.util.EntityUtils;
-import com.payline.pmapi.logger.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import javax.net.ssl.HttpsURLConnection;
 import java.io.IOException;
-import java.io.UnsupportedEncodingException;
 import java.net.URI;
 import java.net.URISyntaxException;
 
@@ -63,7 +62,7 @@ public abstract class HttpClient {
      * @throws URISyntaxException
      */
     public StringResponse doPost(String scheme, String host, String path, String body, String contentType )
-            throws URISyntaxException, UnsupportedEncodingException, ExternalCommunicationException {
+            throws IOException, URISyntaxException, ExternalCommunicationException {
 
         final URI uri = new URIBuilder()
                 .setScheme(scheme)

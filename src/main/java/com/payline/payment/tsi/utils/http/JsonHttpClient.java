@@ -3,6 +3,7 @@ package com.payline.payment.tsi.utils.http;
 import com.payline.payment.tsi.exception.ExternalCommunicationException;
 import org.apache.http.entity.ContentType;
 
+import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.URISyntaxException;
 
@@ -38,7 +39,7 @@ public class JsonHttpClient extends HttpClient {
      * @throws UnsupportedEncodingException
      * @throws URISyntaxException
      */
-    public StringResponse doPost(String scheme, String host, String path, String jsonContent ) throws ExternalCommunicationException, UnsupportedEncodingException, URISyntaxException {
+    public StringResponse doPost(String scheme, String host, String path, String jsonContent ) throws ExternalCommunicationException, IOException, URISyntaxException {
         return super.doPost( scheme, host, path, jsonContent, ContentType.APPLICATION_JSON.toString());
     }
 }
