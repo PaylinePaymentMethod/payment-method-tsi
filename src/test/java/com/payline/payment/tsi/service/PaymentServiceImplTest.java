@@ -1,6 +1,8 @@
 package com.payline.payment.tsi.service;
 
+import com.payline.payment.tsi.TsiConstants;
 import com.payline.payment.tsi.error.ErrorCodesMap;
+import com.payline.payment.tsi.exception.ExternalCommunicationException;
 import com.payline.payment.tsi.exception.InvalidRequestException;
 import com.payline.payment.tsi.request.TsiGoRequest;
 import com.payline.payment.tsi.request.TsiGoRequestTest;
@@ -9,6 +11,7 @@ import com.payline.payment.tsi.utils.http.JsonHttpClient;
 import com.payline.payment.tsi.utils.http.ResponseMocker;
 import com.payline.payment.tsi.utils.http.StringResponse;
 import com.payline.pmapi.bean.common.FailureCause;
+import com.payline.pmapi.bean.payment.RequestContext;
 import com.payline.pmapi.bean.payment.request.PaymentRequest;
 import com.payline.pmapi.bean.payment.response.PaymentResponse;
 import com.payline.pmapi.bean.payment.response.impl.PaymentResponseFailure;
@@ -49,9 +52,10 @@ public class PaymentServiceImplTest {
     }
 
     @Test
-    public void testPaymentRequest_ok() throws IOException, URISyntaxException {
+    public void testPaymentRequest_ok() throws IOException, URISyntaxException, ExternalCommunicationException {
         // when: the HTTP call is a success
-        String content = TsiGoResponseTest.mockJson( 1, "OK", "http://redirect-url.com", "123", null );
+        final String tid = "123";
+        String content = TsiGoResponseTest.mockJson( 1, "OK", "http://redirect-url.com", tid, null );
         StringResponse response = ResponseMocker.mockString( 200, "OK", content );
         when( httpClient.doPost( anyString(), anyString(), anyString(), anyString() ) )
                 .thenReturn( response );
@@ -59,6 +63,15 @@ public class PaymentServiceImplTest {
 
         // then: returned object is an instance of PaymentResponseRedirect
         Assert.assertTrue( paymentResponse instanceof PaymentResponseRedirect);
+        PaymentResponseRedirect paymentResponseRedirect = (PaymentResponseRedirect) paymentResponse;
+        Assert.assertNotNull(paymentResponseRedirect.getRequestContext());
+        RequestContext requestContextResult = paymentResponseRedirect.getRequestContext();
+        Assert.assertNotNull(requestContextResult.getRequestData());
+        Assert.assertEquals(tid, requestContextResult.getRequestData().get(TsiConstants.REQUEST_CONTEXT_KEY_TID));
+        Assert.assertEquals(tid, paymentResponseRedirect.getPartnerTransactionId());
+        Assert.assertEquals(PaymentResponseRedirect.RedirectionRequest.RequestType.GET.toString(), paymentResponseRedirect.getRedirectionRequest().getRequestType().toString());
+
+
     }
 
     @Test
@@ -74,7 +87,7 @@ public class PaymentServiceImplTest {
     }
 
     @Test
-    public void testPaymentRequest_businessError() throws IOException, URISyntaxException {
+    public void testPaymentRequest_businessError() throws IOException, URISyntaxException, ExternalCommunicationException {
         // when: the HTTP call returns a business error (wrong HMAC for example)
         String content = TsiGoResponseTest.mockJson( 15, "WRONG HMAC", null, null, null );
         StringResponse response = ResponseMocker.mockString( 200, "OK", content );
@@ -88,7 +101,7 @@ public class PaymentServiceImplTest {
     }
 
     @Test
-    public void testPaymentRequest_noResponseBody() throws IOException, URISyntaxException {
+    public void testPaymentRequest_noResponseBody() throws IOException, URISyntaxException, ExternalCommunicationException {
         // when: the HTTP call returns a response without body
         StringResponse response = ResponseMocker.mockString( 200, "OK", null );
         when( httpClient.doPost( anyString(), anyString(), anyString(), anyString() ) )
@@ -101,7 +114,7 @@ public class PaymentServiceImplTest {
     }
 
     @Test
-    public void testPaymentRequest_httpError() throws IOException, URISyntaxException {
+    public void testPaymentRequest_httpError() throws IOException, URISyntaxException, ExternalCommunicationException {
         // when: the HTTP call returns a HTTP error (503 Service Unavailable par example)
         StringResponse response = ResponseMocker.mockString( 503, "Service Unavailable", "ERROR!" );
         when( httpClient.doPost( anyString(), anyString(), anyString(), anyString() ) )
@@ -114,10 +127,10 @@ public class PaymentServiceImplTest {
     }
 
     @Test
-    public void testPaymentRequest_ioException() throws IOException, URISyntaxException {
+    public void testPaymentRequest_ExternalCommunicationException() throws IOException, URISyntaxException, ExternalCommunicationException {
         // when: the HTTP call throws an exception
         when( httpClient.doPost( anyString(), anyString(), anyString(), anyString() ) )
-                .thenThrow( IOException.class );
+                .thenThrow( ExternalCommunicationException.class );
         PaymentResponse paymentResponse = service.paymentRequest( mock( PaymentRequest.class, Mockito.RETURNS_DEEP_STUBS ) );
 
         // then: returned object is an instance of PaymentResponseFailure with the right failure cause

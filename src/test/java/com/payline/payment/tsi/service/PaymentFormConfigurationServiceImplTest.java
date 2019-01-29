@@ -1,5 +1,8 @@
 package com.payline.payment.tsi.service;
 
+import com.payline.pmapi.bean.configuration.PartnerConfiguration;
+import com.payline.pmapi.bean.payment.ContractConfiguration;
+import com.payline.pmapi.bean.payment.Environment;
 import com.payline.pmapi.bean.paymentform.bean.PaymentFormLogo;
 import com.payline.pmapi.bean.paymentform.request.PaymentFormConfigurationRequest;
 import com.payline.pmapi.bean.paymentform.request.PaymentFormLogoRequest;
@@ -20,6 +23,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Files;
+import java.util.HashMap;
 import java.util.Locale;
 
 import static org.mockito.Mockito.mock;
@@ -42,9 +46,9 @@ public class PaymentFormConfigurationServiceImplTest {
     }
 
     @Test
-    public void testGetLogo() throws IOException {
+    public void testGetLogo() {
         // when: getLogo is called
-        PaymentFormLogo paymentFormLogo = service.getLogo( Locale.getDefault() );
+        PaymentFormLogo paymentFormLogo = service.getLogo(null, Locale.getDefault());
 
         // then: returned elements are not null
         Assert.assertNotNull( paymentFormLogo );
@@ -63,13 +67,15 @@ public class PaymentFormConfigurationServiceImplTest {
         // when: getPaymentFormLogo is called
         PaymentFormLogoRequest request = PaymentFormLogoRequest.PaymentFormLogoRequestBuilder.aPaymentFormLogoRequest()
                 .withLocale( Locale.getDefault() )
+                .withEnvironment(new Environment("", "", "", true))
+                .withContractConfiguration(new ContractConfiguration(null, null))
+                .withPartnerConfiguration(new PartnerConfiguration(new HashMap<>(),new HashMap<>()))
                 .build();
         PaymentFormLogoResponse paymentFormLogoResponse = service.getPaymentFormLogo( request );
 
         // then: returned elements match the image file data
         Assert.assertTrue( paymentFormLogoResponse instanceof PaymentFormLogoResponseFile);
         PaymentFormLogoResponseFile casted = (PaymentFormLogoResponseFile) paymentFormLogoResponse;
-        Assert.assertEquals( guessedContentType, casted.getContentType() );
         Assert.assertEquals( image.getHeight(), casted.getHeight() );
         Assert.assertEquals( image.getWidth(), casted.getWidth() );
         Assert.assertNotNull( casted.getTitle() );

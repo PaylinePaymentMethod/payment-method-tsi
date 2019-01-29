@@ -1,5 +1,7 @@
 package com.payline.payment.tsi.utils.http;
 
+import com.payline.payment.tsi.exception.ExternalCommunicationException;
+import com.payline.pmapi.logger.LogManager;
 import org.apache.http.HttpHeaders;
 import org.apache.http.client.config.RequestConfig;
 import org.apache.http.client.methods.CloseableHttpResponse;
@@ -10,8 +12,8 @@ import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.BasicCredentialsProvider;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClientBuilder;
-import org.apache.http.protocol.HttpContext;
 import org.apache.http.util.EntityUtils;
+import org.apache.logging.log4j.Logger;
 
 import javax.net.ssl.HttpsURLConnection;
 import java.io.IOException;
@@ -27,26 +29,23 @@ public abstract class HttpClient {
 
     protected CloseableHttpClient client;
 
+    private static final Logger LOGGER = LogManager.getLogger(HttpClient.class);
+
     /**
      *  Instantiate a HTTP client.
-     *
-     * @param connectTimeout Determines the timeout in milliseconds until a connection is established
-     * @param requestTimeout The timeout in milliseconds used when requesting a connection from the connection manager
-     * @param socketTimeout Defines the socket timeout (SO_TIMEOUT) in milliseconds, which is the timeout for waiting for data or, put differently, a maximum period inactivity between two consecutive data packets)
      */
-    public HttpClient( int connectTimeout, int requestTimeout, int socketTimeout ) {
+    public HttpClient() {
 
         final RequestConfig requestConfig = RequestConfig.custom()
-            .setConnectTimeout(connectTimeout * 1000)
-            .setConnectionRequestTimeout(requestTimeout * 1000)
-            .setSocketTimeout(socketTimeout * 1000).build();
+            .setConnectTimeout(5000)
+            .setConnectionRequestTimeout(10000)
+            .setSocketTimeout(10000).build();
 
         final HttpClientBuilder builder = HttpClientBuilder.create();
         builder.useSystemProperties()
-//                .disableConnectionState()
                 .setDefaultRequestConfig(requestConfig)
-                .setDefaultCredentialsProvider(new BasicCredentialsProvider());
-//                .setSSLSocketFactory(new SSLConnectionSocketFactory(HttpsURLConnection.getDefaultSSLSocketFactory(), SSLConnectionSocketFactory.getDefaultHostnameVerifier()));
+                .setDefaultCredentialsProvider(new BasicCredentialsProvider())
+                .setSSLSocketFactory(new SSLConnectionSocketFactory(HttpsURLConnection.getDefaultSSLSocketFactory(), SSLConnectionSocketFactory.getDefaultHostnameVerifier()));
         this.client = builder.build();
     }
 
@@ -62,8 +61,8 @@ public abstract class HttpClient {
      * @throws IOException
      * @throws URISyntaxException
      */
-    public StringResponse doPost(String scheme, String host, String path, String body, String contentType/*, final HttpContext context*/)
-            throws IOException, URISyntaxException {
+    public StringResponse doPost(String scheme, String host, String path, String body, String contentType )
+            throws IOException, URISyntaxException, ExternalCommunicationException {
 
         final URI uri = new URIBuilder()
                 .setScheme(scheme)
@@ -74,18 +73,39 @@ public abstract class HttpClient {
         final HttpPost httpPostRequest = new HttpPost(uri);
         httpPostRequest.setEntity(new StringEntity(body));
         httpPostRequest.setHeader(HttpHeaders.CONTENT_TYPE, contentType);
-        try (CloseableHttpResponse httpResp = this.client.execute(httpPostRequest/*, context*/)) {
 
-            final StringResponse strResp = new StringResponse();
-            strResp.setCode(httpResp.getStatusLine().getStatusCode());
-            strResp.setMessage(httpResp.getStatusLine().getReasonPhrase());
+        final long start = System.currentTimeMillis();
+        int count = 0;
+        StringResponse strResp = null;
+        while (count < 3 && strResp == null) {
+            try (CloseableHttpResponse httpResp = this.client.execute(httpPostRequest)) {
 
-            if (httpResp.getEntity() != null) {
-                final String responseAsString = EntityUtils.toString(httpResp.getEntity()); // , "UTF-8"
-                strResp.setContent(responseAsString);
+                LOGGER.info("Start partner call... [HOST: {}]", host);
+
+                strResp = new StringResponse();
+                strResp.setCode(httpResp.getStatusLine().getStatusCode());
+                strResp.setMessage(httpResp.getStatusLine().getReasonPhrase());
+
+                if (httpResp.getEntity() != null) {
+                    final String responseAsString = EntityUtils.toString(httpResp.getEntity()); // , "UTF-8"
+                    strResp.setContent(responseAsString);
+                }
+                final long end = System.currentTimeMillis();
+
+                LOGGER.info("End partner call [T: {}ms] [CODE: {}]", end - start, strResp.getCode());
+
+            } catch (final IOException e) {
+                LOGGER.error("Error while partner call [T: {}ms]", System.currentTimeMillis() - start, e);
+                strResp = null;
+            } finally {
+                count++;
             }
-
-            return strResp;
         }
+
+        if (strResp == null) {
+            throw new ExternalCommunicationException("Partner response empty");
+        }
+
+        return strResp;
     }
 }

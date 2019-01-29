@@ -104,11 +104,11 @@ public class TsiGoRequest extends TsiSealedJsonRequest {
                     paymentRequest.getAmount().getCurrency().getCurrencyCode(),
                     Integer.parseInt( paymentRequest.getContractConfiguration().getContractProperties().get( TsiConstants.CONTRACT_KEY_ID ).getValue() ),
                     paymentRequest.getContractConfiguration().getContractProperties().get( TsiConstants.CONTRACT_PRODUCT_DESCRIPTION ).getValue(),
-                    paymentRequest.getPaylineEnvironment().getRedirectionReturnURL(),
-                    paymentRequest.getPaylineEnvironment().getRedirectionCancelURL(),
-                    paymentRequest.getPaylineEnvironment().getNotificationURL(),
+                    paymentRequest.getEnvironment().getRedirectionReturnURL(),
+                    paymentRequest.getEnvironment().getRedirectionCancelURL(),
+                    paymentRequest.getEnvironment().getNotificationURL(),
                     "N",
-                    Boolean.FALSE.equals( paymentRequest.getPaylineEnvironment().isSandbox() ) ? "N" : "Y",
+                    Boolean.FALSE.equals( paymentRequest.getEnvironment().isSandbox() ) ? "N" : "Y",
                     null
             );
 
@@ -160,19 +160,19 @@ public class TsiGoRequest extends TsiSealedJsonRequest {
                 throw new InvalidRequestException( "Transaction currency with a valid ISO 4217 code is required" );
             }
             
-            if( paymentRequest.getPaylineEnvironment() == null ){
-                throw new InvalidRequestException( "PaylineEnvironment request property must not be null" );
+            if( paymentRequest.getEnvironment() == null ){
+                throw new InvalidRequestException( "Environment request property must not be null" );
             }
-            if( paymentRequest.getPaylineEnvironment().getRedirectionReturnURL() == null
-                    || paymentRequest.getPaylineEnvironment().getRedirectionReturnURL().isEmpty() ){
+            if( paymentRequest.getEnvironment().getRedirectionReturnURL() == null
+                    || paymentRequest.getEnvironment().getRedirectionReturnURL().isEmpty() ){
                 throw new InvalidRequestException( "Redirection return URL is required" );
             }
-            if( paymentRequest.getPaylineEnvironment().getRedirectionCancelURL() == null
-                    || paymentRequest.getPaylineEnvironment().getRedirectionCancelURL().isEmpty() ){
+            if( paymentRequest.getEnvironment().getRedirectionCancelURL() == null
+                    || paymentRequest.getEnvironment().getRedirectionCancelURL().isEmpty() ){
                 throw new InvalidRequestException( "Redirection cancel URL is required" );
             }
-            if( paymentRequest.getPaylineEnvironment().getNotificationURL() == null
-                    || paymentRequest.getPaylineEnvironment().getNotificationURL().isEmpty() ){
+            if( paymentRequest.getEnvironment().getNotificationURL() == null
+                    || paymentRequest.getEnvironment().getNotificationURL().isEmpty() ){
                 throw new InvalidRequestException( "Notification URL is required" );
             }
         }

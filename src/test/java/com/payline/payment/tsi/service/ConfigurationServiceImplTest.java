@@ -1,6 +1,7 @@
 package com.payline.payment.tsi.service;
 
 import com.payline.payment.tsi.TsiConstants;
+import com.payline.payment.tsi.exception.ExternalCommunicationException;
 import com.payline.payment.tsi.response.TsiGoResponseTest;
 import com.payline.payment.tsi.utils.http.JsonHttpClient;
 import com.payline.payment.tsi.utils.http.ResponseMocker;
@@ -9,8 +10,7 @@ import com.payline.pmapi.bean.configuration.ReleaseInformation;
 import com.payline.pmapi.bean.configuration.parameter.AbstractParameter;
 import com.payline.pmapi.bean.configuration.request.ContractParametersCheckRequest;
 import com.payline.pmapi.bean.payment.ContractConfiguration;
-import com.payline.pmapi.bean.payment.PaylineEnvironment;
-import org.apache.http.HttpResponse;
+import com.payline.pmapi.bean.payment.Environment;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -60,7 +60,7 @@ public class ConfigurationServiceImplTest {
     }
 
     @Test
-    public void testCheck_ok() throws IOException, URISyntaxException {
+    public void testCheck_ok() throws IOException, URISyntaxException, ExternalCommunicationException {
         // given: valid contract properties (TSI should then respond with a status=1)
         ContractParametersCheckRequest checkRequest = ConfigurationServiceImplTest.setupCheckRequest( parameters );
         String responseBody = TsiGoResponseTest.mockJson( 1, "OK", "http://redirect-url.com", null, null );
@@ -76,7 +76,7 @@ public class ConfigurationServiceImplTest {
     }
 
     @Test
-    public void testCheck_wrongAccountData() throws IOException, URISyntaxException {
+    public void testCheck_wrongAccountData() throws IOException, URISyntaxException, ExternalCommunicationException {
         // given: contract properties with the right format but not valid (TSI should then respond with a status != 1)
         ContractParametersCheckRequest checkRequest = ConfigurationServiceImplTest.setupCheckRequest( parameters );
         String responseBody = TsiGoResponseTest.mockJson( 15, "WRONG MAC", null, null, null );
@@ -92,7 +92,7 @@ public class ConfigurationServiceImplTest {
     }
 
     @Test
-    public void testCheck_unknownError() throws IOException, URISyntaxException {
+    public void testCheck_unknownError() throws IOException, URISyntaxException, ExternalCommunicationException {
         // given: contract properties validation encounter an unexpected error (Server unavailable for example)
         ContractParametersCheckRequest checkRequest = ConfigurationServiceImplTest.setupCheckRequest( parameters );
         StringResponse response = ResponseMocker.mockString( 503, "Server Unavailable", null );
@@ -130,17 +130,6 @@ public class ConfigurationServiceImplTest {
 
         // then: result contains 1 error
         Assert.assertEquals( 1, errors.size() );
-    }
-
-    @Test
-    public void testGetReleaseInformation_ok(){
-        // when: getReleaseInformation method is called
-        ReleaseInformation releaseInformation = service.getReleaseInformation();
-
-        // then: result is not null
-        Assert.assertNotNull( releaseInformation );
-        Assert.assertNotEquals( "unknown", releaseInformation.getVersion() );
-        Assert.assertNotEquals( 1900, releaseInformation.getDate().getYear() );
     }
 
     @Test
@@ -194,7 +183,7 @@ public class ConfigurationServiceImplTest {
         return ContractParametersCheckRequest.CheckRequestBuilder.aCheckRequest()
                 .withAccountInfo( accountInfo )
                 .withContractConfiguration( new ContractConfiguration( null, null ) )
-                .withPaylineEnvironment( new PaylineEnvironment( "", "", "", true ) )
+                .withEnvironment( new Environment( "", "", "", true ) )
                 .withLocale( Locale.FRANCE )
                 .build();
     }

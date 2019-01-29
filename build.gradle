@@ -13,16 +13,19 @@ apply plugin: 'jacoco'
 
 description = "payment-method-tsi"
 group = 'com.payline.payment.tsi'
-version = '1.1.2'
+version = '1.4-RC2-SNAPSHOT'
 
 configurations.all {
     // afin de récupérer la dernière snapshot à chaque fois
     resolutionStrategy.cacheChangingModulesFor 0, 'seconds'
 }
+configurations {
+    fatJarTest
+}
 
 ext {
-    paymentMethodApiVersion = '0.11.1'
-    paymentMethodIntegrationVersion = '0.11.1'
+    paymentMethodApiVersion = '1.0-RC7-SNAPSHOT'
+    paymentMethodIntegrationVersion = '1.0-RC7-SNAPSHOT'
     mockitoVersion = '2.19.0'
 }
 sourceCompatibility = 1.8
@@ -74,6 +77,11 @@ publishing {
     publications {
         shadow(MavenPublication) { publication ->
             project.shadow.component(publication)
+
+            // For release only
+            if (!project.version.contains('-')) {
+                artifact testJar
+            }
         }
     }
 }
@@ -127,6 +135,14 @@ dependencies {
     testImplementation group: 'org.junit.jupiter', name: 'junit-jupiter-engine', version: '5.0.3'
     testImplementation group: 'org.seleniumhq.selenium', name: 'selenium-server', version: '3.13.0'
     testImplementation group: 'org.seleniumhq.selenium', name: 'selenium-support', version: '3.13.0'
+
+    // fatJarTest include testImplementation dependencies
+    fatJarTest group: "junit", name: "junit", version: "4.12"
+    fatJarTest group: 'org.mockito', name: 'mockito-core', version: '2.21.0'
+    fatJarTest group: 'org.junit.jupiter', name: 'junit-jupiter-engine', version: '5.0.3'
+    fatJarTest group: 'org.junit.jupiter', name: 'junit-jupiter-engine', version: '5.0.3'
+    fatJarTest group: 'org.seleniumhq.selenium', name: 'selenium-server', version: '3.13.0'
+    fatJarTest group: 'org.seleniumhq.selenium', name: 'selenium-support', version: '3.13.0'
 }
 
 assemble.dependsOn shadowJar
@@ -153,6 +169,14 @@ processResources {
                 'date': new Date().format("dd/MM/yyyy")
         ])
     }
+}
+
+// To create a JAR including test classes and dependencies
+task testJar(type: com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar) {
+    dependsOn 'shadowJar', 'testClasses'
+    classifier = 'tests'
+    from sourceSets.test.output.classesDirs + shadowJar
+    configurations = [project.configurations.fatJarTest]
 }
 
 test.exclude '**/*IT.class'

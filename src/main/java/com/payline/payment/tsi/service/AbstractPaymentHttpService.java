@@ -1,8 +1,9 @@
 package com.payline.payment.tsi.service;
 
+import com.payline.payment.tsi.exception.ExternalCommunicationException;
 import com.payline.payment.tsi.exception.InvalidRequestException;
 import com.payline.payment.tsi.request.TsiSealedJsonRequest;
-import com.payline.payment.tsi.utils.config.ConfigProperties;
+import com.payline.payment.tsi.utils.PaymentResponseUtil;
 import com.payline.payment.tsi.utils.http.JsonHttpClient;
 import com.payline.payment.tsi.utils.http.StringResponse;
 import com.payline.pmapi.bean.common.FailureCause;
@@ -10,7 +11,7 @@ import com.payline.pmapi.bean.payment.request.PaymentRequest;
 import com.payline.pmapi.bean.payment.response.PaymentResponse;
 import com.payline.pmapi.bean.payment.response.impl.PaymentResponseFailure;
 import org.apache.http.HttpResponse;
-import org.apache.logging.log4j.LogManager;
+import com.payline.pmapi.logger.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import java.io.IOException;
@@ -30,19 +31,15 @@ public abstract class AbstractPaymentHttpService<T extends PaymentRequest> {
     protected static final String DEFAULT_ERROR_CODE = "no code transmitted";
 
     private JsonHttpClient httpClient;
+    private PaymentResponseUtil paymentResponseUtil = PaymentResponseUtil.getInstance();
 
     /**
      * Late initialization of httpClient to work with batch
      *
      * @return
-     * @throws GeneralSecurityException
      */
-    protected JsonHttpClient getHttpClient() throws GeneralSecurityException {
+    protected JsonHttpClient getHttpClient() {
         if (httpClient == null) {
-            int connectTimeout = Integer.parseInt( ConfigProperties.get("http.connectTimeout") );
-            int writeTimeout = Integer.parseInt( ConfigProperties.get("http.writeTimeout") );
-            int readTimeout = Integer.parseInt( ConfigProperties.get("http.readTimeout") );
-//HHHTODO            this.httpClient = new JsonHttpClient( connectTimeout, writeTimeout, readTimeout );
             this.httpClient = JsonHttpClient.getInstance();
         }
         return httpClient;
@@ -53,11 +50,13 @@ public abstract class AbstractPaymentHttpService<T extends PaymentRequest> {
      *
      * @param paymentRequest The input request provided by Payline
      * @return The {@link HttpResponse} from the HTTP call
-     * @throws IOException Can be thrown while sending the HTTP request
-     * @throws InvalidRequestException Thrown if the input request in not valid
-     * @throws NoSuchAlgorithmException Thrown if the HMAC algorithm is not available
+     * @throws IOException
+     * @throws InvalidRequestException
+     * @throws GeneralSecurityException
+     * @throws URISyntaxException
+     * @throws ExternalCommunicationException
      */
-    public abstract StringResponse createSendRequest(T paymentRequest ) throws IOException, InvalidRequestException, GeneralSecurityException, URISyntaxException;
+    public abstract StringResponse createSendRequest(T paymentRequest ) throws IOException, InvalidRequestException, GeneralSecurityException, URISyntaxException, ExternalCommunicationException;
 
     /**
      * Process the response from the HTTP call.
@@ -93,39 +92,24 @@ public abstract class AbstractPaymentHttpService<T extends PaymentRequest> {
             }
             else if( response != null && response.getCode() != 200 && response.getContent() != null ){
                 logger.error( "An HTTP error occurred while sending the request: " + response.getContent() );
-                return buildPaymentResponseFailure( Integer.toString(response.getCode()), FailureCause.COMMUNICATION_ERROR, tid);
+                return paymentResponseUtil.buildPaymentResponseFailure( Integer.toString(response.getCode()), FailureCause.COMMUNICATION_ERROR, tid);
             }
             else {
                 logger.error( "The HTTP response or its body is null and should not be" );
-                return buildPaymentResponseFailure( DEFAULT_ERROR_CODE, FailureCause.INTERNAL_ERROR, tid);
+                return paymentResponseUtil.buildPaymentResponseFailure( DEFAULT_ERROR_CODE, FailureCause.INTERNAL_ERROR, tid);
             }
         }
         catch( InvalidRequestException e ){
             logger.error( "The input payment request is invalid: ", e);
-            return buildPaymentResponseFailure( DEFAULT_ERROR_CODE, FailureCause.INVALID_DATA, tid);
+            return paymentResponseUtil.buildPaymentResponseFailure( DEFAULT_ERROR_CODE, FailureCause.INVALID_DATA, tid);
         }
-        catch( IOException e ){
-            logger.error( "An IOException occurred while sending the HTTP request or receiving the response: ", e);
-            return buildPaymentResponseFailure( DEFAULT_ERROR_CODE, FailureCause.COMMUNICATION_ERROR, tid);
+        catch( ExternalCommunicationException e ){
+            logger.error( "An error occurred while sending the HTTP request or receiving the response: ", e);
+            return paymentResponseUtil.buildPaymentResponseFailure( DEFAULT_ERROR_CODE, FailureCause.COMMUNICATION_ERROR, tid);
         }
         catch( Exception e ){
             logger.error( "An unexpected error occurred: ", e);
-            return buildPaymentResponseFailure( DEFAULT_ERROR_CODE, FailureCause.INTERNAL_ERROR, tid);
+            return paymentResponseUtil.buildPaymentResponseFailure( DEFAULT_ERROR_CODE, FailureCause.INTERNAL_ERROR, tid);
         }
-    }
-
-    /**
-     * Utility method to instantiate {@link PaymentResponseFailure} objects, using the class' builder.
-     *
-     * @param errorCode The error code
-     * @param failureCause The failure cause
-     * @return The instantiated object
-     */
-    protected PaymentResponseFailure buildPaymentResponseFailure(String errorCode, FailureCause failureCause, final String tid){
-        return PaymentResponseFailure.PaymentResponseFailureBuilder.aPaymentResponseFailure()
-                .withFailureCause( failureCause )
-                .withErrorCode( errorCode )
-                .withTransactionIdentifier(tid)
-                .build();
     }
 }
