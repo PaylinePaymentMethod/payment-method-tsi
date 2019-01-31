@@ -28,20 +28,9 @@ public class NotificationServiceImpl implements NotificationService {
 
     @Override
     public NotificationResponse parse( NotificationRequest notificationRequest ){
-        StringResponse stringResponse = notificationToJson(notificationRequest);
-        final TsiStatusCheckResponse statusCheck = (new TsiStatusCheckResponse.Builder()).fromJson(stringResponse.getContent());
-        PaymentResponse paymentResponse = responseProcessor.processResponseStatusCheckResponse(statusCheck);
-
-        final TransactionCorrelationId transactionCorrelationId = TransactionCorrelationId.TransactionCorrelationIdBuilder.aCorrelationIdBuilder()
-                .withType(TransactionCorrelationId.CorrelationIdType.PARTNER_TRANSACTION_ID)
-                .withValue(statusCheck.getTid())
-                .build();
-
-        return PaymentResponseByNotificationResponse.PaymentResponseByNotificationResponseBuilder.aPaymentResponseByNotificationResponseBuilder()
-                .withPaymentResponse(paymentResponse)
+        return IgnoreNotificationResponse.IgnoreNotificationResponseBuilder.aIgnoreNotificationResponseBuilder()
                 .withHttpBody("ACC=OK")
                 .withHttpStatus(200)
-                .withTransactionCorrelationId(transactionCorrelationId)
                 .build();
     }
 
