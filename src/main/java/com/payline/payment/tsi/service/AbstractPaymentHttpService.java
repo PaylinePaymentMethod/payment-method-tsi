@@ -11,7 +11,7 @@ import com.payline.pmapi.bean.payment.request.PaymentRequest;
 import com.payline.pmapi.bean.payment.response.PaymentResponse;
 import com.payline.pmapi.bean.payment.response.impl.PaymentResponseFailure;
 import org.apache.http.HttpResponse;
-import org.apache.logging.log4j.LogManager;
+import com.payline.pmapi.logger.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import java.io.IOException;
@@ -108,7 +108,7 @@ public abstract class AbstractPaymentHttpService<T extends PaymentRequest> {
             return paymentResponseUtil.buildPaymentResponseFailure( DEFAULT_ERROR_CODE, FailureCause.COMMUNICATION_ERROR, tid);
         }
         catch( Exception e ){
-            logger.error( "An unexpected error occurred: ", e );
+            logger.error( "An unexpected error occurred: ", e);
             return paymentResponseUtil.buildPaymentResponseFailure( DEFAULT_ERROR_CODE, FailureCause.INTERNAL_ERROR, tid);
         }
     }

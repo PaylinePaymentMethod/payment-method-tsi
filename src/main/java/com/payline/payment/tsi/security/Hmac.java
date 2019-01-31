@@ -1,6 +1,6 @@
 package com.payline.payment.tsi.security;
 
-import org.apache.logging.log4j.LogManager;
+import com.payline.pmapi.logger.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import javax.crypto.Mac;
