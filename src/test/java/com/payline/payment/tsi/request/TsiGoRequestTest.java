@@ -117,7 +117,7 @@ public class TsiGoRequestTest {
                 "10",
                 "EUR",
                 123,
-                "Ticket Premium",
+                "Order_Reference_001",
                 "http://boutique.com/returnOK.php",
                 "http://boutique.com/returnNOK.php",
                 "http://boutique.com/returnS2S.php",

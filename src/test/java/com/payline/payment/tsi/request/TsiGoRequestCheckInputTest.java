@@ -62,8 +62,8 @@ public class TsiGoRequestCheckInputTest {
         });
 
         dataList.add( new Object[]{
-                "Missing contract property: product description",
-                mocker.reset().withProductDescription( null ).mock()
+                "Missing order reference",
+                mocker.reset().withOrderReference( null ).mock()
         });
 
         dataList.add( new Object[]{
