@@ -103,7 +103,7 @@ public class TsiGoRequest extends TsiSealedJsonRequest {
                     this.formatAmount( paymentRequest.getAmount().getAmountInSmallestUnit() ),
                     paymentRequest.getAmount().getCurrency().getCurrencyCode(),
                     Integer.parseInt( paymentRequest.getContractConfiguration().getContractProperties().get( TsiConstants.CONTRACT_KEY_ID ).getValue() ),
-                    paymentRequest.getContractConfiguration().getContractProperties().get( TsiConstants.CONTRACT_PRODUCT_DESCRIPTION ).getValue(),
+                    paymentRequest.getOrder().getReference(),
                     paymentRequest.getEnvironment().getRedirectionReturnURL(),
                     paymentRequest.getEnvironment().getRedirectionCancelURL(),
                     paymentRequest.getEnvironment().getNotificationURL(),
@@ -144,8 +144,9 @@ public class TsiGoRequest extends TsiSealedJsonRequest {
             if( contractProperties.get( TsiConstants.CONTRACT_KEY_ID ) == null ){
                 throw new InvalidRequestException( "Missing contract configuration property: key id" );
             }
-            if( contractProperties.get( TsiConstants.CONTRACT_PRODUCT_DESCRIPTION ) == null ){
-                throw new InvalidRequestException( "Missing contract configuration property: product description" );
+
+            if (paymentRequest.getOrder() == null || paymentRequest.getOrder().getReference() == null ){
+                throw new InvalidRequestException( "Order reference is required " );
             }
 
             if( paymentRequest.getTransactionId() == null || paymentRequest.getTransactionId().isEmpty() ){

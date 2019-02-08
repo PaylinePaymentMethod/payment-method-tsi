@@ -25,6 +25,7 @@ public class PaymentRequestMock {
     protected String notificationUrl;
     protected String transactionId;
     protected String softDescriptor;
+    protected String orderReference;
 
     public PaymentRequestMock(){
         reset();
@@ -42,7 +43,7 @@ public class PaymentRequestMock {
                 .withContractConfiguration( new ContractConfiguration( "", this.contractProperties ) )
                 .withEnvironment( new Environment( this.notificationUrl, this.successUrl, this.cancelUrl, true ) )
                 .withTransactionId( this.transactionId )
-                .withOrder( Order.OrderBuilder.anOrder().withReference( this.transactionId ).build() )
+                .withOrder( Order.OrderBuilder.anOrder().withReference( this.orderReference ).build() )
                 .withSoftDescriptor( this.softDescriptor )
                 .withBuyer(Buyer.BuyerBuilder.aBuyer().build())
                 .withPartnerConfiguration(new PartnerConfiguration(new HashMap<>(),new HashMap<>()))
@@ -63,6 +64,7 @@ public class PaymentRequestMock {
         this.transactionId = "1234567890";
         this.softDescriptor = "softDescriptor";
         this.contractProperties = new HashMap<>();
+        this.orderReference = "orderReference";
         return this;
     }
 
@@ -103,6 +105,11 @@ public class PaymentRequestMock {
 
     public PaymentRequestMock withSoftDescriptor( String softDescriptor ){
         this.softDescriptor = softDescriptor;
+        return this;
+    }
+
+    public PaymentRequestMock withOrderReference( String orderReference ){
+        this.orderReference = orderReference;
         return this;
     }
 }
