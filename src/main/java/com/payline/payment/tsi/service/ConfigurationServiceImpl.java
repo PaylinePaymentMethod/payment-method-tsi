@@ -159,7 +159,7 @@ public class ConfigurationServiceImpl implements ConfigurationService {
             else {
                 String message = "Can't read a correct response from TSI server.";
                 if( response != null ){
-                    message += " HTTP status: " + response == null? response: response.getCode();
+                    message += " HTTP status: " + response.getCode();
                 }
                 throw new Exception( message );
             }
