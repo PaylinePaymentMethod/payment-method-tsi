@@ -1,5 +1,6 @@
 package com.payline.payment.tsi.service;
 
+import com.payline.payment.tsi.error.ErrorCodesMap;
 import com.payline.payment.tsi.response.TsiStatusCheckResponse;
 import com.payline.payment.tsi.utils.PaymentResponseUtil;
 import com.payline.payment.tsi.utils.http.StringResponse;
@@ -48,8 +49,14 @@ public class ResponseProcessor {
             LOGGER.info("TSI Status Check request returned something equals to an expiration: {} ({})", statusCheck.getMessage(), statusCheck.getErCode());
             return paymentResponseUtil.buildPaymentResponseFailure( statusCheck.getMessage(), FailureCause.SESSION_EXPIRED, tid);
         } else { // no valid transaction was found or an error occurred
-            LOGGER.info("TSI Status Check request returned an error: {} ({})", statusCheck.getMessage(), statusCheck.getErCode());
-            return paymentResponseUtil.buildPaymentResponseFailure( statusCheck.getMessage(), FailureCause.PAYMENT_PARTNER_ERROR, tid);
+            try {
+                final int errCodeValue = Integer.parseInt(statusCheck.getErCode());
+                LOGGER.info("TSI Status Check request returned an error: {} ({})", statusCheck.getMessage(), errCodeValue);
+                return paymentResponseUtil.buildPaymentResponseFailure( statusCheck.getMessage(), ErrorCodesMap.getFailureCause(errCodeValue), tid);
+            } catch(final NumberFormatException nfe) {
+                LOGGER.info("TSI Status Check request returned a BadFormatException with the error code {}. Here is the message : {}", statusCheck.getErCode(), statusCheck.getMessage());
+                return paymentResponseUtil.buildPaymentResponseFailure( statusCheck.getMessage(), FailureCause.PARTNER_UNKNOWN_ERROR, tid);
+            }
         }
     }
 

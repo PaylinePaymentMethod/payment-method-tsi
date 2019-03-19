@@ -14,12 +14,7 @@ import com.payline.pmapi.bean.payment.request.TransactionStatusRequest;
 import com.payline.pmapi.bean.payment.response.PaymentResponse;
 import com.payline.pmapi.bean.payment.response.impl.PaymentResponseFailure;
 import com.payline.pmapi.bean.payment.response.impl.PaymentResponseSuccess;
-import okhttp3.MediaType;
 import okhttp3.Protocol;
-import okhttp3.Request;
-import okhttp3.Response;
-import okhttp3.ResponseBody;
-import org.apache.http.HttpResponse;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -38,12 +33,11 @@ import static org.mockito.Mockito.anyString;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-@RunWith( MockitoJUnitRunner.class )
+@RunWith(MockitoJUnitRunner.class)
 public class PaymentWithRedirectionServiceImplTest {
 
-    private static final Protocol TEST_HTTP_PROTOCOL = Protocol.HTTP_1_1;
-
     @Mock private TsiStatusCheckRequest.Builder requestBuilder;
+
     @Mock private JsonHttpClient httpClient;
 
     @InjectMocks
@@ -103,9 +97,34 @@ public class PaymentWithRedirectionServiceImplTest {
 
         // then: returned object is an instance of PaymentResponseFailure with the right failure cause
         Assert.assertTrue( paymentResponse instanceof PaymentResponseFailure );
-        Assert.assertEquals( FailureCause.PAYMENT_PARTNER_ERROR, ((PaymentResponseFailure) paymentResponse).getFailureCause() );
+        Assert.assertEquals( FailureCause.PARTNER_UNKNOWN_ERROR, ((PaymentResponseFailure) paymentResponse).getFailureCause() );
     }
 
+    @Test
+    public void testFinalizeRedirectionPaymentWithInsufficientAmountBusinessError() throws IOException, URISyntaxException, ExternalCommunicationException {
+        // when: an error happened on the partner side during the HTTP call
+        StringResponse response = this.mockResponse( 200, "OK", "ER", 7, "INSUFFICIENT AMOUNT" );
+        when( httpClient.doPost( anyString(), anyString(), anyString(), anyString() ) )
+                .thenReturn( response );
+        PaymentResponse paymentResponse = service.finalizeRedirectionPayment( mock( RedirectionPaymentRequest.class, Mockito.RETURNS_DEEP_STUBS ) );
+
+        // then: returned object is an instance of PaymentResponseFailure with the right failure cause
+        Assert.assertTrue( paymentResponse instanceof PaymentResponseFailure );
+        Assert.assertEquals( FailureCause.INVALID_DATA, ((PaymentResponseFailure) paymentResponse).getFailureCause() );
+    }
+
+    @Test
+    public void testFinalizeRedirectionPaymentWithInvalidErrorCode() throws IOException, URISyntaxException, ExternalCommunicationException {
+        // when: an error happened on the partner side during the HTTP call
+        StringResponse response = this.mockResponseWithBadNumberFormat( 200, "OK", "ER", "INSUFFICIENT AMOUNT" );
+        when( httpClient.doPost( anyString(), anyString(), anyString(), anyString() ) )
+                .thenReturn( response );
+        PaymentResponse paymentResponse = service.finalizeRedirectionPayment( mock( RedirectionPaymentRequest.class, Mockito.RETURNS_DEEP_STUBS ) );
+
+        // then: returned object is an instance of PaymentResponseFailure with the right failure cause
+        Assert.assertTrue( paymentResponse instanceof PaymentResponseFailure );
+        Assert.assertEquals( FailureCause.PARTNER_UNKNOWN_ERROR, ((PaymentResponseFailure) paymentResponse).getFailureCause() );
+    }
 
     @Test
     public void testFinalizeRedirectionPayment_noResponseBody() throws IOException, URISyntaxException, ExternalCommunicationException {
@@ -173,4 +192,19 @@ public class PaymentWithRedirectionServiceImplTest {
         return ResponseMocker.mockString(httpCode, httpMessage, jsonBody);
     }
 
+    private StringResponse mockResponseWithBadNumberFormat( int httpCode, String httpMessage, String status, String message ) throws UnsupportedEncodingException {
+        String jsonBody = null;
+        String tid = "abcdefghijklmnopqrstuvwxyz123456";
+        if( status == "OK"){
+            jsonBody = TsiStatusCheckResponseTest.mockJson( "1234567", tid, status, "A",
+                    message, "12,34", "f", "2018-08-02 10:37:22", "FRA" );
+        }
+        else if( status != null){
+            jsonBody = TsiStatusCheckResponseTest.mockJson( null, tid, status, "A",
+                    message, null, null, null, null );
+        } else {
+            jsonBody = "ERROR!";
+        }
+        return ResponseMocker.mockString(httpCode, httpMessage, jsonBody);
+    }
 }
