@@ -63,9 +63,9 @@ publishing {
 
         maven {
             if (project.version.endsWith('-SNAPSHOT')) {
-                url "https://nexus.intra.monext.fr:10130/nexus/content/repositories/jindus-repo-pay-pay-snapshot/"
+                url nexusSnapshotUrl
             } else {
-                url "https://nexus.intra.monext.fr:10130/nexus/content/repositories/jindus-repo-pay-pay-public/"
+                url nexusPublicUrl
             }
             credentials {
                 username mavenUser
@@ -91,21 +91,21 @@ repositories {
     /* mavenCentral() */
 
     maven {
-        url "https://nexus.intra.monext.fr:10130/nexus/content/repositories/jindus-repo-pay-pay-public/"
+        url nexusPublicUrl
         credentials {
             username mavenUser
             password mavenPassword
         }
     }
     maven {
-        url "https://nexus.intra.monext.fr:10130/nexus/content/groups/public"
+        url nexusGroupsUrl
         credentials {
             username mavenUser
             password mavenPassword
         }
     }
     maven {
-        url "https://nexus.intra.monext.fr:10130/nexus/content/repositories/jindus-repo-pay-pay-snapshot/"
+        url nexusSnapshotUrl
         credentials {
             username mavenUser
             password mavenPassword
